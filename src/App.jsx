@@ -11,6 +11,10 @@ import { ToastContainer } from "react-toastify";
 import ProtectedRoute from './route/ProtectedRoute'
 import PublicRoute from './route/PublicRoute'
 import NotFound from './pages/NotFound'
+import User from './pages/admin/User'
+import Classes from './pages/admin/Classes'
+import Subjects from './pages/admin/Subjects'
+import AssignTeacher from './pages/admin/AssignTeacher'
 const App = () => {
   return (
     <>
@@ -38,10 +42,10 @@ const App = () => {
           </ProtectedRoute>
         }>
           <Route index element={<Dashboard />} />
-          <Route path="users" element={<ComingSoon />} />
-          <Route path="classes" element={<ComingSoon />} />
-          <Route path="subjects" element={<ComingSoon />} />
-          <Route path="assign-teacher" element={<ComingSoon />} />
+          <Route path="users" element={<User />} />
+          <Route path="classes" element={<Classes />} />
+          <Route path="subjects" element={<Subjects />} />
+          <Route path="assign-teacher" element={<AssignTeacher />} />
         </Route>
 
         {/* 404 Page */}
