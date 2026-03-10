@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { Dropdown, message } from 'antd';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faCog, faKey, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
-import { AuthContext } from '../../context/AuthContext';
+import { AuthContext } from '../context/AuthContext';
 import '../assets/styles/Header.css';
 
 const Header = () => {
@@ -10,7 +10,9 @@ const Header = () => {
 
   const handleLogout = () => {
     // Xóa tất cả thông tin user trong localStorage
-    
+    localStorage.removeItem("userRole");
+    localStorage.removeItem("userInfo");
+    localStorage.removeItem("accessToken");
     
     // Gọi logout từ AuthContext để cập nhật state
     logout();
