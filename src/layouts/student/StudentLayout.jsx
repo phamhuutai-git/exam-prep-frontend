@@ -19,5 +19,4 @@ const StudentLayout = () => {
     </div>
   );
 };
-
 export default StudentLayout;
