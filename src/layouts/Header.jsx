@@ -10,7 +10,9 @@ const Header = () => {
 
   const handleLogout = () => {
     // Xóa tất cả thông tin user trong localStorage
-    
+    localStorage.removeItem("userRole");
+    localStorage.removeItem("userInfo");
+    localStorage.removeItem("accessToken");
     
     // Gọi logout từ AuthContext để cập nhật state
     logout();
