@@ -5,17 +5,25 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEnvelope } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { sendOtpApi } from "../../../services/authService";
 const Quenmatkhau = ({ open, onClose }) => {
   const navigate = useNavigate();
-  const handleForgotPassword = (values) => {
-    console.log("Email:", values.email)
-    localStorage.setItem('resetEmail', values.email);
-    setTimeout(() => {
-      toast.success("OTP đã được gửi tới email!");
+  const handleForgotPassword = async (values) => {
+    try {
+      const res = await sendOtpApi({
+        email: values.email,
+      });
+
+      toast.success(res.data.data); 
+
+      localStorage.setItem("resetEmail", values.email);
+
       onClose();
-      // chuyển sang trang reset password
+
       navigate("/reset-password");
-    }, 1000);
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Không thể gửi OTP");
+    }
   };
   return (
     <Modal
@@ -23,16 +31,15 @@ const Quenmatkhau = ({ open, onClose }) => {
       open={open}
       footer={null}
       onCancel={onClose}
-        style={{ top: 220 }}
+      style={{ top: 220 }}
     >
       <Form layout="vertical" onFinish={handleForgotPassword}>
-        
         <Form.Item
           label="Email"
           name="email"
           rules={[
             { required: true, message: "Vui lòng nhập email" },
-            { type: "email", message: "Email không hợp lệ" }
+            { type: "email", message: "Email không hợp lệ" },
           ]}
         >
           <Input
@@ -42,15 +49,9 @@ const Quenmatkhau = ({ open, onClose }) => {
           />
         </Form.Item>
 
-        <Button
-          type="primary"
-          htmlType="submit"
-          block
-          size="large"
-        >
+        <Button type="primary" htmlType="submit" block size="large">
           Gửi OTP
         </Button>
-
       </Form>
     </Modal>
   );
