@@ -1,16 +1,21 @@
-import axios from 'axios'
+import axios from "axios";
+
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
-})
-// nhét access token vào header Authorization
+});
+
+// gắn JWT token vào header
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('accessToken')
+  const token = localStorage.getItem("accessToken");
+
   if (token) {
-    config.headers.Authorization = `Bearer ${token}`
+    config.headers.Authorization = `Bearer ${token}`;
   }
-  return config
-})
-export default api
+
+  return config;
+});
+
+export default api;
