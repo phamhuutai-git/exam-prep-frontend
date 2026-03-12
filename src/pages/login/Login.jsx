@@ -8,7 +8,8 @@ import { useNavigate } from "react-router-dom";
 import Quenmatkhau from "../../components/modal/auth/Quenmatkhau";
 import { toast } from "react-toastify";
 import { useAuth } from "../../hooks/useAuth";
-import { loginApi } from "../../services/authService";
+
+
 
 const Login = () => {
   const [loading, setLoading] = React.useState(false);
@@ -16,32 +17,41 @@ const Login = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  // LOGIN
+/**
+ * Xử lý submit form đăng nhập.
+ * Gọi API login thông qua AuthContext, hiển thị thông báo và điều hướng theo role.
+ * @param {Object} values - Giá trị form { emailOrUsername, password }
+ */
+  /**
+   * Xử lý submit form đăng nhập.
+   * Gọi API login thông qua AuthContext, hiển thị thông báo và điều hướng theo role.
+   * @param {Object} values - Giá trị form { emailOrUsername, password }
+   */
   const onFinish = async (values) => {
     setLoading(true);
 
     try {
-      const res = await loginApi(values);
+      const userData = await login(values);
 
-      const data = res.data.data;
-
-      if (data.failCount > 0) {
-        toast.warning(`Bạn đã nhập sai ${data.failCount} lần`);
+      // Hiển thị cảnh báo nếu có lần đăng nhập sai
+      if (userData.failCount > 0) {
+        toast.warning(`Bạn đã nhập sai ${userData.failCount} lần`);
       }
-      // lưu token + role
-      login(data.role, data.token, { username: data.username });
 
       toast.success("Đăng nhập thành công!");
 
-      if (data.role === "ADMIN") {
+      // Điều hướng theo role (AuthContext đã lưu token/role)
+      const role = userData.role;
+      if (role === "ADMIN") {
         navigate("/admin");
-      } else if (data.role === "TEACHER") {
+      } else if (role === "TEACHER") {
         navigate("/teacher");
       } else {
         navigate("/student");
       }
     } catch (error) {
-      if (error.response) {
+      // Xử lý lỗi API
+      if (error.response?.data?.message) {
         toast.error(error.response.data.message);
       } else {
         toast.error("Không thể kết nối server");
@@ -50,6 +60,8 @@ const Login = () => {
       setLoading(false);
     }
   };
+
+
 
   return (
     <div className="login-wrapper">
