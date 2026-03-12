@@ -6,19 +6,15 @@ import "../../assets/styles/ResetPassword.css";
 import { resetPasswordApi } from "../../services/authService";
 const ResetPassword = () => {
   const navigate = useNavigate();
-
   useEffect(() => {
     const email = localStorage.getItem("resetEmail");
-
     if (!email) {
       toast.error("Vui lòng nhập email trước khi đặt lại mật khẩu!");
       navigate("/");
     }
   }, [navigate]);
-
   const onFinish = async (values) => {
     const { otp, password, confirmPassword } = values;
-
     if (password !== confirmPassword) {
       toast.error("Mật khẩu nhập lại không khớp!");
       return;
