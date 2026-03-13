@@ -1,10 +1,11 @@
 import React, { useState, useMemo } from 'react'
-import { Button, Modal, Form, Input, Select, Switch, Row, Col } from 'antd'
+import { Button, Form } from 'antd'
 import { toast } from 'react-toastify'
 import '../../assets/styles/User.css'
 import UserHeader from '../../components/user/UserHeader'
 import UserFilter from '../../components/user/UserFilter'
 import UserTable from '../../components/user/UserTable'
+import Add from '../../components/modal/user/Add'
 // Mock data - Dữ liệu mẫu
 const initialUsers = [
   {
@@ -61,8 +62,7 @@ const User = () => {
   const [selectedUser, setSelectedUser] = useState(null)
   const [form] = Form.useForm()
   
-  // Watch role value - phải sau form
-  const roleValue = Form.useWatch('role', form)
+
 
   // Search and filter states
   const [searchTerm, setSearchTerm] = useState('')
@@ -204,117 +204,14 @@ const User = () => {
         onDelete={handleDelete}
         onToggleStatus={handleToggleStatus}
       />
-
-    <Modal
-  title={isEditMode ? 'Cập nhật người dùng' : 'Thêm người dùng'}
-  open={isModalOpen}
-  footer={null}
-  onCancel={handleCancel}
->
-
-<Form
-  form={form}
-  layout="vertical"
-  onFinish={handleSubmit}
-  initialValues={{ role: 'student', isActive: true }}
->
-
-  {/* USERNAME */}
-  <Form.Item
-    label="Tên đăng nhập"
-    name="username"
-    rules={[{ required: true, message: 'Nhập tên đăng nhập' }]}
-  >
-    <Input disabled={isEditMode} />
-  </Form.Item>
-
-  {/* EMAIL */}
-  <Form.Item
-    label="Email"
-    name="email"
-    rules={[{ required: true, message: 'Nhập email' }]}
-  >
-    <Input />
-  </Form.Item>
-
-  {/* FULLNAME */}
-  <Form.Item
-    label="Họ và tên"
-    name="fullName"
-    rules={[{ required: true, message: 'Nhập họ và tên' }]}
-  >
-    <Input />
-  </Form.Item>
-
-  {/* ROLE */}
-  <Form.Item
-    label="Vai trò"
-    name="role"
-    rules={[{ required: true }]}
-  >
-    <Select
-      options={[
-        { value: 'admin', label: 'Quản trị viên' },
-        { value: 'teacher', label: 'Giáo viên' },
-        { value: 'student', label: 'Học sinh' }
-      ]}
-    />
-  </Form.Item>
-
-  {/* STATUS */}
-  <Form.Item
-    label="Trạng thái"
-    name="isActive"
-    valuePropName="checked"
-  >
-    <Switch
-      checkedChildren="Hoạt động"
-      unCheckedChildren="Khóa"
-    />
-  </Form.Item>
-
-  {/* CLASS - chỉ hiện khi student */}
-  {roleValue === 'student' && (
-    <Form.Item
-      label="Lớp"
-      name="className"
-      rules={[{ required: true, message: 'Chọn lớp' }]}
-    >
-      <Select
-        options={[
-          { value: 'Lớp 10A1', label: 'Lớp 10A1' },
-          { value: 'Lớp 10A2', label: 'Lớp 10A2' },
-          { value: 'Lớp 11A1', label: 'Lớp 11A1' }
-        ]}
+      <Add 
+        open={isModalOpen}
+        isEditMode={isEditMode}
+        form={form}
+        loading={loading}
+        onCancel={handleCancel}
+        onSubmit={handleSubmit}
       />
-    </Form.Item>
-  )}
-
-  {/* SUBJECT - chỉ hiện khi teacher */}
-  {roleValue === 'teacher' && (
-    <Form.Item
-      label="Môn"
-      name="subject"
-      rules={[{ required: true, message: 'Chọn môn' }]}
-    >
-      <Select
-        options={[
-          { value: 'Toán', label: 'Toán' },
-          { value: 'Văn', label: 'Văn' }
-        ]}
-      />
-    </Form.Item>
-  )}
-
-  <Button
-    type="primary"
-    htmlType="submit"
-    loading={loading}
-  >
-    {isEditMode ? 'Cập nhật' : 'Thêm'}
-  </Button>
-</Form>
-</Modal>
 
     </div>
   )
