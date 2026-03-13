@@ -5,7 +5,7 @@ import TeacherLayout from './layouts/teacher/TeacherLayout'
 import AdminLayouts from './layouts/admin/AdminLayout'
 import ResetPassword from './pages/login/ResetPassword'
 import Dashboard from './pages/admin/Dashboard'
-import ComingSoon from './pages/admin/ComingSoon'
+// import ComingSoon from './pages/admin/ComingSoon'
 import { Routes, Route } from 'react-router-dom'
 import { ToastContainer } from "react-toastify";
 import ProtectedRoute from './route/ProtectedRoute'
