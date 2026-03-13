@@ -58,7 +58,6 @@ const Capnhatthongtin = ({
             size="large"
           />
         </Form.Item>
-
         <Form.Item style={{ marginBottom: 0 }}>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
             <Button onClick={onCancel} size="large">
