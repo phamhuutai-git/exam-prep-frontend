@@ -56,5 +56,4 @@ const Quenmatkhau = ({ open, onClose }) => {
     </Modal>
   );
 };
-
 export default Quenmatkhau;
