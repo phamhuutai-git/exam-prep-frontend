@@ -5,9 +5,9 @@ const examService = {
 
   getAllCategory: () => api.get("/teacher/exams/allCategory"),
 
-  createExam: (data) => api.post("/teacher/exams", data),
+  //   createExam: (data) => api.post("/teacher/exams", data),
 
-  updateExam: (id, data) => api.put(`/teacher/exams/${id}`, data),
+  //   updateExam: (id, data) => api.put(`/teacher/exams/${id}`, data),
 
   deleteExam: (id) => api.delete(`/teacher/exams/${id}`),
 };
