@@ -1,50 +1,61 @@
-// Quản lý trạng thái đăng nhập (login/logout) và role của người dùng 
+// Quản lý trạng thái đăng nhập (login/logout) và role của người dùng
 // cho toàn bộ ứng dụng React thông qua Context API.
 /* eslint-disable react-refresh/only-export-components */
-import React, { createContext, useState, useContext } from 'react';
-
+import React, { createContext, useContext, useState } from "react";
+import { loginApi } from "../services/authService";
 export const AuthContext = createContext();
+export const useAuth = () => useContext(AuthContext);
+export const AuthProvider = ({ children }) => {
 
-export const useAuth = () => {
-  return useContext(AuthContext);
+  const [isLoggedIn, setIsLoggedIn] = useState(
+    () => !!localStorage.getItem("accessToken")
+  );
+
+  const [role, setRole] = useState(
+    () => localStorage.getItem("role")
+  );
+
+/**
+ * Logs in the user by calling login API with credentials.
+ * Saves token, role, userInfo to localStorage and updates state.
+ * @param {Object} credentials - Login credentials
+ * @param {string} credentials.emailOrUsername - Email or username
+ * @param {string} credentials.password - Password
+ * @returns {Promise<Object>} User data including role, token, username, failCount
+ */
+const login = async (credentials) => {
+  const res = await loginApi(credentials);
+  const user = res.data.data;
+
+  // Save to localStorage
+  localStorage.setItem("accessToken", user.token);
+  localStorage.setItem("role", user.role);
+  localStorage.setItem("userInfo", JSON.stringify(user));
+
+  // Update state
+  setIsLoggedIn(true);
+  setRole(user.role);
+
+  return user;
 };
 
-export const AuthProvider = ({ children }) => {
-  const [isLoggedIn, setIsLoggedIn] = useState(() => localStorage.getItem('isLoggedIn') === 'true');
-  const [role, setRole] = useState(() => localStorage.getItem('role'));
 
-  const login = (userRole, userInfo = null, accessToken = null) => {
-    setIsLoggedIn(true);
-    setRole(userRole);
-    localStorage.setItem('isLoggedIn', 'true');
-    localStorage.setItem('role', userRole);
-    
-    if (userInfo) {
-      localStorage.setItem('userInfo', JSON.stringify(userInfo));
-    }
-    if (accessToken) {
-      localStorage.setItem('accessToken', accessToken);
-    }
-    localStorage.setItem('userRole', userRole);
-  };
-
-  //
   const logout = () => {
+    localStorage.clear();
     setIsLoggedIn(false);
     setRole(null);
-    
-    // Xóa tất cả thông tin user trong localStorage
-    localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('role');
-    localStorage.removeItem('userRole');
-    localStorage.removeItem('userInfo');
-    localStorage.removeItem('accessToken');
   };
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, role, login, logout }}>
+    <AuthContext.Provider
+      value={{
+        isLoggedIn,
+        role,
+        login,
+        logout,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
 };
-
