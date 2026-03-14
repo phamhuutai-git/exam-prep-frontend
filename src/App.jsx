@@ -48,6 +48,7 @@ const App = () => {
           }
         />
 
+        {/* TEACHER */}
         <Route
           path="/teacher"
           element={

@@ -38,33 +38,11 @@ const adminMenuItems = [
 ]
 
 const Sider = () => {
-  const location = useLocation()
-
   return (
-    <aside className="sider">
-      <div className="sider-content">
-        <div className="sider-logo">
-          <img src={logo} alt="Logo" className="logo-img" />
-          <span className="logo-text">Quiz</span>
-        </div>
+    <div className="sider">
+      <h2>Teacher Sider</h2>
+    </div>
+  );
+};
+export default Sider;
 
-        <nav className="sider-menu">
-          {adminMenuItems.map((item) => (
-            <Link 
-              key={item.id} 
-              to={item.path} 
-              className={`menu-item ${location.pathname === item.path ? 'active' : ''}`}
-            >
-              <span className="menu-icon">
-                <FontAwesomeIcon icon={item.icon} />
-              </span>
-              <span className="menu-text">{item.title}</span>
-            </Link>
-          ))}
-        </nav>
-      </div>
-    </aside>
-  )
-}
-
-export default Sider
