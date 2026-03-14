@@ -6,6 +6,7 @@ import { faEnvelope } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { sendOtpApi } from "../../../services/authService";
+
 const Quenmatkhau = ({ open, onClose }) => {
   const navigate = useNavigate();
   const handleForgotPassword = async (values) => {
@@ -14,7 +15,7 @@ const Quenmatkhau = ({ open, onClose }) => {
         email: values.email,
       });
 
-      toast.success(res.data.data); 
+      toast.success(res.data.data);
 
       localStorage.setItem("resetEmail", values.email);
 

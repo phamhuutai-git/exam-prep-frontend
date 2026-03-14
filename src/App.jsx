@@ -15,6 +15,10 @@ import User from "./pages/admin/User";
 import Classes from "./pages/admin/Classes";
 import Subjects from "./pages/admin/Subjects";
 import AssignTeacher from "./pages/admin/AssignTeacher";
+import TeacherExams from "./pages/teacher/TeacherExams";
+import TeacherQuestions from "./pages/teacher/TeacherQuestions";
+import TeacherStudents from "./pages/teacher/TeacherStudents";
+import TeacherDashboard from "./pages/teacher/TeacherDashbroard";
 const App = () => {
   return (
     <>
@@ -47,6 +51,7 @@ const App = () => {
           }
         />
 
+        {/* TEACHER */}
         <Route
           path="/teacher"
           element={
@@ -54,7 +59,12 @@ const App = () => {
               <TeacherLayout />
             </ProtectedRoute>
           }
-        />
+        >
+          <Route index element={<TeacherDashboard />} />
+          <Route path="exams" element={<TeacherExams />} />
+          <Route path="questions" element={<TeacherQuestions />} />
+          <Route path="students" element={<TeacherStudents />} />
+        </Route>
 
         <Route
           path="/admin"

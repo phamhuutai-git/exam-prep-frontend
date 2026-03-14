@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import "../../assets/styles/ResetPassword.css";
 import { resetPasswordApi } from "../../services/authService";
+import { CloseOutlined } from "@ant-design/icons";
 const ResetPassword = () => {
   const navigate = useNavigate();
 
@@ -48,6 +49,9 @@ const ResetPassword = () => {
   return (
     <div className="reset-password-wrapper">
       <div className="reset-password-container">
+        <div className="close-btn" onClick={() => navigate("/")}>
+          <CloseOutlined />
+        </div>
         <div className="reset-password-header">
           <h2>Đặt lại mật khẩu</h2>
         </div>
