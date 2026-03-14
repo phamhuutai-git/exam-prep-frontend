@@ -9,7 +9,8 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { AuthContext } from "../context/AuthContext";
 import "../assets/styles/Header.css";
-
+const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+const username = userInfo?.username || "User";
 const Header = () => {
   const { logout } = useContext(AuthContext);
 
@@ -64,7 +65,8 @@ const Header = () => {
             <div className="user-avatar">
               <FontAwesomeIcon icon={faUser} />
             </div>
-            <span className="user-name">Admin</span>
+            <span className="user-name">{username}</span>
+
             <FontAwesomeIcon icon={faCog} className="dropdown-icon" />
           </div>
         </Dropdown>
