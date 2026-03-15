@@ -3,32 +3,53 @@ import { Dropdown, message } from 'antd';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faCog, faKey, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 import { AuthContext } from '../context/AuthContext';
+import { updateProfileApi, changePasswordApi } from '../services/userService';
 import '../assets/styles/Header.css';
+import { toast } from 'react-toastify';
 import Capnhatthongtin from '../components/modal/auth/Capnhatthongtin';
 import Capnhatmatkhau from '../components/modal/auth/Capnhatmatkhau';
 
 const Header = () => {
-  const { logout } = useContext(AuthContext);
+ const { logout, userFullName, refreshUser, user } = useContext(AuthContext);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = React.useState(false);
 
-  const handleProfileUpdate = (values) => {
-    // TODO: Update user info (localStorage or API)
-    console.log('Updated profile:', values);
-    localStorage.setItem('userFullName', values.fullName);
-    localStorage.setItem('userEmail', values.email);
+  const handleProfileUpdate = async (values) => {
+    try {
+      const [firstName, ...lastNameParts] = values.fullName.trim().split(" ");
+      const lastName = lastNameParts.join(" ") || "";
+      const updateData = {
+        firstName,
+        lastName,
+        email: values.email,
+      };
+      await updateProfileApi(updateData);
+      toast.success("Cập nhật thông tin thành công!");
+      await refreshUser();
+    } catch (error) {
+      const msg =
+        error.response?.data?.message || "Cập nhật thất bại";
+      toast.error(msg);
+      throw new Error(msg);
+    }
   };
 
   const handleChangePassword = async (values) => {
-    // NOTE: Backend currently does not support change-password API.
-    // This is a temporary local implementation for UI/demo purposes.
-    console.log('Change password request:', values);
+    try {
 
-    // Optionally store the new password locally (NOT secure, only for demo).
-    localStorage.setItem('userPassword', values.newPassword);
+      await changePasswordApi({
+        password: values.currentPassword,
+        newPassword: values.newPassword,
+      });
 
-    // Resolve immediately to close modal and show success message in the modal component.
-    return Promise.resolve();
+    } catch (error) {
+
+      const msg =
+        error.response?.data?.message ||
+        "Đổi mật khẩu thất bại!";
+
+      throw new Error(msg);
+    }
   };
 
   const handleLogout = () => {
@@ -72,7 +93,7 @@ const Header = () => {
 
  
 
-  const userFullName = localStorage.getItem('userFullName') || 'Admin';
+  const displayName = userFullName || 'Admin';
 
   return (
     <header className="header">
@@ -90,7 +111,7 @@ const Header = () => {
             <div className="user-avatar">
               <FontAwesomeIcon icon={faUser} />
             </div>
-            <span className="user-name">{userFullName}</span>
+            <span className="user-name">{displayName}</span>
             <FontAwesomeIcon icon={faCog} className="dropdown-icon" />
           </div>
         </Dropdown>
@@ -98,6 +119,7 @@ const Header = () => {
           open={isModalOpen}
           onCancel={() => setIsModalOpen(false)}
           onUpdate={handleProfileUpdate}
+          user={user}
         />
         <Capnhatmatkhau
           open={isPasswordModalOpen}
