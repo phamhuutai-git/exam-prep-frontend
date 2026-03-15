@@ -2,51 +2,60 @@ import React from 'react'
 import { Table, Button, Tag, Switch, Space, Popconfirm } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faFile, faPencil, faTrash } from '@fortawesome/free-solid-svg-icons'
+import dayjs from 'dayjs'
 
-const ExamTable = ({ data, loading, onEdit, onDelete }) => {
+const ExamTable = ({ data, loading, onPreview, onEdit, onDelete }) => {
 
 
     // Columns definition
     const columns = [
         {
-            title: 'STT',
-            dataIndex: 'id',
-            align: 'center',
-            render: (index) => index + 1
-        },
-        {
-            title: 'Code',
-            dataIndex: 'code'
+            title: 'Mã đề thi',
+            dataIndex: 'code',
+            align: 'center'
         },
         {
             title: 'Tiêu đề',
-            dataIndex: 'title'
+            dataIndex: 'title',
+            onHeaderCell: () => ({
+                style: { textAlign: 'center' }
+            })
         },
         {
-            title: 'Thời gian thi',
-            dataIndex: 'duration'
+            title: 'Danh mục',
+            dataIndex: 'category',
+            align: 'center'
         },
         {
-            title: 'Tổng số câu hỏi',
-            dataIndex: 'questions'
+            title: 'Thời gian',
+            dataIndex: 'duration',
+            align: 'center'
+        },
+        {
+            title: 'Số câu hỏi',
+            dataIndex: 'questions',
+            align: 'center'
         },
         {
             title: 'Ngày tạo',
-            dataIndex: 'createdAt'
+            dataIndex: 'createDate',
+            align: 'center',
+            render: (date) => dayjs(date).format('DD/MM/YYYY')
         },
         {
             title: 'Hành động',
+            align: 'center',
             render: (_, record) => (
                 <Space>
                     <Button
                         type="text"
-                        icon={<FontAwesomeIcon icon={faFile} />}
-                        onClick={() => onEdit(record)}
+                        icon={<FontAwesomeIcon icon={faFile} style={{ color: "#1677ff" }} />}
+                        onClick={() => onPreview(record)}
                         title="Xem chi tiết"
                     />
                     <Button
                         type="text"
-                        icon={<FontAwesomeIcon icon={faPencil} />}
+                        icon={<FontAwesomeIcon icon={faPencil} style={{ color: "#fa8f14" }} />}
                         onClick={() => onEdit(record)}
                         title="Sửa"
                     />
@@ -56,7 +65,7 @@ const ExamTable = ({ data, loading, onEdit, onDelete }) => {
                     >
                         <Button
                             type="text"
-                            icon={<FontAwesomeIcon icon={faTrash} />}
+                            icon={<FontAwesomeIcon icon={faTrash} style={{ color: "#ff4d4f" }} />}
                             danger
                             title="Xóa"
                         />

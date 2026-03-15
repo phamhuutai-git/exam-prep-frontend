@@ -1,57 +1,58 @@
-import React, { useState, useMemo } from 'react'
-import { Button, Form } from 'antd'
+import React, { useState, useMemo, useEffect } from 'react'
+import { Form } from 'antd'
 import { toast } from 'react-toastify'
 import '../../assets/styles/User.css'
 import UserHeader from '../../components/user/UserHeader'
-import UserFilter from '../../components/user/UserFilter'
-import UserTable from '../../components/user/UserTable'
-import Add from '../../components/modal/user/Add'
 import ExamTable from '../../components/teacher/ExamTable'
-
-// Mock data - Dữ liệu mẫu
-const initialUsers = [
-    {
-        id: 0,
-        code: 'EXAM001',
-        title: 'Java cơ bản',
-        duration: '00:30:00',
-        questions: '10',
-        createdAt: '2024-01-01'
-    },
-    {
-        id: 1,
-        code: 'EXAM002',
-        title: 'Python cơ bản',
-        duration: '00:45:00',
-        questions: '15',
-        createdAt: '2024-01-02'
-    },
-    {
-        id: 2,
-        code: 'EXAM003',
-        title: 'JavaScript cơ bản',
-        duration: '00:60:00',
-        questions: '20',
-        createdAt: '2024-01-03'
-    },
-    {
-        id: 3,
-        code: 'EXAM004',
-        title: 'React cơ bản',
-        duration: '00:90:00',
-        questions: '25',
-        createdAt: '2024-01-04'
-    }
-]
+import * as examsAPI from '../../services/teacher/examService.js'
+import ExamPreviewModal from '../../components/modal/teacher/ExamPreviewModal'
+import ExamFormModal from '../../components/modal/teacher/ExamFormModal.jsx'
 
 const Exam = () => {
-    const [exams, setExams] = useState(initialUsers)
+    const [exams, setExams] = useState([])
+    const [previewExam, setPreviewExam] = useState(null)
+    const [isModalOpen, setIsModalOpen] = useState(false)
+    const [isEditMode, setIsEditMode] = useState(false)
     const [form] = Form.useForm()
+
+
+    //Get all exams of teacher
+    useEffect(() => {
+        async function fetchExams() {
+            const response = await examsAPI.getExamsByTeacher();
+            console.log("Exams: ", response);
+            setExams(response.data.data.content);
+        }
+        fetchExams();
+    }, []);
+
+    const handlePreview = async (exam) => {
+        try {
+            const response = await examsAPI.getQuestionsByExamId(exam.id);
+
+            const examWithQuestions = {
+                ...exam,
+                questions: response.data.data
+            }
+            setPreviewExam(examWithQuestions)
+        } catch (error) {
+            toast.error("Lỗi khi tải danh sách câu hỏi")
+        }
+    }
+
+    const handleEdit = (exam) => {
+        setIsEditMode(true);
+        setIsModalOpen(true);
+    }
+
+    const handleClosePreview = () => {
+        setPreviewExam(null)
+    }
+
 
 
     const handleAdd = () => {
         setIsEditMode(false)
-        setSelectedUser(null)
         form.resetFields()
         setIsModalOpen(true)
     }
@@ -70,7 +71,31 @@ const Exam = () => {
 
             <ExamTable
                 data={exams}
+                onPreview={handlePreview}
+                onEdit={handleEdit}
             />
+
+            <ExamPreviewModal
+                exam={previewExam}
+                onClose={handleClosePreview}
+            />
+
+            {
+                isModalOpen && (
+                    <ExamFormModal
+                        exam={isEditMode}
+                        onClose={() => {
+                            setIsModalOpen(false);
+                            setIsEditMode(null);
+                        }}
+                        onSave={(data) => {
+                            console.log("Data save: ", data);
+                            setIsModalOpen(false);
+                            setIsEditMode(null);
+                        }}
+                    />
+                )
+            }
 
         </div>
     )

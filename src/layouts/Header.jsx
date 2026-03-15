@@ -49,12 +49,14 @@ const Header = () => {
     {
       key: "profile",
       icon: <FontAwesomeIcon icon={faUser} />,
-      label: 'Cập nhật thông tin'
+      label: 'Cập nhật thông tin',
+      onClick: () => setIsModalOpen(true)
     },
     {
       key: "password",
       icon: <FontAwesomeIcon icon={faKey} />,
-      label: 'Đổi mật khẩu'
+      label: 'Đổi mật khẩu',
+      onClick: () => setIsPasswordModalOpen(true)
     },
     {
       type: "divider",

@@ -16,6 +16,9 @@ import Classes from "./pages/admin/Classes";
 import Subjects from "./pages/admin/Subjects";
 import AssignTeacher from "./pages/admin/AssignTeacher";
 import Exam from "./pages/teacher/Exam";
+import TeacherDashboard from "./pages/teacher/TeacherDashboard";
+
+
 const App = () => {
   return (
     <>
@@ -57,11 +60,10 @@ const App = () => {
             </ProtectedRoute>
           }
         >
-          <Route index element={<Dashboard />} />
-          <Route path="users" element={<Exam />} />
-          <Route path="classes" element={<Classes />} />
-          <Route path="subjects" element={<Subjects />} />
-          <Route path="assign-teacher" element={<AssignTeacher />} />
+          <Route index element={<TeacherDashboard />} />
+          <Route path="exams" element={<Exam />} />
+          <Route path="questions" element={<Subjects />} />
+          <Route path="exam-classes" element={<AssignTeacher />} />
         </Route>
 
         <Route
