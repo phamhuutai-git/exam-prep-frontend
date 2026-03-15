@@ -13,6 +13,7 @@ import {
   Upload,
   message,
   Modal,
+  Pagination,
 } from "antd";
 import {
   PlusOutlined,
@@ -105,7 +106,7 @@ export default function TeacherQuestion() {
   // ========================= STATS =========================
 
   const stats = {
-    total: questions.length,
+    total: total,
     easy: questions.filter((q) => q.difficulty === "EASY").length,
     medium: questions.filter((q) => q.difficulty === "MEDIUM").length,
     hard: questions.filter((q) => q.difficulty === "HARD").length,
@@ -258,7 +259,7 @@ export default function TeacherQuestion() {
   ];
 
   return (
-    <div style={{ padding: 30 }}>
+    <div className="teacher-question-page">
       {/* HEADER */}
       <Row justify="space-between" style={{ marginBottom: 20 }}>
         <Col>
@@ -315,19 +316,7 @@ export default function TeacherQuestion() {
       </Row>
 
       {/* FILTER */}
-      <div
-        style={{
-          display: "flex",
-          gap: 12,
-          marginBottom: 20,
-          padding: "12px 16px",
-          background: "#fff",
-          border: "1px solid #e8e8e8",
-          borderRadius: 10,
-          alignItems: "center",
-          flexWrap: "wrap",
-        }}
-      >
+      <div className="filter-bar">
         <div style={{ flex: 1, minWidth: 220 }}>
           <Input
             prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
@@ -338,7 +327,7 @@ export default function TeacherQuestion() {
         </div>
 
         {/* Divider dọc */}
-        <div style={{ width: 1, height: 32, background: "#e8e8e8" }} />
+        <div className="filter-divider" />
 
         {/* Difficulty */}
         <Select
@@ -372,18 +361,20 @@ export default function TeacherQuestion() {
           rowKey="id"
           columns={columns}
           dataSource={questions}
-          pagination={{
-            current: page + 1,
-            pageSize: size,
-            total: total,
-            onChange: (p, s) => {
-              setPage(p - 1);
-              setSize(s);
-            },
+          pagination={false}
+        />
+      </div>
+      <div className="question-pagination">
+        <Pagination
+          current={page + 1}
+          pageSize={size}
+          total={total}
+          onChange={(p, s) => {
+            setPage(p - 1);
+            setSize(s);
           }}
         />
       </div>
-
       {/* CREATE MODAL */}
       <CreateQuestionModal
         open={createOpen}
