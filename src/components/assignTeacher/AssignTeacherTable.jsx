@@ -1,32 +1,37 @@
 import React from 'react'
-import { Table, Button, Space, Popconfirm } from 'antd'
+import { Table, Button, Space, Popconfirm, Tag } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPencil, faTrash } from '@fortawesome/free-solid-svg-icons'
 
-const ClassesTable = ({ data, loading, onEdit, onDelete }) => {
-
+const AssignTeacherTable = ({ data, loading, onEdit, onDelete }) => {
   const columns = [
     {
       title: 'STT',
       align: 'center',
       render: (text, record, index) => index + 1
     },
-
     {
-      title: 'Tên lớp',
-      dataIndex: 'className'
+      title: 'Lớp',
+      dataIndex: 'className',
+      align: 'center'
     },
-
     {
-      title: 'Số học sinh',
-      dataIndex: 'enrollment'
+      title: 'Mã GV',
+      dataIndex: 'teacherId',
+      align: 'center'
     },
-
     {
-      title: 'Ngày tạo',
-      dataIndex: 'createdAt'
+      title: 'Giáo viên',
+      dataIndex: 'teacherName',
+      align: 'center'
     },
-
+    {
+      title: 'Môn',
+      dataIndex: 'subjectName',
+      render: (subject) => (
+        <Tag color="blue">{subject}</Tag>
+      )
+    },
     {
       title: 'Hành động',
       align: 'center',
@@ -38,12 +43,9 @@ const ClassesTable = ({ data, loading, onEdit, onDelete }) => {
             onClick={() => onEdit(record)}
             title="Sửa"
           />
-
           <Popconfirm
-            title="Xóa lớp?"
+            title="Xóa phân công giáo viên này?"
             onConfirm={() => onDelete(record.id)}
-            okText="Xóa"
-            cancelText="Hủy"
           >
             <Button
               type="text"
@@ -64,9 +66,9 @@ const ClassesTable = ({ data, loading, onEdit, onDelete }) => {
       rowKey="id"
       loading={loading}
       bordered
-      pagination={{ pageSize: 10 }}
     />
   )
 }
 
-export default ClassesTable
+export default AssignTeacherTable
+
