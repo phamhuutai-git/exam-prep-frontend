@@ -17,7 +17,7 @@ import AssignTeacher from "./pages/admin/AssignTeacher";
 import TeacherExams from "./pages/teacher/TeacherExams";
 import TeacherQuestions from "./pages/teacher/TeacherQuestions";
 import TeacherStudents from "./pages/teacher/TeacherStudents";
-import TeacherDashboard from "./pages/teacher/TeacherDashbroard";
+import TeacherDashboard from "./pages/teacher/TeacherDashboard";
 import TeacherExamsClass from "./pages/teacher/TeacherExamClass";
 const App = () => {
   return (
