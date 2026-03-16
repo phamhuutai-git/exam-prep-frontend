@@ -28,6 +28,8 @@ const questionService = {
       },
     });
   },
+
+  countQuestion: () => api.get("/teacher/questions/count"),
 };
 
 export default questionService;

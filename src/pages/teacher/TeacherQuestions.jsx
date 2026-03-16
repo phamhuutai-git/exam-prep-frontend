@@ -101,15 +101,25 @@ export default function TeacherQuestion() {
 
   useEffect(() => {
     fetchQuestions();
+    fetchStats();
   }, [search, diffFilter, catFilter, page, size]);
 
   // ========================= STATS =========================
 
-  const stats = {
-    total: total,
-    easy: questions.filter((q) => q.difficulty === "EASY").length,
-    medium: questions.filter((q) => q.difficulty === "MEDIUM").length,
-    hard: questions.filter((q) => q.difficulty === "HARD").length,
+  const [stats, setStats] = useState({
+    countTotal: 0,
+    countEasy: 0,
+    countMedium: 0,
+    countHard: 0,
+  });
+  const fetchStats = async () => {
+    try {
+      const res = await questionService.countQuestion();
+
+      setStats(res.data.data);
+    } catch (err) {
+      message.error("Load stats failed");
+    }
   };
 
   // ========================= CRUD =========================
@@ -295,22 +305,25 @@ export default function TeacherQuestion() {
       <Row gutter={16} style={{ marginBottom: 20 }}>
         <Col span={6}>
           <Card>
-            <Statistic title="Total" value={stats.total} />
+            <Statistic title="Total" value={stats.countTotal} />
           </Card>
         </Col>
+
         <Col span={6}>
           <Card>
-            <Statistic title="Easy" value={stats.easy} />
+            <Statistic title="Easy" value={stats.countEasy} />
           </Card>
         </Col>
+
         <Col span={6}>
           <Card>
-            <Statistic title="Medium" value={stats.medium} />
+            <Statistic title="Medium" value={stats.countMedium} />
           </Card>
         </Col>
+
         <Col span={6}>
           <Card>
-            <Statistic title="Hard" value={stats.hard} />
+            <Statistic title="Hard" value={stats.countHard} />
           </Card>
         </Col>
       </Row>
