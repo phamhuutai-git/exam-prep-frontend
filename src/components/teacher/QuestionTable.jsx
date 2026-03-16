@@ -1,7 +1,8 @@
 import React from "react";
-import { Table, Button, Tag, Space } from "antd";
-import { EyeOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
-
+import { Tag } from "antd";
+import dayjs from "dayjs";
+import TableActions from "../common/TableActions";
+import BaseTable from "../common/BaseTable";
 const QuestionTable = ({ data, loading, onView, onEdit, onDelete }) => {
   const columns = [
     {
@@ -23,34 +24,24 @@ const QuestionTable = ({ data, loading, onView, onEdit, onDelete }) => {
     },
     {
       title: "Created",
-      dataIndex: "createdDate",
+      dataIndex: "createDate",
+      render: (date) => dayjs(date).format("DD/MM/YYYY"),
     },
     {
       title: "Action",
+      align: "center",
       render: (_, record) => (
-        <Space>
-          <Button icon={<EyeOutlined />} onClick={() => onView(record.id)} />
-          <Button icon={<EditOutlined />} onClick={() => onEdit(record)} />
-          <Button
-            danger
-            icon={<DeleteOutlined />}
-            onClick={() => onDelete(record.id)}
-          />
-        </Space>
+        <TableActions
+          record={record}
+          onView={(r) => onView(r.id)}
+          onEdit={onEdit}
+          onDelete={onDelete}
+        />
       ),
     },
   ];
 
-  return (
-    <Table
-      rowKey="id"
-      columns={columns}
-      dataSource={data}
-      loading={loading}
-      pagination={false}
-      bordered
-    />
-  );
+  return <BaseTable columns={columns} data={data} loading={loading} />;
 };
 
 export default QuestionTable;

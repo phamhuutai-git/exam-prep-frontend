@@ -1,14 +1,10 @@
 import { useState, useEffect } from "react";
 import {
-  Table,
   Button,
   Input,
   Select,
-  Tag,
   Row,
   Col,
-  Card,
-  Statistic,
   Space,
   Upload,
   message,
@@ -17,23 +13,20 @@ import {
 } from "antd";
 import {
   PlusOutlined,
-  EditOutlined,
-  DeleteOutlined,
-  EyeOutlined,
   UploadOutlined,
   DownloadOutlined,
   SearchOutlined,
 } from "@ant-design/icons";
-
 import CreateQuestionModal from "../../components/modal/teacher/Createquestionmodal";
 import EditQuestionModal from "../../components/modal/teacher/Editquestionmodal";
 import ViewQuestionDrawer from "../../components/modal/teacher/Viewquestiondrawer";
 import questionService from "../../services/teacher/questionService";
 import "../../assets/styles/teacher/Question.css";
+import "../../assets/styles/User.css";
 import QuestionTable from "../../components/teacher/QuestionTable";
-import QuestionStats from "../../components/teacher/QuestionStats";
-const { Search } = Input;
-
+import UserHeader from "../../components/user/UserHeader";
+import AppPagination from "../../components/common/AppPagination";
+import StatsCards from "../../components/common/StatsCards";
 export default function TeacherQuestion() {
   const [questions, setQuestions] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -225,16 +218,23 @@ export default function TeacherQuestion() {
   return (
     <div className="teacher-question-page">
       {/* HEADER */}
-      <Row justify="space-between" style={{ marginBottom: 20 }}>
-        <Col>
-          <h2>Quản Lý Câu Hỏi </h2>
-        </Col>
-
-        <Col>
-          <Space>
+      {/* <UserHeader
+        title="Quản lý câu hỏi"
+        description="Tạo, chỉnh sửa, xóa và quản lý câu hỏi"
+        buttonText="Thêm câu hỏi"
+        handleAdd={() => setCreateOpen(true)}
+      /> */}
+      <UserHeader
+        title="Quản lý câu hỏi"
+        description="Tạo, chỉnh sửa, xóa và quản lý câu hỏi"
+        buttonText="Thêm câu hỏi"
+        handleAdd={() => setCreateOpen(true)}
+        extra={
+          <>
             <Button icon={<DownloadOutlined />} onClick={handleExport}>
               Export
             </Button>
+
             <Upload
               showUploadList={false}
               beforeUpload={(file) => {
@@ -244,19 +244,19 @@ export default function TeacherQuestion() {
             >
               <Button icon={<UploadOutlined />}>Import</Button>
             </Upload>
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={() => setCreateOpen(true)}
-            >
-              Create Question
-            </Button>
-          </Space>
-        </Col>
-      </Row>
+          </>
+        }
+      />
 
       {/* STATS */}
-      <QuestionStats stats={stats} />
+      <StatsCards
+        items={[
+          { title: "Total", value: stats.countTotal },
+          { title: "Easy", value: stats.countEasy },
+          { title: "Medium", value: stats.countMedium },
+          { title: "Hard", value: stats.countHard },
+        ]}
+      />
 
       {/* FILTER */}
       <div className="filter-bar">
@@ -298,6 +298,7 @@ export default function TeacherQuestion() {
           ))}
         </Select>
       </div>
+
       <div className="question-table-wrapper">
         <QuestionTable
           data={questions}
@@ -306,17 +307,15 @@ export default function TeacherQuestion() {
           onDelete={handleDelete}
         />
       </div>
-      <div className="question-pagination">
-        <Pagination
-          current={page + 1}
-          pageSize={size}
-          total={total}
-          onChange={(p, s) => {
-            setPage(p - 1);
-            setSize(s);
-          }}
-        />
-      </div>
+      <AppPagination
+        page={page}
+        size={size}
+        total={total}
+        onChange={(p, s) => {
+          setPage(p);
+          setSize(s);
+        }}
+      />
       {/* CREATE MODAL */}
       <CreateQuestionModal
         open={createOpen}
