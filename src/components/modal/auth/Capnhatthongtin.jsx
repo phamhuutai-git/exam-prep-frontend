@@ -1,16 +1,17 @@
-import React from "react";
-import { Modal, Form, Input, Button, message } from "antd";
+import React from 'react';
+import { Modal, Form, Input, Button, message } from 'antd';
 
-const Capnhatthongtin = ({
-  open = false,
+
+const Capnhatthongtin = ({ 
+  open = false, 
   onCancel = () => {},
-  onUpdate = () => {},
+  onUpdate = () => {}
 }) => {
   const [form] = Form.useForm();
 
   const handleSubmit = (values) => {
     onUpdate(values);
-    message.success("Cập nhật thông tin thành công!");
+    message.success('Cập nhật thông tin thành công!');
     form.resetFields();
     onCancel();
   };
@@ -28,34 +29,45 @@ const Capnhatthongtin = ({
         layout="vertical"
         onFinish={handleSubmit}
         initialValues={{
-          fullName: "",
-          email: "",
+          fullName: '',
+          email: ''
         }}
       >
         <Form.Item
           label="Họ và tên"
           name="fullName"
-          rules={[{ required: true, message: "Vui lòng nhập họ và tên!" }]}
+          rules={[{ required: true, message: 'Vui lòng nhập họ và tên!' }]}
         >
-          <Input placeholder="Nhập họ và tên" size="large" />
+          <Input 
+            placeholder="Nhập họ và tên"
+            size="large"
+          />
         </Form.Item>
 
         <Form.Item
           label="Email"
           name="email"
           rules={[
-            { required: true, message: "Vui lòng nhập email!" },
-            { type: "email", message: "Email không hợp lệ!" },
+            { required: true, message: 'Vui lòng nhập email!' },
+            { type: 'email', message: 'Email không hợp lệ!' }
           ]}
         >
-          <Input placeholder="Nhập email" size="large" />
+          <Input 
+           
+            placeholder="Nhập email"
+            size="large"
+          />
         </Form.Item>
         <Form.Item style={{ marginBottom: 0 }}>
-          <div style={{ display: "flex", gap: 12, justifyContent: "flex-end" }}>
+          <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
             <Button onClick={onCancel} size="large">
               Hủy
             </Button>
-            <Button type="primary" htmlType="submit" size="large">
+            <Button 
+              type="primary" 
+              htmlType="submit" 
+              size="large"
+            >
               Cập nhật
             </Button>
           </div>
@@ -66,3 +78,4 @@ const Capnhatthongtin = ({
 };
 
 export default Capnhatthongtin;
+

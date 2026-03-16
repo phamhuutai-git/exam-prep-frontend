@@ -98,6 +98,7 @@ const Sider = () => {
   const location = useLocation();
 
   return (
+    
     <aside className="sider">
       <div className="sider-content">
         <div className="sider-logo">
@@ -125,5 +126,5 @@ const Sider = () => {
     </aside>
   );
 };
-
 export default Sider;
+

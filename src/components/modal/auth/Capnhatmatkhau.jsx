@@ -1,5 +1,5 @@
-import React from "react";
-import { Modal, Form, Input, Button, message } from "antd";
+import React from 'react';
+import { Modal, Form, Input, Button, message } from 'antd';
 
 const Capnhatmatkhau = ({
   open = false,
@@ -11,13 +11,11 @@ const Capnhatmatkhau = ({
   const handleSubmit = async (values) => {
     try {
       await onChangePassword(values);
-      message.success("Đổi mật khẩu thành công!");
+      message.success('Đổi mật khẩu thành công!');
       form.resetFields();
       onCancel();
     } catch (error) {
-      message.error(
-        error?.message || "Đổi mật khẩu thất bại. Vui lòng thử lại.",
-      );
+      message.error(error?.message || 'Đổi mật khẩu thất bại. Vui lòng thử lại.');
     }
   };
 
@@ -34,17 +32,15 @@ const Capnhatmatkhau = ({
         layout="vertical"
         onFinish={handleSubmit}
         initialValues={{
-          currentPassword: "",
-          newPassword: "",
-          confirmPassword: "",
+          currentPassword: '',
+          newPassword: '',
+          confirmPassword: '',
         }}
       >
         <Form.Item
           label="Mật khẩu hiện tại"
           name="currentPassword"
-          rules={[
-            { required: true, message: "Vui lòng nhập mật khẩu hiện tại" },
-          ]}
+          rules={[{ required: true, message: 'Vui lòng nhập mật khẩu hiện tại' }]}
         >
           <Input.Password placeholder="Nhập mật khẩu hiện tại" size="large" />
         </Form.Item>
@@ -53,8 +49,8 @@ const Capnhatmatkhau = ({
           label="Mật khẩu mới"
           name="newPassword"
           rules={[
-            { required: true, message: "Vui lòng nhập mật khẩu mới" },
-            { min: 6, message: "Mật khẩu phải có ít nhất 6 ký tự" },
+            { required: true, message: 'Vui lòng nhập mật khẩu mới' },
+            { min: 6, message: 'Mật khẩu phải có ít nhất 6 ký tự' },
           ]}
         >
           <Input.Password placeholder="Nhập mật khẩu mới" size="large" />
@@ -65,15 +61,13 @@ const Capnhatmatkhau = ({
           name="confirmPassword"
           dependencies={["newPassword"]}
           rules={[
-            { required: true, message: "Vui lòng nhập lại mật khẩu mới" },
+            { required: true, message: 'Vui lòng nhập lại mật khẩu mới' },
             ({ getFieldValue }) => ({
               validator(_, value) {
-                if (!value || getFieldValue("newPassword") === value) {
+                if (!value || getFieldValue('newPassword') === value) {
                   return Promise.resolve();
                 }
-                return Promise.reject(
-                  new Error("Mật khẩu xác nhận không khớp"),
-                );
+                return Promise.reject(new Error('Mật khẩu xác nhận không khớp'));
               },
             }),
           ]}
@@ -82,7 +76,7 @@ const Capnhatmatkhau = ({
         </Form.Item>
 
         <Form.Item style={{ marginBottom: 0 }}>
-          <div style={{ display: "flex", gap: 12, justifyContent: "flex-end" }}>
+          <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
             <Button onClick={onCancel} size="large">
               Hủy
             </Button>

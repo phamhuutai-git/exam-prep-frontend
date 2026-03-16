@@ -36,3 +36,29 @@ export async function getQuestionsByExamId(examId) {
       toast.error("Lỗi khi tải danh sách câu hỏi");
     });
 }
+
+export async function getExamsByTeacher() {
+
+  return api.get("/teacher/exams/teacher-name")
+    .then((response) => {
+
+      return response;
+
+    }).catch((error) => {
+
+      toast.error("Lỗi khi tải danh sách đề thi")
+
+    });
+}
+
+export async function getQuestionsByExamId(examId) {
+  return api.get(`/teacher/questions/exam-id/${examId}`)
+    .then((response) => {
+
+      return response;
+
+    }).catch((error) => {
+
+      toast.error("Lỗi khi tải danh sách câu hỏi")
+    });
+}
