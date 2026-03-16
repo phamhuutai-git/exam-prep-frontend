@@ -11,3 +11,6 @@ export const sendOtpApi = (data) => {
 export const resetPasswordApi = (data) => {
   return api.post("/auth/reset-password", data);
 };
+export const changePasswordApi = (data) => {
+  return api.post("/auth/change-password", data);
+};

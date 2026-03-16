@@ -1,9 +1,4 @@
-// export default function TeacherExamManagement() {
-//   return(
-//     <div>exam</div>
-//   )
-// }
-import React, { useState, useEffect } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { Form } from "antd";
 import { toast } from "react-toastify";
 import "../../assets/styles/User.css";
@@ -13,7 +8,7 @@ import * as examsAPI from "../../services/teacher/examService.js";
 import ExamPreviewModal from "../../components/modal/teacher/ExamPreviewModal";
 import ExamFormModal from "../../components/modal/teacher/ExamFormModal.jsx";
 
-const Exam = () => {
+const TeacherExams = () => {
   const [exams, setExams] = useState([]);
   const [previewExam, setPreviewExam] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -90,4 +85,4 @@ const Exam = () => {
     </div>
   );
 };
-export default Exam;
+export default TeacherExams;

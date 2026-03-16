@@ -1,3 +1,3 @@
 export default function TeacherDashboard() {
-  return <div>das</div>;
+  return <div>TeacherDashboard</div>;
 }

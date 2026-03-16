@@ -30,6 +30,8 @@ import EditQuestionModal from "../../components/modal/teacher/Editquestionmodal"
 import ViewQuestionDrawer from "../../components/modal/teacher/Viewquestiondrawer";
 import questionService from "../../services/teacher/questionService";
 import "../../assets/styles/teacher/Question.css";
+import QuestionTable from "../../components/teacher/QuestionTable";
+import QuestionStats from "../../components/teacher/QuestionStats";
 const { Search } = Input;
 
 export default function TeacherQuestion() {
@@ -220,54 +222,6 @@ export default function TeacherQuestion() {
       message.error("Import failed");
     }
   };
-
-  // ========================= TABLE =========================
-
-  const columns = [
-    {
-      title: "Question",
-      dataIndex: "content",
-    },
-    {
-      title: "Difficulty",
-      dataIndex: "difficulty",
-      render: (d) => {
-        const color =
-          d === "EASY" ? "green" : d === "MEDIUM" ? "orange" : "red";
-
-        return <Tag color={color}>{d}</Tag>;
-      },
-    },
-    {
-      title: "Category",
-      dataIndex: "category",
-    },
-    {
-      title: "Created",
-      dataIndex: "createdDate",
-    },
-    {
-      title: "Action",
-      render: (_, record) => (
-        <Space>
-          <Button
-            icon={<EyeOutlined />}
-            onClick={() => handleView(record.id)}
-          />
-          <Button
-            icon={<EditOutlined />}
-            onClick={() => setEditingQuestion(record)}
-          />
-          <Button
-            danger
-            icon={<DeleteOutlined />}
-            onClick={() => handleDelete(record.id)}
-          />
-        </Space>
-      ),
-    },
-  ];
-
   return (
     <div className="teacher-question-page">
       {/* HEADER */}
@@ -302,31 +256,7 @@ export default function TeacherQuestion() {
       </Row>
 
       {/* STATS */}
-      <Row gutter={16} style={{ marginBottom: 20 }}>
-        <Col span={6}>
-          <Card>
-            <Statistic title="Total" value={stats.countTotal} />
-          </Card>
-        </Col>
-
-        <Col span={6}>
-          <Card>
-            <Statistic title="Easy" value={stats.countEasy} />
-          </Card>
-        </Col>
-
-        <Col span={6}>
-          <Card>
-            <Statistic title="Medium" value={stats.countMedium} />
-          </Card>
-        </Col>
-
-        <Col span={6}>
-          <Card>
-            <Statistic title="Hard" value={stats.countHard} />
-          </Card>
-        </Col>
-      </Row>
+      <QuestionStats stats={stats} />
 
       {/* FILTER */}
       <div className="filter-bar">
@@ -368,13 +298,12 @@ export default function TeacherQuestion() {
           ))}
         </Select>
       </div>
-
       <div className="question-table-wrapper">
-        <Table
-          rowKey="id"
-          columns={columns}
-          dataSource={questions}
-          pagination={false}
+        <QuestionTable
+          data={questions}
+          onView={handleView}
+          onEdit={(q) => setEditingQuestion(q)}
+          onDelete={handleDelete}
         />
       </div>
       <div className="question-pagination">

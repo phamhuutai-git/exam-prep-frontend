@@ -5,7 +5,6 @@ import TeacherLayout from "./layouts/teacher/TeacherLayout";
 import AdminLayouts from "./layouts/admin/AdminLayout";
 import ResetPassword from "./pages/login/ResetPassword";
 import Dashboard from "./pages/admin/Dashboard";
-// import ComingSoon from './pages/admin/ComingSoon'
 import { Routes, Route } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import ProtectedRoute from "./route/ProtectedRoute";
@@ -19,6 +18,7 @@ import TeacherExams from "./pages/teacher/TeacherExams";
 import TeacherQuestions from "./pages/teacher/TeacherQuestions";
 import TeacherStudents from "./pages/teacher/TeacherStudents";
 import TeacherDashboard from "./pages/teacher/TeacherDashbroard";
+import TeacherExamsClass from "./pages/teacher/TeacherExamClass";
 const App = () => {
   return (
     <>
@@ -64,6 +64,7 @@ const App = () => {
           <Route path="exams" element={<TeacherExams />} />
           <Route path="questions" element={<TeacherQuestions />} />
           <Route path="students" element={<TeacherStudents />} />
+          <Route path="exam-classes" element={<TeacherExamsClass />} />
         </Route>
 
         <Route

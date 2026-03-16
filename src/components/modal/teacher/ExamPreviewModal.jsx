@@ -8,6 +8,7 @@ const DIFF_MAP = {
   MEDIUM: { color: "warning", label: "Trung bình" },
   HARD: { color: "error", label: "Khó" },
 };
+
 const CAT_COLORS = {
   Java: "green",
   Spring: "cyan",
@@ -15,77 +16,11 @@ const CAT_COLORS = {
   HTML: "orange",
   JavaScript: "magenta",
 };
-const ALL_QUESTIONS = [
-  {
-    id: 1,
-    content: "What is Java?",
-    difficulty: "EASY",
-    category: "Java",
-    answers: [
-      { content: "Programming Language", isCorrect: true },
-      { content: "Database", isCorrect: false },
-      { content: "Operating System", isCorrect: false },
-      { content: "Web Browser", isCorrect: false },
-    ],
-  },
-  {
-    id: 2,
-    content: "Explain OOP principles",
-    difficulty: "MEDIUM",
-    category: "Java",
-    answers: [
-      {
-        content: "Encapsulation, Inheritance, Polymorphism, Abstraction",
-        isCorrect: true,
-      },
-      { content: "Compilation only", isCorrect: false },
-      { content: "Indexing", isCorrect: false },
-      { content: "None of the above", isCorrect: false },
-    ],
-  },
-  {
-    id: 3,
-    content: "What is Spring Boot?",
-    difficulty: "EASY",
-    category: "Spring",
-    answers: [
-      { content: "Java Framework", isCorrect: false },
-      { content: "Spring Boot Framework", isCorrect: true },
-      { content: "Database Tool", isCorrect: false },
-      { content: "Programming Language", isCorrect: false },
-    ],
-  },
-  {
-    id: 4,
-    content: "What is Primary Key?",
-    difficulty: "EASY",
-    category: "SQL",
-    answers: [
-      { content: "Unique identifier", isCorrect: true },
-      { content: "Allows duplicate", isCorrect: false },
-      { content: "Can be null", isCorrect: false },
-      { content: "Optional field", isCorrect: false },
-    ],
-  },
-  {
-    id: 5,
-    content: "What is HTML?",
-    difficulty: "EASY",
-    category: "HTML",
-    answers: [
-      { content: "Programming Language", isCorrect: false },
-      { content: "Markup Language", isCorrect: true },
-      { content: "Database System", isCorrect: false },
-      { content: "Operating System", isCorrect: false },
-    ],
-  },
-];
 
 export default function ExamPreviewModal({ exam, onClose }) {
   if (!exam) return null;
-  const questions = ALL_QUESTIONS.filter((q) =>
-    exam.questionIds.includes(q.id),
-  );
+
+  const questions = exam?.questions || [];
 
   return (
     <Modal
@@ -103,6 +38,7 @@ export default function ExamPreviewModal({ exam, onClose }) {
       onCancel={onClose}
       footer={null}
       width={620}
+      styles={{ body: { maxHeight: "70vh", overflowY: "auto" } }}
     >
       {questions.length === 0 ? (
         <Text type="secondary">Chưa có câu hỏi nào</Text>
@@ -155,7 +91,7 @@ export default function ExamPreviewModal({ exam, onClose }) {
                   gap: 6,
                 }}
               >
-                {q.answers.map((a, i) => (
+                {(q.answers || []).map((a, i) => (
                   <div
                     key={i}
                     style={{
