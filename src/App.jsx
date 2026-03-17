@@ -15,6 +15,10 @@ import User from "./pages/admin/User";
 import Classes from "./pages/admin/Classes";
 import Subjects from "./pages/admin/Subjects";
 import AssignTeacher from "./pages/admin/AssignTeacher";
+import StudentDashboard from "./pages/student/Dashboard";
+import LichSuThi from "./pages/student/LichSuThi";
+import DeThiYeuThich from "./pages/student/DeThiYeuThich";
+import BaiThi from "./pages/student/BaiThi";
 const App = () => {
   return (
     <>
@@ -45,7 +49,12 @@ const App = () => {
               <StudentLayout />
             </ProtectedRoute>
           }
-        />
+        >
+          <Route index element={<StudentDashboard />} />
+          <Route path="lich-su-thi" element={<LichSuThi />} />
+          <Route path="de-thi-yeu-thich" element={<DeThiYeuThich />} />
+          <Route path="bai-thi" element={<BaiThi />} />
+        </Route>
 
         <Route
           path="/teacher"

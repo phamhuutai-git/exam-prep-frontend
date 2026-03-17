@@ -6,7 +6,6 @@ import AssignTeacherHeader from '../../components/assignTeacher/AssignTeacherHea
 import AssignTeacherFilter from '../../components/assignTeacher/AssignTeacherFilter'
 import AssignTeacherTable from '../../components/assignTeacher/AssignTeacherTable'
 import AddAssignTeacher from '../../components/modal/assignTeacher/Add'
-
 // Mock data
 const initialAssignments = [
   {
@@ -82,7 +81,6 @@ const AssignTeacher = () => {
     form.resetFields()
     setIsModalOpen(true)
   }
-
   const handleEdit = (record) => {
     setIsEditMode(true)
     setSelectedAssignment(record)
@@ -93,7 +91,6 @@ const AssignTeacher = () => {
     })
     setIsModalOpen(true)
   }
-
   const handleDelete = (id) => {
     setLoading(true)
     setTimeout(() => {
@@ -102,19 +99,27 @@ const AssignTeacher = () => {
       toast.success('Xóa phân công thành công!')
     }, 500)
   }
-
   const handleSubmit = (values) => {
     setLoading(true)
     setTimeout(() => {
       const classInfo = mockClasses.find(c => c.id === values.classId)
       const teacherInfo = mockTeachers.find(t => t.teacherId === values.teacherCode)
+      if (!classInfo) {
+        toast.error('Lớp không tồn tại!')
+        setLoading(false)
+        return
+      }
       if (!teacherInfo) {
         toast.error('Mã giáo viên không tồn tại!')
         setLoading(false)
         return
       }
       const subjectInfo = mockSubjects.find(s => s.id === values.subjectId)
-
+      if (!subjectInfo) {
+        toast.error('Môn học không tồn tại!')
+        setLoading(false)
+        return
+      }
       const assignmentData = {
         classId: values.classId,
         className: classInfo.name,
@@ -122,7 +127,6 @@ const AssignTeacher = () => {
         teacherName: teacherInfo.username,
         subjectName: subjectInfo.name
       }
-
       if (isEditMode && selectedAssignment) {
         setAssignments(assignments.map(a =>
           a.id === selectedAssignment.id ? { ...a, ...assignmentData } : a
@@ -136,18 +140,15 @@ const AssignTeacher = () => {
         setAssignments([...assignments, newAssignment])
         toast.success('Gán giáo viên thành công!')
       }
-
       setLoading(false)
       setIsModalOpen(false)
       form.resetFields()
     }, 1000)
   }
-
   const handleCancel = () => {
     setIsModalOpen(false)
     form.resetFields()
   }
-
   return (
     <div style={{ padding: 24 }}>
       {/* Header */}
@@ -157,7 +158,6 @@ const AssignTeacher = () => {
         buttonText="Gán giáo viên"
         handleAdd={handleAdd}
       />
-
       {/* Filter */}
       <AssignTeacherFilter
         searchTerm={searchTerm}
@@ -168,8 +168,10 @@ const AssignTeacher = () => {
         setTeacherFilter={setTeacherFilter}
         subjectFilter={subjectFilter}
         setSubjectFilter={setSubjectFilter}
+        classes={mockClasses}
+        teachers={mockTeachers}
+        subjects={mockSubjects}
       />
-
       {/* Table */}
       <AssignTeacherTable
         data={filteredAssignments}
@@ -177,7 +179,6 @@ const AssignTeacher = () => {
         onEdit={handleEdit}
         onDelete={handleDelete}
       />
-
       {/* Modal */}
       <AddAssignTeacher
         open={isModalOpen}
@@ -193,6 +194,5 @@ const AssignTeacher = () => {
     </div>
   )
 }
-
 export default AssignTeacher
 
