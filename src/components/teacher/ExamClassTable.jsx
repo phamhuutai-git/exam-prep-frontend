@@ -4,25 +4,25 @@ import BaseTable from "../common/BaseTable";
 export default function ExamClassTable({ data, onAssign, loading }) {
   const columns = [
     {
-      title: "Lớp",
+      title: "Class",
       dataIndex: "name",
     },
     {
-      title: "Số học sinh",
+      title: "Students Number",
       dataIndex: "students",
     },
     {
-      title: "Đề thi",
+      title: "Exam",
       dataIndex: "exam",
       render: (exam) => exam || "Chưa có",
     },
     {
-      title: "Thời gian",
+      title: "Duration",
       dataIndex: "duration",
       render: (d) => (d ? `${d} phút` : "—"),
     },
     {
-      title: "Trạng thái",
+      title: "Status",
       dataIndex: "status",
       render: (s) =>
         s === "HAS_EXAM" ? (
@@ -32,7 +32,7 @@ export default function ExamClassTable({ data, onAssign, loading }) {
         ),
     },
     {
-      title: "Hành động",
+      title: "Action",
       render: (_, record) => (
         <Button type="primary" onClick={() => onAssign(record)}>
           {record.exam ? "Đổi đề" : "Gán đề"}

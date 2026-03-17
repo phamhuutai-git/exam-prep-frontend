@@ -133,9 +133,9 @@ export default function TeacherExamsClass() {
       <StatsCards
         items={[
           { title: "Total Class", value: 0 },
+          { title: "Total Student", value: 0 },
           { title: "Has Exam", value: 0 },
           { title: "No Exam", value: 0 },
-          { title: "Total Has Exam", value: 0 },
         ]}
       />
       {/* loc */}
