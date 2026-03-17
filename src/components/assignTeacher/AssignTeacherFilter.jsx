@@ -11,7 +11,10 @@ const AssignTeacherFilter = ({
   teacherFilter,
   setTeacherFilter,
   subjectFilter,
-  setSubjectFilter
+  setSubjectFilter,
+  classes = [],
+  teachers = [],
+  subjects = []
 }) => {
   const handleClear = () => {
     setSearchTerm("")
@@ -43,9 +46,11 @@ const AssignTeacherFilter = ({
             allowClear
             style={{ width: 120 }}
           >
-            <Select.Option value="10A1">10A1</Select.Option>
-            <Select.Option value="10A2">10A2</Select.Option>
-            <Select.Option value="11B1">11B1</Select.Option>
+            {classes.map(cls => (
+              <Select.Option key={cls.id} value={cls.name}>
+                {cls.name}
+              </Select.Option>
+            ))}
           </Select>
           <Select
             placeholder="Giáo viên"
@@ -54,9 +59,11 @@ const AssignTeacherFilter = ({
             allowClear
             style={{ width: 140 }}
           >
-            <Select.Option value="teacher1">teacher1 (GV01)</Select.Option>
-            <Select.Option value="teacher2">teacher2 (GV02)</Select.Option>
-            <Select.Option value="teacher3">teacher3 (GV03)</Select.Option>
+            {teachers.map(t => (
+              <Select.Option key={t.id} value={t.username}>
+                {t.teacherId} - {t.username}
+              </Select.Option>
+            ))}
           </Select>
           <Select
             placeholder="Môn"
@@ -65,9 +72,11 @@ const AssignTeacherFilter = ({
             allowClear
             style={{ width: 120 }}
           >
-            <Select.Option value="Toán">Toán</Select.Option>
-            <Select.Option value="Văn">Văn</Select.Option>
-            <Select.Option value="Anh">Anh</Select.Option>
+            {subjects.map(s => (
+              <Select.Option key={s.id} value={s.name}>
+                {s.name}
+              </Select.Option>
+            ))}
           </Select>
           <Button onClick={handleClear}>
             <FontAwesomeIcon icon={faArrowRotateLeft} /> Xóa bộ lọc

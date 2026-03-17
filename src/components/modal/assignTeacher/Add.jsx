@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react'
-import { Modal, Form, Select, Button, Space, Input, Alert } from 'antd'
-
+import React, { useState, } from 'react'
+import { Modal, Form, Select, Button, Space } from 'antd'
 const AddAssignTeacher = ({
   open,
   isEditMode,
@@ -12,6 +11,7 @@ const AddAssignTeacher = ({
   teachers = [],
   subjects = []
 }) => {
+
   const [teacherPreview, setTeacherPreview] = useState(null)
 
   const updateTeacherPreview = (teacherCode) => {
@@ -23,23 +23,7 @@ const AddAssignTeacher = ({
     setTeacherPreview(foundTeacher || null)
   }
 
-  useEffect(() => {
-    const teacherCode = form.getFieldValue('teacherCode')
-    if (teacherCode) {
-      updateTeacherPreview(teacherCode)
-    }
-  }, [open, teachers, form])
-
-  const validateTeacherCode = async (_, value) => {
-    if (!value) {
-      return Promise.reject(new Error('Vui lòng nhập mã giáo viên!'))
-    }
-    const foundTeacher = teachers.find(t => t.teacherId === value)
-    if (!foundTeacher) {
-      return Promise.reject(new Error('Mã giáo viên không tồn tại!'))
-    }
-    return Promise.resolve()
-  }
+ 
 
   return (
     <Modal
@@ -54,6 +38,7 @@ const AddAssignTeacher = ({
         layout="vertical"
         onFinish={onSubmit}
       >
+
         <Form.Item
           name="classId"
           label="Lớp học"
@@ -71,23 +56,29 @@ const AddAssignTeacher = ({
         <Form.Item
           name="teacherCode"
           label="Mã giáo viên"
-          rules={[{ validator: validateTeacherCode }]}
+          rules={[{ required: true, message: 'Vui lòng chọn giáo viên!' }]}
           help={
             teacherPreview ? (
               <div style={{ color: 'green' }}>
-                <strong>Giáo viên:</strong> {teacherPreview.username}
+                <strong>Tên GV:</strong> {teacherPreview?.username || ''}
               </div>
             ) : (
-              <div style={{ color: 'orange' }}>Nhập mã để xem thông tin GV</div>
+              <div style={{ color: 'orange' }}>
+                Chọn mã GV để xem thông tin
+              </div>
             )
           }
         >
-          <Input 
-            placeholder="Nhập mã GV (VD: GV01)"
-            onChange={(e) => {
-              updateTeacherPreview(e.target.value)
-            }}
-          />
+          <Select
+            placeholder="Chọn mã giáo viên"
+            onChange={updateTeacherPreview}
+          >
+            {teachers.map(t => (
+              <Select.Option key={t.id} value={t.teacherId}>
+                {t.teacherId} - {t.username}
+              </Select.Option>
+            ))}
+          </Select>
         </Form.Item>
 
         <Form.Item
@@ -95,10 +86,10 @@ const AddAssignTeacher = ({
           label="Môn học"
           rules={[{ required: true, message: 'Vui lòng chọn môn học!' }]}
         >
-          <Select placeholder="Chọn môn">
-            {subjects.map(sub => (
-              <Select.Option key={sub.id} value={sub.id}>
-                {sub.name}
+          <Select placeholder="Chọn môn học">
+            {subjects.map(s => (
+              <Select.Option key={s.id} value={s.id}>
+                {s.name}
               </Select.Option>
             ))}
           </Select>
@@ -110,15 +101,20 @@ const AddAssignTeacher = ({
               <Button onClick={onCancel} disabled={loading}>
                 Hủy
               </Button>
-              <Button type="primary" htmlType="submit" loading={loading}>
+              <Button
+                type="primary"
+                htmlType="submit"
+                loading={loading}
+              >
                 {isEditMode ? 'Cập nhật' : 'Gán giáo viên'}
               </Button>
             </Space>
           </div>
         </Form.Item>
+
       </Form>
     </Modal>
   )
 }
-
 export default AddAssignTeacher
+

@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { Modal, Form, Input, Button } from "antd";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faLock } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
-
+import "../../../assets/styles/ChangePassword.css";
 const Capnhatmatkhau = ({
   open = false,
   onCancel = () => {},
@@ -55,11 +57,13 @@ const Capnhatmatkhau = ({
       footer={null}
       onCancel={handleCancel}
       width={500}
+      className="change-password-modal"
     >
 
       <Form
         form={form}
         layout="vertical"
+        className="change-password-form"
         onFinish={handleSubmit}
       >
 
@@ -74,6 +78,7 @@ const Capnhatmatkhau = ({
           ]}
         >
           <Input.Password
+            prefix={<FontAwesomeIcon icon={faLock} />}
             placeholder="Nhập mật khẩu hiện tại"
             size="large"
           />
@@ -95,6 +100,7 @@ const Capnhatmatkhau = ({
           ]}
         >
           <Input.Password
+            prefix={<FontAwesomeIcon icon={faLock} />}
             placeholder="Nhập mật khẩu mới"
             size="large"
           />
@@ -126,6 +132,7 @@ const Capnhatmatkhau = ({
         >
 
           <Input.Password
+            prefix={<FontAwesomeIcon icon={faLock} />}
             placeholder="Nhập lại mật khẩu mới"
             size="large"
           />
