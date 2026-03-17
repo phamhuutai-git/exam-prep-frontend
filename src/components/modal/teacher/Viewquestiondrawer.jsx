@@ -3,6 +3,7 @@ import {
   UserOutlined,
   CalendarOutlined,
   CheckCircleOutlined,
+  BulbOutlined,
 } from "@ant-design/icons";
 
 const { Title, Text } = Typography;
@@ -90,6 +91,25 @@ export default function ViewQuestionDrawer({ question, onClose }) {
                   </Card>
                 )}
               />
+            </>
+          )}
+          {/* Explanation */}
+          {question?.explanation && (
+            <>
+              <Divider orientation="left">Explanation</Divider>
+
+              <Card
+                style={{
+                  background: "#fffbe6",
+                  border: "1px solid #ffe58f",
+                  borderRadius: 10,
+                }}
+              >
+                <Space align="start">
+                  <BulbOutlined style={{ color: "#faad14", fontSize: 18 }} />
+                  <Text>{question.explanation}</Text>
+                </Space>
+              </Card>
             </>
           )}
         </>

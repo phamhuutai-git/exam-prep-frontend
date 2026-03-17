@@ -1,62 +1,12 @@
-// import React from "react";
-// import { Link, useLocation } from "react-router-dom";
-// import "../../assets/styles/Sider.css";
-// import logo from "../../assets/images/logo.png";
-
-// const Sider = () => {
-//   const location = useLocation();
-
-//   return (
-//     <aside className="sider">
-//       <div className="sider-content">
-//         <div className="sider-logo">
-//           <img src={logo} alt="Logo" className="logo-img" />
-//           <span className="logo-text">Quiz</span>
-//         </div>
-
-//         <nav className="sider-menu">
-//           <Link
-//             to="/teacher"
-//             className={`menu-item ${location.pathname === "/teacher" ? "active" : ""}`}
-//           >
-//             Dashboard
-//           </Link>
-
-//           <Link
-//             to="/teacher/exams"
-//             className={`menu-item ${location.pathname === "/teacher/exams" ? "active" : ""}`}
-//           >
-//             Exams
-//           </Link>
-
-//           <Link
-//             to="/teacher/questions"
-//             className={`menu-item ${location.pathname === "/teacher/questions" ? "active" : ""}`}
-//           >
-//             Questions
-//           </Link>
-
-//           <Link
-//             to="/teacher/students"
-//             className={`menu-item ${location.pathname === "/teacher/students" ? "active" : ""}`}
-//           >
-//             Students
-//           </Link>
-//         </nav>
-//       </div>
-//     </aside>
-//   );
-// };
-
-// export default Sider;
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faChartLine,
-  faBook,
-  faChalkboardUser,
-  faCircleQuestion,
+  faGauge,
+  faFileLines,
+  faClipboardQuestion,
+  faUsers,
+  faChalkboard,
 } from "@fortawesome/free-solid-svg-icons";
 import "../../assets/styles/Sider.css";
 import logo from "../../assets/images/logo.png";
@@ -66,31 +16,31 @@ const adminMenuItems = [
     id: 1,
     title: "Dashboard",
     path: "/teacher",
-    icon: faChartLine,
+    icon: faGauge,
   },
   {
     id: 2,
     title: "Exams",
     path: "/teacher/exams",
-    icon: faBook,
+    icon: faFileLines,
   },
   {
     id: 3,
     title: "Questions",
     path: "/teacher/questions",
-    icon: faCircleQuestion,
+    icon: faClipboardQuestion,
   },
   {
     id: 4,
     title: "Students",
     path: "/teacher/students",
-    icon: faChalkboardUser,
+    icon: faUsers,
   },
   {
     id: 5,
     title: "Exam Classes",
     path: "/teacher/exam-classes",
-    icon: faChalkboardUser,
+    icon: faChalkboard,
   },
 ];
 
@@ -98,7 +48,6 @@ const Sider = () => {
   const location = useLocation();
 
   return (
-    
     <aside className="sider">
       <div className="sider-content">
         <div className="sider-logo">
@@ -127,4 +76,3 @@ const Sider = () => {
   );
 };
 export default Sider;
-

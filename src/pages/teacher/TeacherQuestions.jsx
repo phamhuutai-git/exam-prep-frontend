@@ -1,32 +1,23 @@
-import { useState, useEffect } from "react";
-import {
-  Button,
-  Input,
-  Select,
-  Row,
-  Col,
-  Space,
-  Upload,
-  message,
-  Modal,
-  Pagination,
-} from "antd";
-import {
-  PlusOutlined,
-  UploadOutlined,
-  DownloadOutlined,
-  SearchOutlined,
-} from "@ant-design/icons";
-import CreateQuestionModal from "../../components/modal/teacher/Createquestionmodal";
-import EditQuestionModal from "../../components/modal/teacher/Editquestionmodal";
-import ViewQuestionDrawer from "../../components/modal/teacher/Viewquestiondrawer";
-import questionService from "../../services/teacher/questionService";
-import "../../assets/styles/teacher/Question.css";
-import "../../assets/styles/User.css";
+// file
 import QuestionTable from "../../components/teacher/QuestionTable";
 import UserHeader from "../../components/user/UserHeader";
 import AppPagination from "../../components/common/AppPagination";
 import StatsCards from "../../components/common/StatsCards";
+import CreateQuestionModal from "../../components/modal/teacher/Createquestionmodal";
+import EditQuestionModal from "../../components/modal/teacher/Editquestionmodal";
+import ViewQuestionDrawer from "../../components/modal/teacher/Viewquestiondrawer";
+import questionService from "../../services/teacher/questionService";
+// thuvien
+import { useState, useEffect } from "react";
+import { Button, Input, Select, Upload, message } from "antd";
+import {
+  UploadOutlined,
+  DownloadOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
+// css
+import "../../assets/styles/teacher/Question.css";
+import "../../assets/styles/User.css";
 export default function TeacherQuestion() {
   const [questions, setQuestions] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -148,28 +139,16 @@ export default function TeacherQuestion() {
       message.error("Update failed");
     }
   };
+  const handleDelete = async (id) => {
+    try {
+      await questionService.deleteQuestion(id);
 
-  const handleDelete = (id) => {
-    Modal.confirm({
-      title: "Delete Question",
-      content: "Bạn có chắc muốn xóa câu hỏi này không?",
-      okText: "Xóa",
-      cancelText: "Hủy",
-      okType: "danger",
+      message.success("Question deleted");
 
-      onOk: async () => {
-        try {
-          await questionService.deleteQuestion(id);
-
-          message.success("Question deleted");
-
-          fetchQuestions();
-          // eslint-disable-next-line no-unused-vars
-        } catch (err) {
-          message.error("Delete failed");
-        }
-      },
-    });
+      fetchQuestions();
+    } catch (err) {
+      message.error("Delete failed");
+    }
   };
 
   // ========================= EXPORT/import =========================
@@ -218,12 +197,6 @@ export default function TeacherQuestion() {
   return (
     <div className="teacher-question-page">
       {/* HEADER */}
-      {/* <UserHeader
-        title="Quản lý câu hỏi"
-        description="Tạo, chỉnh sửa, xóa và quản lý câu hỏi"
-        buttonText="Thêm câu hỏi"
-        handleAdd={() => setCreateOpen(true)}
-      /> */}
       <UserHeader
         title="Quản lý câu hỏi"
         description="Tạo, chỉnh sửa, xóa và quản lý câu hỏi"
