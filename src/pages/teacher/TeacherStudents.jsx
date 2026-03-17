@@ -141,7 +141,7 @@ export default function TeacherStudent() {
     <div className="teacher-question-page">
       {/* Header */}
       <UserHeader
-        title="Quản lý học sinh"
+        title="Quản lý học viên"
         description="Theo dõi học sinh và kết quả học tập"
       />
 

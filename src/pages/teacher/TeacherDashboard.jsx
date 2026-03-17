@@ -107,6 +107,7 @@ export default function TeacherDashboard() {
         extra={
           <>
             <Button
+              type="primary"
               icon={<PlusOutlined />}
               onClick={() => setOpenQuestion(true)}
             >
