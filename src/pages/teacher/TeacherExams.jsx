@@ -123,7 +123,7 @@ const TeacherExams = () => {
           onChange={(date, dateString) => setDateFilter(dateString)}
         />
       </div>
-      <div style={{ marginBottom: 16 }} />
+
       <div className="question-table-wrapper">
         <ExamTable data={exams} onPreview={handlePreview} onEdit={handleEdit} />
       </div>

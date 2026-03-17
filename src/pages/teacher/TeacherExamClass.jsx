@@ -99,15 +99,6 @@ export default function TeacherExamsClass() {
     setTotal(filteredData.length);
   }, [filteredData]);
   useEffect(() => {}, [classes]);
-  // STATS
-  const stats = useMemo(() => {
-    return {
-      total: classes.length,
-      hasExam: classes.filter((c) => c.status === "HAS_EXAM").length,
-      noExam: classes.filter((c) => c.status === "NO_EXAM").length,
-      totalExam: classes.filter((c) => c.exam).length,
-    };
-  }, [classes]);
 
   const handleAssignClick = (record) => {
     setSelectedClass(record);
@@ -138,43 +129,42 @@ export default function TeacherExamsClass() {
       <UserHeader
         title="Quản lý lớp thi"
         description="Gán đề thi cho lớp học và quản lý lịch thi"
-      />
-
+      />{" "}
       <StatsCards
         items={[
-          { title: "Tổng lớp", value: stats.total },
-          { title: "Đã có đề", value: stats.hasExam },
-          { title: "Chưa có đề", value: stats.noExam },
-          { title: "Tổng đề đã gán", value: stats.totalExam },
+          { title: "Total Class", value: 0 },
+          { title: "Has Exam", value: 0 },
+          { title: "No Exam", value: 0 },
+          { title: "Total Has Exam", value: 0 },
         ]}
       />
-
+      {/* loc */}
       <div className="filter-bar">
-        <Input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Tìm theo tên lớp..."
-          prefix={<SearchOutlined />}
-          style={{ width: 250 }}
-          allowClear
-        />
+        <div style={{ flex: 1, minWidth: 220 }}>
+          <Input
+            prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
+            placeholder="Tìm kiếm tên lớp..."
+            allowClear
+          />
+        </div>
+
+        {/* Divider dọc */}
+        <div className="filter-divider" />
 
         <Select
           value={statusFilter || undefined}
           onChange={(value) => setStatusFilter(value || "")}
           placeholder="Trạng thái"
           allowClear
-          style={{ width: 180 }}
+          style={{ width: 150 }}
         >
-          <Select.Option value="HAS_EXAM">Đã có đề</Select.Option>
-          <Select.Option value="NO_EXAM">Chưa có đề</Select.Option>
+          <Select.Option value="HAS_EXAM">HAS_EXAM</Select.Option>
+          <Select.Option value="NO_EXAM">NO_EXAM</Select.Option>
         </Select>
       </div>
-
       <div className="question-table-wrapper">
         <ExamClassTable data={paginatedData} onAssign={handleAssignClick} />
       </div>
-
       <AppPagination
         page={page}
         size={size}
@@ -184,7 +174,6 @@ export default function TeacherExamsClass() {
           setSize(s);
         }}
       />
-
       <AssignExamModal
         open={openModal}
         onClose={() => setOpenModal(false)}

@@ -148,10 +148,10 @@ export default function TeacherStudent() {
       {/* Stats */}
       <StatsCards
         items={[
-          { title: "Tổng học sinh", value: 0 },
-          { title: "Đang hoạt động", value: 0 },
-          { title: "Bị khóa", value: 0 },
-          { title: "Điểm TB", value: 0 },
+          { title: "Total Students", value: 0 },
+          { title: "Actived", value: 0 },
+          { title: "Locked", value: 0 },
+          { title: "Avg", value: 0 },
         ]}
       />
 
@@ -163,7 +163,7 @@ export default function TeacherStudent() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
-            placeholder="Tìm theo tên học sinh , lớp , email..."
+            placeholder="Tìm kiếm tên học sinh , lớp , email..."
             allowClear
             onClear={() => setSearch("")}
           />
@@ -194,8 +194,8 @@ export default function TeacherStudent() {
           allowClear
           style={{ width: 150 }}
         >
-          <Select.Option value="ACTIVED">Hoạt động</Select.Option>
-          <Select.Option value="LOCKED">Đã khóa</Select.Option>
+          <Select.Option value="ACTIVED">ACTIVED</Select.Option>
+          <Select.Option value="LOCKED">LOCKED</Select.Option>
         </Select>
 
         {/* SORT */}

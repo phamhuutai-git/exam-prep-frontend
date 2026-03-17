@@ -26,9 +26,9 @@ export default function ExamClassTable({ data, onAssign, loading }) {
       dataIndex: "status",
       render: (s) =>
         s === "HAS_EXAM" ? (
-          <Tag color="green">Đã gán</Tag>
+          <Tag color="green">HAS_EXAM</Tag>
         ) : (
-          <Tag color="red">Chưa có</Tag>
+          <Tag color="red">NO_EXAM</Tag>
         ),
     },
     {
