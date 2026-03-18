@@ -1,57 +1,58 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Form } from 'antd'
 import { toast } from 'react-toastify'
-import '../../assets/styles/User.css'
+import { getClasses, createClass, updateClass, deleteClass } from '../../services/classes.js'
+
 import ClassesHeader from '../../components/classes/ClassesHeader'
 import ClassesFilter from '../../components/classes/ClassesFilter'
 import ClassesTable from '../../components/classes/ClassesTable'
 import Add from '../../components/modal/classes/Add'
 
-// Mock data - Dữ liệu mẫu
-const initialClasses = [
-  {
-    id: 1,
-    className: 'Lớp Java cơ bản 01',
-    createdAt: '2024-01-01'
-  },
-  {
-    id: 2,
-    className: 'Lớp Toán 10A1',
-    createdAt: '2024-01-15'
-  },
-  {
-    id: 3,
-    className: 'Lớp Ngữ Văn 11B2',
-    createdAt: '2024-02-01'
-  },
-  {
-    id: 4,
-    className: 'Lớp Tiếng Anh 12C1',
-    isActive: true,
-    createdAt: '2024-03-01'
-  }
-]
-
 const Classes = () => {
-  const [classesData, setClassesData] = useState(initialClasses)
+  const [classesData, setClassesData] = useState([])
   const [loading, setLoading] = useState(false)
+  const [page, setPage] = useState(0)
+  const [total, setTotal] = useState(0)
+
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isEditMode, setIsEditMode] = useState(false)
   const [selectedClass, setSelectedClass] = useState(null)
   const [form] = Form.useForm()
 
-  // Search state
   const [searchTerm, setSearchTerm] = useState('')
 
-  // Filtered classes based on search
-  const filteredClasses = useMemo(() => {
-    return classesData.filter(cls => 
-      !searchTerm || 
-      cls.classCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      cls.className.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-  }, [classesData, searchTerm])
+  // 🔥 FETCH API CHUẨN
+  const fetchClasses = async (pageParam = 0) => {
+    try {
+      setLoading(true)
 
+      const res = await getClasses({ page: pageParam })
+
+      const data = res.data?.data
+
+      setClassesData(data.content)
+      setTotal(data.totalElements)
+      setPage(data.number)
+
+    } catch (error) {
+      console.error(error)
+      toast.error('Lỗi tải dữ liệu!')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchClasses(page)
+  }, [page])
+
+  // 🔥 SEARCH (theo name)
+  const filteredData = classesData.filter(cls =>
+    !searchTerm ||
+    (cls.name || '').toLowerCase().includes(searchTerm.toLowerCase())
+  )
+
+  // ➕ ADD
   const handleAdd = () => {
     setIsEditMode(false)
     setSelectedClass(null)
@@ -59,6 +60,7 @@ const Classes = () => {
     setIsModalOpen(true)
   }
 
+  // ✏️ EDIT
   const handleEdit = (record) => {
     setIsEditMode(true)
     setSelectedClass(record)
@@ -66,79 +68,67 @@ const Classes = () => {
     setIsModalOpen(true)
   }
 
-  const handleDelete = (id) => {
-    setLoading(true)
-    setTimeout(() => {
-      setClassesData(classesData.filter(cls => cls.id !== id))
-      setLoading(false)
-      toast.success('Xóa lớp thành công!')
-    }, 500)
+  // ❌ DELETE
+  const handleDelete = async (id) => {
+    try {
+      await deleteClass(id)
+      toast.success('Xóa thành công!')
+      fetchClasses(page)
+    } catch {
+      toast.error('Lỗi xóa!')
+    }
   }
 
-  const handleSubmit = (values) => {
-    setLoading(true)
-
-    setTimeout(() => {
-      const currentDate = new Date().toISOString().split('T')[0]
-
+  // 💾 SUBMIT
+  const handleSubmit = async (values) => {
+    try {
       if (isEditMode) {
-        setClassesData(classesData.map(cls =>
-          cls.id === selectedClass.id ? { ...cls, ...values } : cls
-        ))
-        toast.success('Cập nhật lớp thành công!')
+        await updateClass(selectedClass.id, values)
+        toast.success('Cập nhật thành công!')
       } else {
-        const newClass = {
-          id: Math.max(...classesData.map(c => c.id)) + 1,
-          ...values,
-          isActive: true,
-          createdAt: currentDate
-        }
-        setClassesData([...classesData, newClass])
-        toast.success('Tạo lớp thành công!')
+        await createClass(values)
+        toast.success('Tạo thành công!')
       }
 
-      setLoading(false)
       setIsModalOpen(false)
       form.resetFields()
-    }, 500)
-  }
+      fetchClasses(page)
 
-  
-
-  const handleCancel = () => {
-    setIsModalOpen(false)
-    form.resetFields()
+    } catch {
+      toast.error('Lỗi lưu!')
+    }
   }
 
   return (
     <div style={{ padding: 24 }}>
-      {/* Header + Button */}
       <ClassesHeader
         title="Quản lý lớp"
-        description="Tạo, chỉnh sửa, xóa và quản lý trạng thái lớp"
+        description="CRUD lớp"
         buttonText="Tạo lớp"
         handleAdd={handleAdd}
       />
 
-      {/* Search and Filter Section */}
       <ClassesFilter
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
       />
-      
+
       <ClassesTable
-        data={filteredClasses}
+        data={filteredData}
         loading={loading}
         onEdit={handleEdit}
         onDelete={handleDelete}
+        page={page}
+        total={total}
+        onPageChange={setPage}
       />
-      
-      <Add 
+
+      <Add
         open={isModalOpen}
         isEditMode={isEditMode}
         form={form}
         loading={loading}
-        onCancel={handleCancel}
+        onCancel={() => setIsModalOpen(false)}
         onSubmit={handleSubmit}
       />
     </div>
@@ -146,4 +136,3 @@ const Classes = () => {
 }
 
 export default Classes
-

@@ -9,8 +9,6 @@ const Add = ({
   onSubmit 
 }) => {
   // Watch role value internally for conditional rendering
-  const roleValue = Form.useWatch('role', form)
-
   return (
     <Modal
       title={isEditMode ? 'Cập nhật người dùng' : 'Thêm người dùng'}
@@ -77,39 +75,6 @@ const Add = ({
             unCheckedChildren="Khóa"
           />
         </Form.Item>
-
-        {/* CLASS - chỉ hiện khi student */}
-        {roleValue === 'student' && (
-          <Form.Item
-            label="Lớp"
-            name="className"
-            rules={[{ required: true, message: 'Chọn lớp' }]}
-          >
-            <Select
-              options={[
-                { value: 'Lớp 10A1', label: 'Lớp 10A1' },
-                { value: 'Lớp 10A2', label: 'Lớp 10A2' },
-                { value: 'Lớp 11A1', label: 'Lớp 11A1' }
-              ]}
-            />
-          </Form.Item>
-        )}
-
-        {/* SUBJECT - chỉ hiện khi teacher */}
-        {roleValue === 'teacher' && (
-          <Form.Item
-            label="Môn"
-            name="subject"
-            rules={[{ required: true, message: 'Chọn môn' }]}
-          >
-            <Select
-              options={[
-                { value: 'Toán', label: 'Toán' },
-                { value: 'Văn', label: 'Văn' }
-              ]}
-            />
-          </Form.Item>
-        )}
 
         <Button
           type="primary"

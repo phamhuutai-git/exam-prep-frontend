@@ -1,32 +1,32 @@
 import React from 'react'
-import { Table, Button, Space, Popconfirm } from 'antd'
+import { Table, Button, Space, Popconfirm, Pagination } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPencil, faTrash } from '@fortawesome/free-solid-svg-icons'
 
-const ClassesTable = ({ data, loading, onEdit, onDelete }) => {
+const ClassesTable = ({ data, loading, onEdit, onDelete, page, total, onPageChange }) => {
 
   const columns = [
     {
       title: 'STT',
       align: 'center',
-      render: (text, record, index) => index + 1
+      render: (_, __, index) => (page * 5) + index + 1 
     },
-
     {
       title: 'Tên lớp',
-      dataIndex: 'className'
+      dataIndex: 'name'
     },
-
     {
-      title: 'Số học sinh',
-      dataIndex: 'enrollment'
+      title: 'Số sinh viên',
+      dataIndex: 'studentCount',
+      align: 'center',
+      render: (count) => count ?? 0
     },
-
     {
       title: 'Ngày tạo',
-      dataIndex: 'createdAt'
+      dataIndex: 'createDate',
+      render: (date) =>
+        date ? new Date(date).toLocaleDateString('vi-VN') : 'N/A'
     },
-
     {
       title: 'Hành động',
       align: 'center',
@@ -36,20 +36,15 @@ const ClassesTable = ({ data, loading, onEdit, onDelete }) => {
             type="text"
             icon={<FontAwesomeIcon icon={faPencil} />}
             onClick={() => onEdit(record)}
-            title="Sửa"
           />
-
           <Popconfirm
             title="Xóa lớp?"
             onConfirm={() => onDelete(record.id)}
-            okText="Xóa"
-            cancelText="Hủy"
           >
             <Button
               type="text"
               icon={<FontAwesomeIcon icon={faTrash} />}
               danger
-              title="Xóa"
             />
           </Popconfirm>
         </Space>
@@ -58,14 +53,23 @@ const ClassesTable = ({ data, loading, onEdit, onDelete }) => {
   ]
 
   return (
-    <Table
-      columns={columns}
-      dataSource={data}
-      rowKey="id"
-      loading={loading}
-      bordered
-      pagination={{ pageSize: 10 }}
+    <>
+  <Table
+    columns={columns}
+    dataSource={data}
+    rowKey="id"
+    loading={loading}
+    pagination={false}
+  />
+  <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16 }}>
+    <Pagination
+      current={page + 1}
+      total={total}
+      pageSize={5}
+      onChange={(p) => onPageChange(p - 1)}
     />
+  </div>
+</>
   )
 }
 

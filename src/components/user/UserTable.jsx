@@ -17,7 +17,6 @@ const UserTable = ({ data, loading, onEdit, onDelete, onToggleStatus}) => {
     }
     return <Tag color={roleColors[role]}>{roleLabels[role]}</Tag>
   }
-
   // Columns definition
   const columns = [
     {
@@ -59,14 +58,7 @@ const UserTable = ({ data, loading, onEdit, onDelete, onToggleStatus}) => {
         </Popconfirm>
       )
     },
-    {
-      title: 'Lớp',
-      dataIndex: 'className'
-    },
-    {
-      title: 'Môn',
-      dataIndex: 'subject'
-    },
+  
     {
       title: 'Ngày tạo',
       dataIndex: 'createdAt'
@@ -74,9 +66,7 @@ const UserTable = ({ data, loading, onEdit, onDelete, onToggleStatus}) => {
     {
       title: 'Hành động',
       render: (_, record) => (
-        <Space>
-         
-         
+        <Space>         
           <Button
             type="text"
             icon={<FontAwesomeIcon icon={faPencil} />}
