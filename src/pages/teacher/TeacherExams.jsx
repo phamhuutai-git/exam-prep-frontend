@@ -6,7 +6,7 @@ import ExamPreviewModal from "../../components/modal/teacher/ExamPreviewModal";
 import ExamFormModal from "../../components/modal/teacher/ExamFormModal.jsx";
 import AppPagination from "../../components/common/AppPagination.jsx";
 import StatsCards from "../../components/common/StatsCards";
-import examService from "../../services/teacher/examService.js";
+import * as examService from "../../services/teacher/examService.js";
 //thu vien
 import React, { useState, useEffect } from "react";
 import { Form, DatePicker, Input, Select } from "antd";
@@ -33,8 +33,12 @@ const TeacherExams = () => {
   useEffect(() => {
     async function fetchExams() {
       try {
-        const response = await examService.getAllExams(page, size);
+        const response = await examService.getExamsByTeacher();
+
+        console.log("response:", response); // debug
+
         const result = response.data.data;
+
         setExams(result.content);
         setTotal(result.totalElements);
       } catch (error) {
@@ -43,8 +47,8 @@ const TeacherExams = () => {
       }
     }
 
-    fetchExams();
-  }, [page, size]);
+    fetchExams(); // ✅ đúng
+  }, []);
 
   const handlePreview = async (exam) => {
     try {

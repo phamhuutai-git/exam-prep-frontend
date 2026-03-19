@@ -17,14 +17,12 @@ const examService = {
 export default examService;
 
 export async function getExamsByTeacher() {
-  return api
-    .get("/teacher/exams/teacher-name")
-    .then((response) => {
-      return response;
-    })
-    .catch(() => {
-      toast.error("Lỗi khi tải danh sách đề thi");
-    });
+  try {
+    return await api.get("/teacher/exams/teacher-name");
+  } catch (error) {
+    toast.error("Lỗi khi tải danh sách đề thi");
+    throw error;
+  }
 }
 
 export async function getQuestionsByExamId(examId) {
