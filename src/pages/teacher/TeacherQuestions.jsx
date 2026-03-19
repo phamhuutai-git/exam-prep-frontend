@@ -21,9 +21,26 @@ import "../../assets/styles/User.css";
 export default function TeacherQuestion() {
   const [questions, setQuestions] = useState([]);
   const [categories, setCategories] = useState([]);
-  useEffect(() => {
-    fetchCategories();
-  }, []);
+  // Filter state
+  const [search, setSearch] = useState("");
+  const [diffFilter, setDiffFilter] = useState();
+  const [catFilter, setCatFilter] = useState();
+  const [searchInput, setSearchInput] = useState("");
+  // Modal / Drawer state
+  const [createOpen, setCreateOpen] = useState(false);
+  const [editingQuestion, setEditingQuestion] = useState(null);
+  const [viewingQuestion, setViewingQuestion] = useState(null);
+  const [page, setPage] = useState(0);
+  const [size, setSize] = useState(4);
+  const [total, setTotal] = useState(0);
+  //star
+  const [stats, setStats] = useState({
+    countTotal: 0,
+    countEasy: 0,
+    countMedium: 0,
+    countHard: 0,
+  });
+
   const fetchQuestions = async () => {
     try {
       const res = await questionService.getAllQuestion({
@@ -52,6 +69,17 @@ export default function TeacherQuestion() {
       message.error("Load category failed");
     }
   };
+
+  //STATS
+  const fetchStats = async () => {
+    try {
+      const res = await questionService.countQuestion();
+      setStats(res.data.data);
+    } catch (err) {
+      message.error("Load stats failed");
+    }
+  };
+
   const handleView = async (id) => {
     try {
       const res = await questionService.getDetailQuestion(id);
@@ -62,53 +90,8 @@ export default function TeacherQuestion() {
       message.error("Load question detail failed");
     }
   };
-  // Filter state
-  const [search, setSearch] = useState("");
-  const [diffFilter, setDiffFilter] = useState();
-  const [catFilter, setCatFilter] = useState();
-  const [searchInput, setSearchInput] = useState("");
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setSearch(searchInput);
-    }, 500);
 
-    return () => clearTimeout(timer);
-  }, [searchInput]);
-
-  // Modal / Drawer state
-  const [createOpen, setCreateOpen] = useState(false);
-  const [editingQuestion, setEditingQuestion] = useState(null);
-  const [viewingQuestion, setViewingQuestion] = useState(null);
-  const [page, setPage] = useState(0);
-  const [size, setSize] = useState(4);
-  const [total, setTotal] = useState(0);
-
-  // ========================= FILTER =========================
-
-  useEffect(() => {
-    fetchQuestions();
-    fetchStats();
-  }, [search, diffFilter, catFilter, page, size]);
-
-  // ========================= STATS =========================
-
-  const [stats, setStats] = useState({
-    countTotal: 0,
-    countEasy: 0,
-    countMedium: 0,
-    countHard: 0,
-  });
-  const fetchStats = async () => {
-    try {
-      const res = await questionService.countQuestion();
-
-      setStats(res.data.data);
-    } catch (err) {
-      message.error("Load stats failed");
-    }
-  };
-
-  // ========================= CRUD =========================
+  //  CRUD
 
   const handleCreate = async (values) => {
     try {
@@ -151,7 +134,7 @@ export default function TeacherQuestion() {
     }
   };
 
-  // ========================= EXPORT/import =========================
+  // EXPORT/import
 
   const handleExport = async () => {
     try {
@@ -194,6 +177,28 @@ export default function TeacherQuestion() {
       message.error("Import failed");
     }
   };
+
+  //EFFECT
+  // debounce search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearch(searchInput);
+      setPage(0); // reset page
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchInput]);
+
+  // fetch main data
+  useEffect(() => {
+    fetchQuestions();
+  }, [search, diffFilter, catFilter, page, size]);
+
+  // fetch static data
+  useEffect(() => {
+    fetchCategories();
+    fetchStats();
+  }, []);
   return (
     <div className="teacher-question-page">
       {/* HEADER */}
@@ -236,7 +241,7 @@ export default function TeacherQuestion() {
         <div style={{ flex: 1, minWidth: 220 }}>
           <Input
             prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
-            placeholder="Tìm kiếm câu hỏi..."
+            placeholder="Search Question..."
             allowClear
             onChange={(e) => setSearchInput(e.target.value)}
           />

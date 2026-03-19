@@ -98,7 +98,6 @@ const ALL_QUESTIONS = [
 ];
 
 export default function ExamFormModal({ exam, onClose, onSave }) {
-  
   const [form] = Form.useForm();
   const [selectedIds, setSelectedIds] = useState(exam?.questionIds || []);
   const [qSearch, setQSearch] = useState("");
@@ -131,12 +130,12 @@ export default function ExamFormModal({ exam, onClose, onSave }) {
 
   return (
     <Modal
-      title={exam ? "Cập nhật đề thi" : "Tạo đề thi mới"}
+      title={exam ? "Edit Exam" : "Create Exam"}
       open
       onCancel={onClose}
       onOk={handleOk}
-      okText={exam ? "Lưu thay đổi" : "Tạo đề thi"}
-      cancelText="Hủy"
+      okText={exam ? "Save" : "Create Exam"}
+      cancelText="Cancel"
       width={680}
     >
       <Form

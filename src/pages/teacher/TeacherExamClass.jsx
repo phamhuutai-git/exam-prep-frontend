@@ -1,77 +1,140 @@
 import { useState, useMemo, useEffect } from "react";
 import UserHeader from "../../components/user/UserHeader";
 import ExamClassTable from "../../components/teacher/ExamClassTable";
-import AssignExamModal from "../../components/modal/teacher/AssignExamModal";
+import ViewClassDrawer from "../../components/modal/teacher/ViewClassDrawer";
 import StatsCards from "../../components/common/StatsCards";
 import AppPagination from "../../components/common/AppPagination";
-
+import EditClassExamModal from "../../components/modal/teacher/EditClassExamModal";
 import "../../assets/styles/User.css";
 
 import { Input, Select } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 
 // MOCK DATA
-const MOCK_CLASSES = [
+const MOCK_CLASS_EXAMS = [
   {
     id: 1,
     name: "Railway01",
     students: 25,
-    exam: "Java Basic",
-    duration: 60,
-    status: "HAS_EXAM",
+    exams: [
+      {
+        id: 1, // class_exam.id
+        examId: 1,
+        title: "Java Basic Test",
+        duration: 30,
+        startTime: "2024-04-01 09:00:00",
+        endTime: "2024-04-01 09:30:00",
+        status: "HAS_EXAM",
+      },
+    ],
   },
   {
     id: 2,
     name: "Railway02",
     students: 30,
-    exam: "Java Basic",
-    duration: 20,
-    status: "HAS_EXAM",
+    exams: [
+      {
+        id: 2,
+        examId: 2,
+        title: "Spring Test",
+        duration: 40,
+        startTime: "2024-04-01 10:00:00",
+        endTime: "2024-04-01 10:40:00",
+        status: "HAS_EXAM",
+      },
+    ],
   },
   {
     id: 3,
     name: "Railway03",
     students: 20,
-    exam: "SQL Test",
-    duration: 45,
-    status: "HAS_EXAM",
+    exams: [
+      {
+        id: 3,
+        examId: 3,
+        title: "SQL Test",
+        duration: 30,
+        startTime: "2024-04-02 09:00:00",
+        endTime: "2024-04-02 09:30:00",
+        status: "HAS_EXAM",
+      },
+      {
+        id: 4,
+        examId: 4,
+        title: "HTML Test",
+        duration: 20,
+        startTime: "2024-04-02 10:00:00",
+        endTime: "2024-04-02 10:20:00",
+        status: "HAS_EXAM",
+      },
+    ],
   },
   {
     id: 4,
     name: "Rocket01",
     students: 18,
-    exam: null,
-    duration: null,
-    status: "NO_EXAM",
+    exams: [],
   },
   {
     id: 5,
     name: "Rocket02",
     students: 18,
-    exam: "SQL Test",
-    duration: 45,
-    status: "HAS_EXAM",
+    exams: [
+      {
+        id: 5,
+        examId: 5,
+        title: "JS Test",
+        duration: 25,
+        startTime: "2024-04-03 09:00:00",
+        endTime: "2024-04-03 09:25:00",
+        status: "HAS_EXAM",
+      },
+      {
+        id: 6,
+        examId: 6,
+        title: "JS 1",
+        duration: 25,
+        startTime: "2024-04-03 10:00:00",
+        endTime: "2024-04-03 10:25:00",
+        status: "HAS_EXAM",
+      },
+    ],
   },
 ];
-
 const MOCK_EXAMS = [
-  { id: 1, title: "Java Basic" },
+  { id: 1, title: "Java Basic Test" },
   { id: 2, title: "SQL Test" },
   { id: 3, title: "ReactJS" },
   { id: 4, title: "Spring Boot" },
 ];
 
 export default function TeacherExamsClass() {
-  const [classes, setClasses] = useState(MOCK_CLASSES);
+  const [classes, setClasses] = useState(MOCK_CLASS_EXAMS);
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
 
-  const [selectedClass, setSelectedClass] = useState(null);
-  const [openModal, setOpenModal] = useState(false);
-
+  const [viewClass, setViewClass] = useState(null);
+  const [sortClass, setSortClass] = useState("");
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(4);
   const [total, setTotal] = useState(0);
+  const [selectedClass, setSelectedClass] = useState(null);
+  const [openModal, setOpenModal] = useState(false);
+
+  const handleView = (record) => {
+    setViewClass(record);
+  };
+
+  const handleEdit = (record) => {
+    setSelectedClass(record);
+    setOpenModal(true);
+  };
+  const handleRemoveExam = (classId, examId) => {
+    console.log("remove");
+  };
+  const handleSave = ({ examId, duration, startTime, endTime }) => {
+    console.log("save");
+    setOpenModal(false);
+  };
 
   // FILTER
   const filteredData = useMemo(() => {
@@ -82,12 +145,8 @@ export default function TeacherExamsClass() {
       data = data.filter((c) => c.name.toLowerCase().includes(q));
     }
 
-    if (statusFilter) {
-      data = data.filter((c) => c.status === statusFilter);
-    }
-
     return data;
-  }, [classes, search, statusFilter]);
+  }, [classes, search]);
 
   // PAGINATION
   const paginatedData = useMemo(() => {
@@ -98,73 +157,61 @@ export default function TeacherExamsClass() {
   useEffect(() => {
     setTotal(filteredData.length);
   }, [filteredData]);
-  useEffect(() => {}, [classes]);
-
-  const handleAssignClick = (record) => {
-    setSelectedClass(record);
-    setOpenModal(true);
-  };
-
-  const handleAssignSubmit = ({ examId, duration }) => {
-    const exam = MOCK_EXAMS.find((e) => e.id === examId);
-
-    setClasses((prev) =>
-      prev.map((c) =>
-        c.id === selectedClass.id
-          ? {
-              ...c,
-              exam: exam?.title,
-              duration,
-              status: "HAS_EXAM",
-            }
-          : c,
-      ),
-    );
-
-    setOpenModal(false);
-  };
 
   return (
     <div className="teacher-question-page">
       <UserHeader
         title="Quản lý lớp thi"
         description="Gán đề thi cho lớp học và quản lý lịch thi"
-      />{" "}
+      />
+
       <StatsCards
         items={[
           { title: "Total Class", value: 0 },
           { title: "Total Student", value: 0 },
-          { title: "Has Exam", value: 0 },
-          { title: "No Exam", value: 0 },
+          { title: "Total Has Exam", value: 0 },
+          { title: "Total All Exam ", value: 0 },
         ]}
       />
-      {/* loc */}
+
+      {/* Filters */}
       <div className="filter-bar">
+        {/* SEARCH */}
         <div style={{ flex: 1, minWidth: 220 }}>
           <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
             prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
-            placeholder="Tìm kiếm tên lớp..."
+            placeholder="Search Class Name..."
             allowClear
+            onClear={() => setSearch("")}
           />
         </div>
 
-        {/* Divider dọc */}
         <div className="filter-divider" />
 
+        {/* SORT */}
         <Select
-          value={statusFilter || undefined}
-          onChange={(value) => setStatusFilter(value || "")}
-          placeholder="Trạng thái"
+          value={sortClass || undefined}
+          onChange={(value) => setSortClass(value || "")}
+          placeholder="Sort by"
           allowClear
-          style={{ width: 150 }}
+          style={{ width: 170 }}
         >
-          <Select.Option value="HAS_EXAM">HAS_EXAM</Select.Option>
-          <Select.Option value="NO_EXAM">NO_EXAM</Select.Option>
+          <Select.Option value="class">Class</Select.Option>
+          <Select.Option value="exam">Total Exam</Select.Option>
         </Select>
       </div>
+      {/* TABLE */}
       <div className="question-table-wrapper">
-        <ExamClassTable data={paginatedData} onAssign={handleAssignClick} />
+        <ExamClassTable
+          data={paginatedData}
+          onView={handleView}
+          onEdit={handleEdit}
+        />
       </div>
+
+      {/* PAGINATION */}
       <AppPagination
         page={page}
         size={size}
@@ -174,11 +221,15 @@ export default function TeacherExamsClass() {
           setSize(s);
         }}
       />
-      <AssignExamModal
+
+      <ViewClassDrawer data={viewClass} onClose={() => setViewClass(null)} />
+      <EditClassExamModal
         open={openModal}
-        onClose={() => setOpenModal(false)}
-        onSubmit={handleAssignSubmit}
+        data={selectedClass}
         exams={MOCK_EXAMS}
+        onCancel={() => setOpenModal(false)}
+        onSave={handleSave}
+        onRemoveExam={handleRemoveExam}
       />
     </div>
   );

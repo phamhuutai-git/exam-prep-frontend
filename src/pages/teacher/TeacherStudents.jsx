@@ -8,7 +8,7 @@ import ViewStudentDrawer from "../../components/modal/teacher/ViewStudentDrawer"
 import "../../assets/styles/User.css";
 import "../../assets/styles/teacher/Question.css";
 // thu vien
-import { Button, Input, Select } from "antd";
+import { Input, Select } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import StudentTable from "../../components/teacher/StudentTable";
 
@@ -22,6 +22,7 @@ const INITIAL_STUDENTS = [
     classId: 1,
     status: "ACTIVED",
     createDate: "2024-01-04",
+    avgScore: 7.0,
     attempts: [
       { exam: "Java Basic", score: 8.0, date: "2024-02-01" },
       { exam: "SQL", score: 6.0, date: "2024-02-01" },
@@ -36,6 +37,7 @@ const INITIAL_STUDENTS = [
     classId: 2,
     status: "ACTIVED",
     createDate: "2024-01-05",
+    avgScore: 8.0,
     attempts: [{ exam: "Java Basic", score: 8.0, date: "2024-02-01" }],
   },
   {
@@ -47,7 +49,8 @@ const INITIAL_STUDENTS = [
     classId: 1,
     status: "LOCKED",
     createDate: "2024-01-06",
-    attempts: [{ exam: "Java Basic", score: 8.0, date: "2024-02-01" }],
+    avgScore: 5.5,
+    attempts: [{ exam: "Java Basic", score: 5.5, date: "2024-02-01" }],
   },
   {
     id: 4,
@@ -58,18 +61,35 @@ const INITIAL_STUDENTS = [
     classId: 3,
     status: "ACTIVED",
     createDate: "2024-01-07",
-    attempts: [{ exam: "Java Basic", score: 8.0, date: "2024-02-01" }],
+    avgScore: 8.5,
+    attempts: [
+      { exam: "Java Basic", score: 9.0, date: "2024-02-01" },
+      { exam: "SQL", score: 8.0, date: "2024-02-02" },
+    ],
   },
   {
     id: 5,
-    firstName: "Minh",
-    lastName: "Tran",
-    email: "student4@mail.com",
-    username: "student4",
-    classId: 3,
+    firstName: "Anh",
+    lastName: "Le",
+    email: "student5@mail.com",
+    username: "student5",
+    classId: 4,
     status: "ACTIVED",
-    createDate: "2024-01-07",
-    attempts: [{ exam: "Java Basic", score: 8.0, date: "2024-02-01" }],
+    createDate: "2024-01-08",
+    avgScore: null,
+    attempts: [],
+  },
+  {
+    id: 6,
+    firstName: "Khoa",
+    lastName: "Vo",
+    email: "student6@mail.com",
+    username: "student6",
+    classId: 2,
+    status: "LOCKED",
+    createDate: "2024-01-09",
+    avgScore: 6.5,
+    attempts: [{ exam: "ReactJS", score: 6.5, date: "2024-02-03" }],
   },
 ];
 const CLASSES = [
@@ -78,10 +98,6 @@ const CLASSES = [
   { id: 3, name: "Railway03" },
   { id: 4, name: "Rocket01" },
 ];
-const getAvgScore = (attempts) => {
-  if (!attempts.length) return null;
-  return attempts.reduce((s, a) => s + a.score, 0) / attempts.length;
-};
 
 export default function TeacherStudent() {
   const [students] = useState(INITIAL_STUDENTS);
@@ -89,7 +105,7 @@ export default function TeacherStudent() {
   const [classFilter, setClassFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [detail, setDetail] = useState(null);
-  const [sortBy, setSortBy] = useState("name");
+  const [sortBy, setSortBy] = useState("");
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(4);
   const [total, setTotal] = useState(0);
@@ -124,15 +140,13 @@ export default function TeacherStudent() {
   }, [filtered, page, size]);
   const tableData = useMemo(() => {
     return paginatedData.map((s) => {
-      const avg = getAvgScore(s.attempts);
-
       return {
         ...s,
         key: s.id,
         student: `${s.firstName} ${s.lastName}`,
         class: CLASSES.find((c) => c.id === s.classId)?.name || "—",
         attempt: s.attempts.length,
-        avg: avg !== null ? avg.toFixed(1) : "—",
+        avg: s.avgScore !== null ? s.avgScore.toFixed(1) : "—",
       };
     });
   }, [paginatedData]);
@@ -163,7 +177,7 @@ export default function TeacherStudent() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
-            placeholder="Tìm kiếm tên học sinh , lớp , email..."
+            placeholder="Search Student , class , email..."
             allowClear
             onClear={() => setSearch("")}
           />
@@ -175,7 +189,7 @@ export default function TeacherStudent() {
         <Select
           value={classFilter || undefined}
           onChange={(value) => setClassFilter(value || "")}
-          placeholder="Tất cả lớp"
+          placeholder="Class"
           allowClear
           style={{ width: 150 }}
         >
@@ -190,7 +204,7 @@ export default function TeacherStudent() {
         <Select
           value={statusFilter || undefined}
           onChange={(value) => setStatusFilter(value || "")}
-          placeholder="Trạng thái"
+          placeholder="Status"
           allowClear
           style={{ width: 150 }}
         >
@@ -200,13 +214,15 @@ export default function TeacherStudent() {
 
         {/* SORT */}
         <Select
-          value={sortBy}
-          onChange={(value) => setSortBy(value)}
+          value={sortBy || undefined}
+          onChange={(value) => setSortBy(value || "")}
+          placeholder="Sort by"
+          allowClear
           style={{ width: 170 }}
         >
-          <Select.Option value="name">Sắp xếp: Tên</Select.Option>
-          <Select.Option value="score">Sắp xếp: Điểm TB</Select.Option>
-          <Select.Option value="attempts">Sắp xếp: Lượt thi</Select.Option>
+          <Select.Option value="name">Student</Select.Option>
+          <Select.Option value="score">Avg</Select.Option>
+          <Select.Option value="attempts">Attempt</Select.Option>
         </Select>
       </div>
 

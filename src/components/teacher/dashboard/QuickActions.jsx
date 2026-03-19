@@ -36,7 +36,7 @@ export default function QuickActions() {
         boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
       }}
     >
-      <Space direction="vertical" style={{ width: "100%" }} size="middle">
+      <Space orientation="vertical" style={{ width: "100%" }} size="middle">
         {actions.map((action, index) => (
           <Button
             key={index}

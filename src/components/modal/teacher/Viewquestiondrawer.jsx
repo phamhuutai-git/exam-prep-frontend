@@ -20,7 +20,7 @@ export default function ViewQuestionDrawer({ question, onClose }) {
       title=" Question Detail"
       open={!!question}
       onClose={onClose}
-      width={480}
+       size="large"
     >
       {question && (
         <>

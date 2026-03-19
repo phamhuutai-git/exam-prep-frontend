@@ -3,7 +3,7 @@ import { Tag } from "antd";
 import dayjs from "dayjs";
 import BaseTable from "../common/BaseTable";
 import TableActions from "../common/TableActions";
-const ExamTable = ({ data, loading, onPreview, onEdit, onDelete }) => {
+const ExamTable = ({ data, loading, onPreview, onEdit }) => {
   const columns = [
     {
       title: "Code",
@@ -39,7 +39,7 @@ const ExamTable = ({ data, loading, onPreview, onEdit, onDelete }) => {
           record={record}
           onView={onPreview}
           onEdit={onEdit}
-          onDelete={onDelete}
+          onDelete={false}
         />
       ),
     },

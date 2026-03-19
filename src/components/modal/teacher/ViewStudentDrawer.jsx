@@ -35,11 +35,10 @@ export default function ViewStudentDrawer({ student, onClose }) {
       title="Student Detail"
       open={!!student}
       onClose={onClose}
-      width={480}
+      size="large"
     >
       {student && (
         <>
-          {/* Basic Info */}
           <Card
             style={{
               marginBottom: 16,

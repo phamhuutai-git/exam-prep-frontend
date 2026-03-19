@@ -83,7 +83,7 @@ export default function EditQuestionModal({
       onCancel={handleCancel}
       onOk={handleOk}
       okText="Save"
-      destroyOnClose
+      destroyOnHidden
       width={600}
     >
       <Form form={form} layout="vertical" onFinish={handleFinish}>

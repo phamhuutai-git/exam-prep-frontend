@@ -97,7 +97,7 @@ const TeacherExams = () => {
         <div style={{ flex: 1, minWidth: 220 }}>
           <Input
             prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
-            placeholder="Tìm kiếm đề thi..."
+            placeholder="Search Exam..."
             allowClear
             onChange={(e) => setSearchInput(e.target.value)}
           />
