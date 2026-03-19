@@ -1,7 +1,6 @@
 import React from "react";
 import Header from "../Header";
 import Sider from "./Sider";
-import "../../assets/styles/AdminLayouts.css";
 import { Outlet } from "react-router-dom";
 const StudentLayout = () => {
   return (

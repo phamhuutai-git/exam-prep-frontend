@@ -1,0 +1,88 @@
+import React from 'react'
+import { Modal, Form, Input, Select, Switch, Button } from 'antd'
+
+const Add = ({ 
+  open, 
+  isEditMode, 
+  form, 
+  loading, 
+  onCancel, 
+  onSubmit 
+}) => {
+
+  return (
+    <Modal
+      title={isEditMode ? 'Cập nhật người dùng' : 'Thêm người dùng'}
+      open={open}
+      onCancel={onCancel}
+      onOk={() => form.submit()} // 👈 bấm nút OK sẽ submit form
+      okText={isEditMode ? 'Cập nhật' : 'Thêm'}
+      cancelText="Hủy"
+      confirmLoading={loading}
+      okButtonProps={{ type: 'primary' }}
+    >
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={onSubmit}
+        initialValues={{ role: 'student', isActive: true }}
+      >
+        {/* USERNAME */}
+        <Form.Item
+          label="Tên đăng nhập"
+          name="username"
+          rules={[{ required: true, message: 'Nhập tên đăng nhập' }]}
+        >
+          <Input disabled={isEditMode} />
+        </Form.Item>
+
+        {/* EMAIL */}
+        <Form.Item
+          label="Email"
+          name="email"
+          rules={[{ required: true, message: 'Nhập email' }]}
+        >
+          <Input />
+        </Form.Item>
+
+        {/* FULLNAME */}
+        <Form.Item
+          label="Họ và tên"
+          name="fullName"
+          rules={[{ required: true, message: 'Nhập họ và tên' }]}
+        >
+          <Input />
+        </Form.Item>
+
+        {/* ROLE */}
+        <Form.Item
+          label="Vai trò"
+          name="role"
+          rules={[{ required: true }]}
+        >
+          <Select
+            options={[
+              { value: 'admin', label: 'Quản trị viên' },
+              { value: 'teacher', label: 'Giáo viên' },
+              { value: 'student', label: 'Học sinh' }
+            ]}
+          />
+        </Form.Item>
+
+        {/* STATUS */}
+        <Form.Item
+          label="Trạng thái"
+          name="isActive"
+          valuePropName="checked"
+        >
+          <Switch
+            checkedChildren="Hoạt động"
+            unCheckedChildren="Khóa"
+          />
+        </Form.Item>
+      </Form>
+    </Modal>
+  )
+}
+
+export default Add
