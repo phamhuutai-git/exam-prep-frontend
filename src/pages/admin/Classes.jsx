@@ -2,12 +2,13 @@ import React, { useState, useEffect } from 'react'
 import { Form } from 'antd'
 import { toast } from 'react-toastify'
 import { getClasses, createClass, updateClass, deleteClass } from '../../services/classes.js'
-
 import ClassesHeader from '../../components/classes/ClassesHeader'
 import ClassesFilter from '../../components/classes/ClassesFilter'
 import ClassesTable from '../../components/classes/ClassesTable'
 import Add from '../../components/modal/classes/Add'
-
+import AddUser from '../../components/modal/classes/AddUser.jsx'
+import { getUsers } from '../../services/userService.js'
+import { addUsersToClass } from '../../services/classes.js'
 const Classes = () => {
   const [classesData, setClassesData] = useState([])
   const [loading, setLoading] = useState(false)
@@ -18,6 +19,11 @@ const Classes = () => {
   const [isEditMode, setIsEditMode] = useState(false)
   const [selectedClass, setSelectedClass] = useState(null)
   const [form] = Form.useForm()
+
+  const [showAddUserModal, setShowAddUserModal] = useState(false)
+  const [availableUsers, setAvailableUsers] = useState([])
+  const [selectedClassForUsers, setSelectedClassForUsers] = useState(null)
+  const [userLoading, setUserLoading] = useState(false)
 
   const [searchTerm, setSearchTerm] = useState('')
 
@@ -79,6 +85,46 @@ const Classes = () => {
     }
   }
 
+  // Fetch available users for AddUser modal
+  const fetchUsers = async () => {
+    try {
+      setUserLoading(true)
+      const res = await getUsers()
+      setAvailableUsers(res.data?.data?.content || [])
+    } catch (error) {
+      console.error(error)
+      toast.error('Lỗi tải danh sách sinh viên!')
+    } finally {
+      setUserLoading(false)
+    }
+  }
+
+  // Open AddUser modal for specific class
+  const handleOpenAddUser = async (record) => {
+    setSelectedClassForUsers(record)
+    await fetchUsers()
+    setShowAddUserModal(true)
+  }
+
+  // Submit adding users to class
+  const handleAddUsersToClass = async (userIds) => {
+    if (!userIds.length || !selectedClassForUsers) {
+      toast.warning('Chọn ít nhất 1 sinh viên!')
+      return
+    }
+    try {
+      await addUsersToClass(selectedClassForUsers.id, userIds)
+      toast.success('Thêm sinh viên thành công!')
+      setShowAddUserModal(false)
+      setAvailableUsers([])
+      setSelectedClassForUsers(null)
+      fetchClasses(page)
+    } catch (error) {
+      console.error(error)
+      toast.error('Lỗi thêm sinh viên!')
+    }
+  }
+
   // 💾 SUBMIT
   const handleSubmit = async (values) => {
     try {
@@ -103,7 +149,7 @@ const Classes = () => {
     <div style={{ padding: 24 }}>
       <ClassesHeader
         title="Quản lý lớp"
-        description="CRUD lớp"
+        description="Tạo, chỉnh sửa, xóa lớp học"
         buttonText="Tạo lớp"
         handleAdd={handleAdd}
       />
@@ -116,6 +162,7 @@ const Classes = () => {
       <ClassesTable
         data={filteredData}
         loading={loading}
+        onadd={handleOpenAddUser}
         onEdit={handleEdit}
         onDelete={handleDelete}
         page={page}
@@ -130,6 +177,14 @@ const Classes = () => {
         loading={loading}
         onCancel={() => setIsModalOpen(false)}
         onSubmit={handleSubmit}
+      />
+
+      <AddUser
+        open={showAddUserModal}
+        users={availableUsers}
+        loading={userLoading}
+        onCancel={() => setShowAddUserModal(false)}
+        onSubmit={handleAddUsersToClass}
       />
     </div>
   )

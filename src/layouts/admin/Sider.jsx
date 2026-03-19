@@ -5,7 +5,6 @@ import {
   faChartLine, 
   faUsers, 
   faGraduationCap, 
-  faBook, 
   faChalkboardUser
 } from '@fortawesome/free-solid-svg-icons'
 import '../../assets/styles/Sider.css'
@@ -30,14 +29,9 @@ const adminMenuItems = [
     path: '/admin/classes',
     icon: faGraduationCap 
   },
+  
   { 
     id: 4, 
-    title: 'Quản lý môn', 
-    path: '/admin/subjects',
-    icon: faBook 
-  },
-  { 
-    id: 5, 
     title: 'Gán giáo viên cho lớp', 
     path: '/admin/assign-teacher',
     icon: faChalkboardUser 
@@ -73,5 +67,4 @@ const Sider = () => {
     </aside>
   )
 }
-
 export default Sider

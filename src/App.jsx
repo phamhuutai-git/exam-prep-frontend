@@ -13,8 +13,9 @@ import PublicRoute from "./route/PublicRoute";
 import NotFound from "./pages/NotFound";
 import User from "./pages/admin/User";
 import Classes from "./pages/admin/Classes";
-import Subjects from "./pages/admin/Subjects";
+
 import AssignTeacher from "./pages/admin/AssignTeacher";
+
 import StudentDashboard from "./pages/student/Dashboard";
 import LichSuThi from "./pages/student/LichSuThi";
 import DeThiYeuThich from "./pages/student/DeThiYeuThich";
@@ -76,8 +77,8 @@ const App = () => {
           <Route index element={<Dashboard />} />
           <Route path="users" element={<User />} />
           <Route path="classes" element={<Classes />} />
-          <Route path="subjects" element={<Subjects />} />
           <Route path="assign-teacher" element={<AssignTeacher />} />
+
         </Route>
 
         {/* 404 Page */}

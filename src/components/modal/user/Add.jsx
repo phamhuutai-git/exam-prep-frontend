@@ -1,5 +1,6 @@
 import React from 'react'
 import { Modal, Form, Input, Select, Switch, Button } from 'antd'
+
 const Add = ({ 
   open, 
   isEditMode, 
@@ -8,13 +9,17 @@ const Add = ({
   onCancel, 
   onSubmit 
 }) => {
-  // Watch role value internally for conditional rendering
+
   return (
     <Modal
       title={isEditMode ? 'Cập nhật người dùng' : 'Thêm người dùng'}
       open={open}
-      footer={null}
       onCancel={onCancel}
+      onOk={() => form.submit()} // 👈 bấm nút OK sẽ submit form
+      okText={isEditMode ? 'Cập nhật' : 'Thêm'}
+      cancelText="Hủy"
+      confirmLoading={loading}
+      okButtonProps={{ type: 'primary' }}
     >
       <Form
         form={form}
@@ -75,18 +80,9 @@ const Add = ({
             unCheckedChildren="Khóa"
           />
         </Form.Item>
-
-        <Button
-          type="primary"
-          htmlType="submit"
-          loading={loading}
-        >
-          {isEditMode ? 'Cập nhật' : 'Thêm'}
-        </Button>
       </Form>
     </Modal>
   )
 }
 
 export default Add
-

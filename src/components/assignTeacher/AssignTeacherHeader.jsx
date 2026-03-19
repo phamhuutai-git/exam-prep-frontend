@@ -21,13 +21,14 @@ const AssignTeacherHeader = ({ title, description, buttonText, handleAdd }) => {
           {description}
         </p>
       </div>
+
       {handleAdd && (
         <Button
           type="primary"
           icon={<FontAwesomeIcon icon={faPlus} />}
           onClick={handleAdd}
         >
-          {buttonText || "Thêm"}
+          {buttonText}
         </Button>
       )}
     </div>
@@ -35,4 +36,3 @@ const AssignTeacherHeader = ({ title, description, buttonText, handleAdd }) => {
 }
 
 export default AssignTeacherHeader
-

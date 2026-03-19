@@ -21,3 +21,14 @@ export const updateProfileApi = (data) => {
 export const changePasswordApi = (data) => {
   return api.put("/users/change-password", data);
 };
+///users?page=0&size=5
+export const getUsers = (params = {}) => {
+  return api.get("/users", { params: { size: 5, ...params } });
+}
+
+export const unlockUser = (id) => {
+  return api.put(`/auth/admin/account/unlock/${id}`);
+}
+export const lockUser = (id) => {
+  return api.put(`/auth/admin/account/lock/${id}`);
+}

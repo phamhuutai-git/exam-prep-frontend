@@ -18,3 +18,11 @@ export const updateClass = (id, data) => {
 export const deleteClass = (id) => {
   return api.delete(`/admin/classes/${id}`);
 };
+
+export const getClassStudents = (classId) => {
+  return api.get(`/admin/classes/${classId}/students`);
+};
+
+export const addUsersToClass = (classId, userIds) => {
+  return api.post(`/admin/classes/${classId}/students`, { userIds });
+};

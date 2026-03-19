@@ -43,22 +43,21 @@ const UserTable = ({ data, loading, onEdit, onDelete, onToggleStatus}) => {
       render: (role) => getRoleTag(role)
     },
     {
-      title: 'Trạng thái',
-      dataIndex: 'isActive',
-      render: (isActive, record) => (
-        <Popconfirm
-          title={isActive ? 'Vô hiệu hóa người dùng?' : 'Kích hoạt người dùng?'}
-          onConfirm={() => onToggleStatus(record)}
-        >
-          <Switch
-            checked={isActive}
-            checkedChildren="Hoạt động"
-            unCheckedChildren="Khóa"
-          />
-        </Popconfirm>
-      )
-    },
-  
+  title: 'Trạng thái',
+  dataIndex: 'isActive', // ✅ sửa lại ở đây
+  render: (isActive, record) => (
+    <Popconfirm
+      title={isActive ? 'Vô hiệu hóa người dùng?' : 'Kích hoạt người dùng?'}
+      onConfirm={() => onToggleStatus(record)}
+    >
+      <Switch
+        checked={isActive}
+        checkedChildren="Hoạt động"
+        unCheckedChildren="Khóa"
+      />
+    </Popconfirm>
+  )
+},// ❗ thiếu dấu , ở đây là lỗi chính của bạn
     {
       title: 'Ngày tạo',
       dataIndex: 'createdAt'

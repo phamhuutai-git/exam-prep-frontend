@@ -1,10 +1,9 @@
 import React from 'react'
 import { Table, Button, Space, Popconfirm, Pagination } from 'antd'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPencil, faTrash } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome' // 👈 THIẾU DÒNG NÀY
+import { faPencil, faTrash, faUserPlus } from '@fortawesome/free-solid-svg-icons'
 
-const ClassesTable = ({ data, loading, onEdit, onDelete, page, total, onPageChange }) => {
-
+const ClassesTable = ({ data, loading, onadd, onEdit, onDelete, page, total, onPageChange }) => {
   const columns = [
     {
       title: 'STT',
@@ -32,11 +31,21 @@ const ClassesTable = ({ data, loading, onEdit, onDelete, page, total, onPageChan
       align: 'center',
       render: (_, record) => (
         <Space>
+          {/* Nút thêm sinh viên */}
+          <Button
+            type="text"
+            icon={<FontAwesomeIcon icon={faUserPlus} />}
+            onClick={() => onadd(record)} // 👈 dùng props luôn cho chuẩn
+          />
+
+          {/* Nút sửa */}
           <Button
             type="text"
             icon={<FontAwesomeIcon icon={faPencil} />}
             onClick={() => onEdit(record)}
           />
+
+          {/* Nút xóa */}
           <Popconfirm
             title="Xóa lớp?"
             onConfirm={() => onDelete(record.id)}
@@ -54,22 +63,22 @@ const ClassesTable = ({ data, loading, onEdit, onDelete, page, total, onPageChan
 
   return (
     <>
-  <Table
-    columns={columns}
-    dataSource={data}
-    rowKey="id"
-    loading={loading}
-    pagination={false}
-  />
-  <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16 }}>
-    <Pagination
-      current={page + 1}
-      total={total}
-      pageSize={5}
-      onChange={(p) => onPageChange(p - 1)}
-    />
-  </div>
-</>
+      <Table
+        columns={columns}
+        dataSource={data}
+        rowKey="id"
+        loading={loading}
+        pagination={false}
+      />
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16 }}>
+        <Pagination
+          current={page + 1}
+          total={total}
+          pageSize={5}
+          onChange={(p) => onPageChange(p - 1)}
+        />
+      </div>
+    </>
   )
 }
 

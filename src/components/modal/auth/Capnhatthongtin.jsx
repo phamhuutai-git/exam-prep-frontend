@@ -8,68 +8,52 @@ const Capnhatthongtin = ({
 }) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+
+  // 🔥 FIX: thêm open vào dependency
   useEffect(() => {
-
-    if (user) {
-      form.setFieldsValue({
-        fullName: `${user.firstName || ""} ${user.lastName || ""}`.trim(),
-        email: user.email || "",
-      });
-    }
-
-  }, [user, form]);
-
+  if (open && user) {
+    form.setFieldsValue({
+      fullName: `${user.firstName || ""} ${user.lastName || ""}`.trim(),
+      email: user.email || "",
+    });
+  }
+}, [open, user, form])
 
   const handleSubmit = async (values) => {
-
     try {
-
       setLoading(true);
 
       await onUpdate(values);
 
       form.resetFields();
-
       onCancel();
-
-      
     } catch (error) {
-
       console.error("Update failed", error);
-
     } finally {
-
       setLoading(false);
-
     }
-
   };
-
 
   const handleCancel = () => {
-
     form.resetFields();
-
     onCancel();
-
   };
-
 
   return (
     <Modal
       title="Cập nhật thông tin cá nhân"
       open={open}
-      footer={null}
       onCancel={handleCancel}
+      footer={null}
       width={500}
+      destroyOnClose // 🔥 reset hoàn toàn khi đóng
     >
-
       <Form
         form={form}
         layout="vertical"
         onFinish={handleSubmit}
       >
-
+        {/* FULL NAME */}
         <Form.Item
           label="Họ và tên"
           name="fullName"
@@ -80,7 +64,7 @@ const Capnhatthongtin = ({
           <Input placeholder="Nhập họ và tên" size="large" />
         </Form.Item>
 
-
+        {/* EMAIL */}
         <Form.Item
           label="Email"
           name="email"
@@ -92,7 +76,7 @@ const Capnhatthongtin = ({
           <Input placeholder="Nhập email" size="large" />
         </Form.Item>
 
-
+        {/* BUTTON */}
         <Form.Item style={{ marginBottom: 0 }}>
           <div
             style={{
@@ -115,9 +99,7 @@ const Capnhatthongtin = ({
             </Button>
           </div>
         </Form.Item>
-
       </Form>
-
     </Modal>
   );
 };
