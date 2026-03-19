@@ -46,7 +46,7 @@ const Capnhatthongtin = ({
       onCancel={handleCancel}
       footer={null}
       width={500}
-      destroyOnClose // 🔥 reset hoàn toàn khi đóng
+      destroyOnHidden
     >
       <Form
         form={form}

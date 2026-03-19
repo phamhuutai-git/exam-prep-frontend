@@ -1,9 +1,19 @@
 import React from 'react'
-import { Table, Button, Tag, Switch, Space, Popconfirm } from 'antd'
+import { Table, Button, Tag, Switch, Space, Popconfirm, Pagination } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPencil, faTrash } from '@fortawesome/free-solid-svg-icons'
-const UserTable = ({ data, loading, onEdit, onDelete, onToggleStatus}) => {
-  // Helper function to render role tag
+
+const UserTable = ({
+  data = [],
+  loading,
+  onEdit,
+  onDelete,
+  onToggleStatus,
+  page = 0,
+  total = 0,
+  onPageChange
+}) => {
+
   const getRoleTag = (role) => {
     const roleColors = {
       admin: 'blue',
@@ -17,13 +27,12 @@ const UserTable = ({ data, loading, onEdit, onDelete, onToggleStatus}) => {
     }
     return <Tag color={roleColors[role]}>{roleLabels[role]}</Tag>
   }
-  // Columns definition
+
   const columns = [
     {
       title: 'STT',
-      dataIndex: 'id',
       align: 'center',
-      render: (text, record, index) => index + 1
+      render: (_, __, index) => page * 5 + index + 1
     },
     {
       title: 'Email',
@@ -43,34 +52,34 @@ const UserTable = ({ data, loading, onEdit, onDelete, onToggleStatus}) => {
       render: (role) => getRoleTag(role)
     },
     {
-  title: 'Trạng thái',
-  dataIndex: 'isActive', // ✅ sửa lại ở đây
-  render: (isActive, record) => (
-    <Popconfirm
-      title={isActive ? 'Vô hiệu hóa người dùng?' : 'Kích hoạt người dùng?'}
-      onConfirm={() => onToggleStatus(record)}
-    >
-      <Switch
-        checked={isActive}
-        checkedChildren="Hoạt động"
-        unCheckedChildren="Khóa"
-      />
-    </Popconfirm>
-  )
-},// ❗ thiếu dấu , ở đây là lỗi chính của bạn
+      title: 'Trạng thái',
+      dataIndex: 'isActive',
+      render: (isActive, record) => (
+        <Popconfirm
+          title={isActive ? 'Vô hiệu hóa người dùng?' : 'Kích hoạt người dùng?'}
+          onConfirm={() => onToggleStatus(record)}
+        >
+          <Switch
+            checked={isActive}
+            checkedChildren="Hoạt động"
+            unCheckedChildren="Khóa"
+          />
+        </Popconfirm>
+      )
+    },
     {
       title: 'Ngày tạo',
       dataIndex: 'createdAt'
     },
     {
       title: 'Hành động',
+      align: 'center',
       render: (_, record) => (
-        <Space>         
+        <Space>
           <Button
             type="text"
             icon={<FontAwesomeIcon icon={faPencil} />}
             onClick={() => onEdit(record)}
-            title="Sửa"
           />
           <Popconfirm
             title="Xóa người dùng?"
@@ -80,21 +89,34 @@ const UserTable = ({ data, loading, onEdit, onDelete, onToggleStatus}) => {
               type="text"
               icon={<FontAwesomeIcon icon={faTrash} />}
               danger
-              title="Xóa"
             />
           </Popconfirm>
         </Space>
       )
     }
   ]
+
   return (
-    <Table
-      columns={columns}
-      dataSource={data}
-      rowKey="id"
-      loading={loading}
-      bordered
-    />
+    <>
+      <Table
+        columns={columns}
+        dataSource={data}
+        rowKey="id"
+        loading={loading}
+        bordered
+        pagination={false} // ❗ tắt pagination mặc định
+      />
+
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16 }}>
+        <Pagination
+          current={page + 1}
+          total={total}
+          pageSize={5}
+          onChange={(p) => onPageChange && onPageChange(p - 1)}
+        />
+      </div>
+    </>
   )
 }
+
 export default UserTable

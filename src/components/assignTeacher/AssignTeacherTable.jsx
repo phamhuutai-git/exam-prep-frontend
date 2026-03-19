@@ -3,9 +3,8 @@ import { Table, Button, Space, Popconfirm, Pagination } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPencil, faTrash } from '@fortawesome/free-solid-svg-icons'
 
-const SubjectsTable = ({
+const AssignTeacherTable = ({
   data = [],
-  loading,
   onEdit,
   onDelete,
   page = 0,
@@ -15,16 +14,18 @@ const SubjectsTable = ({
 
   const columns = [
     {
-      title: 'STT',
-      align: 'center',
-      render: (_, __, index) => page * 5 + index + 1
+      title: 'Lớp',
+      dataIndex: 'className',
+      key: 'className'
     },
     {
-      title: 'Tên môn',
-      dataIndex: 'subjectName'
+      title: 'Giáo viên',
+      dataIndex: 'teacherName',
+      key: 'teacherName'
     },
     {
       title: 'Hành động',
+      key: 'action',
       align: 'center',
       render: (_, record) => (
         <Space>
@@ -35,8 +36,10 @@ const SubjectsTable = ({
           />
 
           <Popconfirm
-            title="Xóa môn học?"
+            title="Bạn có chắc muốn xóa?"
             onConfirm={() => onDelete(record.id)}
+            okText="Xóa"
+            cancelText="Hủy"
           >
             <Button
               type="text"
@@ -55,9 +58,8 @@ const SubjectsTable = ({
         columns={columns}
         dataSource={data}
         rowKey="id"
-        loading={loading}
         bordered
-        pagination={false} // ❗ tắt pagination mặc định
+        pagination={false} // ✅ tắt pagination mặc định
       />
 
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16 }}>
@@ -72,4 +74,4 @@ const SubjectsTable = ({
   )
 }
 
-export default SubjectsTable
+export default AssignTeacherTable
