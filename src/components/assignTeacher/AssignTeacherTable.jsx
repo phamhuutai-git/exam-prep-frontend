@@ -1,5 +1,5 @@
 import React from 'react'
-import { Table, Button, Space, Popconfirm, Pagination } from 'antd'
+import { Table, Button, Space, Popconfirm, Pagination, Tag } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPencil, faTrash } from '@fortawesome/free-solid-svg-icons'
 
@@ -14,12 +14,23 @@ const AssignTeacherTable = ({
 
   const columns = [
     {
+      title: 'STT',
+      align: 'center',
+      render: (_, __, index) => page * 5 + index + 1
+    },
+    {
       title: 'Lớp',
       dataIndex: 'className',
       key: 'className'
     },
     {
-      title: 'Giáo viên',
+      title: 'Tài khoản GV',
+      dataIndex: 'teacherUsername',
+      key: 'teacherUsername',
+      render: (username) => <Tag color="blue">{username}</Tag>
+    },
+    {
+      title: 'Tên giáo viên',
       dataIndex: 'teacherName',
       key: 'teacherName'
     },
@@ -29,12 +40,14 @@ const AssignTeacherTable = ({
       align: 'center',
       render: (_, record) => (
         <Space>
+          {/* Sửa */}
           <Button
             type="text"
             icon={<FontAwesomeIcon icon={faPencil} />}
             onClick={() => onEdit(record)}
           />
 
+          {/* Xóa */}
           <Popconfirm
             title="Bạn có chắc muốn xóa?"
             onConfirm={() => onDelete(record.id)}
@@ -59,9 +72,10 @@ const AssignTeacherTable = ({
         dataSource={data}
         rowKey="id"
         bordered
-        pagination={false} // ✅ tắt pagination mặc định
+        pagination={false} // ❗ dùng pagination riêng
       />
 
+      {/* Pagination riêng */}
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16 }}>
         <Pagination
           current={page + 1}

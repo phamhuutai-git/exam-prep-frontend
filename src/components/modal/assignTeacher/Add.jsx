@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { Modal, Form, Select } from 'antd'
+import { Modal, Form, Select, Input } from 'antd'
 
 const Add = ({
   open,
@@ -11,7 +11,16 @@ const Add = ({
   isEditMode = false,
   initialValues = null
 }) => {
+
   const [form] = Form.useForm()
+
+  // 👇 Lắng nghe teacherId
+  const selectedTeacherId = Form.useWatch('teacherId', form)
+
+  // 👇 tìm teacher
+  const selectedTeacher = teachers.find(
+    t => t.id === selectedTeacherId
+  )
 
   useEffect(() => {
     if (open && initialValues) {
@@ -19,7 +28,7 @@ const Add = ({
     } else {
       form.resetFields()
     }
-  }, [open, initialValues])
+  }, [open, initialValues, form])
 
   const handleOk = () => {
     form.validateFields().then(values => {
@@ -37,9 +46,11 @@ const Add = ({
       confirmLoading={loading}
       okText="Lưu"
       cancelText="Hủy"
-      forceRender   
+      forceRender
     >
       <Form form={form} layout="vertical">
+
+        {/* Chọn lớp */}
         <Form.Item
           name="classId"
           label="Chọn lớp"
@@ -54,19 +65,30 @@ const Add = ({
           </Select>
         </Form.Item>
 
+        {/* Chọn tài khoản giáo viên */}
         <Form.Item
           name="teacherId"
-          label="Chọn giáo viên"
+          label="Chọn tài khoản giáo viên"
           rules={[{ required: true, message: 'Vui lòng chọn giáo viên' }]}
         >
-          <Select placeholder="Chọn giáo viên">
+          <Select placeholder="Chọn tài khoản">
             {teachers.map(t => (
               <Select.Option key={t.id} value={t.id}>
-                {t.name}
+                {t.username || t.name} {/* 👈 có thể là username */}
               </Select.Option>
             ))}
           </Select>
         </Form.Item>
+
+        {/* Hiển thị tên giáo viên */}
+        <Form.Item label="Tên giáo viên">
+          <Input
+            value={selectedTeacher?.name || ''}
+            placeholder="Tên giáo viên sẽ hiển thị"
+            disabled
+          />
+        </Form.Item>
+
       </Form>
     </Modal>
   )
