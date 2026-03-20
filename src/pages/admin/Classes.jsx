@@ -1,20 +1,22 @@
 import React, { useState, useEffect } from 'react'
 import { Form } from 'antd'
 import { toast } from 'react-toastify'
-import { getClasses, createClass, updateClass, deleteClass } from '../../services/classes.js'
+import { getClasses, createClass, updateClass, deleteClass, addUsersToClass } from '../../services/classes.js'
 import ClassesHeader from '../../components/classes/ClassesHeader'
 import ClassesFilter from '../../components/classes/ClassesFilter'
 import ClassesTable from '../../components/classes/ClassesTable'
 import Add from '../../components/modal/classes/Add'
 import AddUser from '../../components/modal/classes/AddUser.jsx'
-import { getUsers } from '../../services/userService.js'
-import { addUsersToClass } from '../../services/classes.js'
+import { getUsers,getStudents } from '../../services/userService.js'
+
+import View from '../../components/modal/classes/View.jsx'
 const Classes = () => {
+  const [openView, setOpenView] = useState(false)
+  const [students, setStudents] = useState([])
   const [classesData, setClassesData] = useState([])
   const [loading, setLoading] = useState(false)
   const [page, setPage] = useState(0)
   const [total, setTotal] = useState(0)
-
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isEditMode, setIsEditMode] = useState(false)
   const [selectedClass, setSelectedClass] = useState(null)
@@ -127,24 +129,65 @@ const Classes = () => {
 
   // 💾 SUBMIT
   const handleSubmit = async (values) => {
-    try {
-      if (isEditMode) {
-        await updateClass(selectedClass.id, values)
-        toast.success('Cập nhật thành công!')
-      } else {
-        await createClass(values)
-        toast.success('Tạo thành công!')
-      }
+  try {
+    if (isEditMode) {
+      await updateClass(selectedClass.id, values)
+      toast.success('Cập nhật thành công!')
+    } else {
+      await createClass(values)
+      toast.success('Tạo thành công!')
+    }
 
-      setIsModalOpen(false)
-      form.resetFields()
-      fetchClasses(page)
+    setIsModalOpen(false)
+    form.resetFields()
+    fetchClasses(page)
 
-    } catch {
-      toast.error('Lỗi lưu!')
+  } catch (error) {
+    console.error(error)
+
+    // 👇 lấy message từ backend
+    const message =
+      error.response?.data?.message || 'Lỗi lưu!'
+
+    // 👇 custom tiếng Việt nếu muốn
+    if (message === 'Class name existed') {
+      toast.error('Tên lớp đã tồn tại!')
+    } else {
+      toast.error(message)
     }
   }
+}
 
+  const handleView = async (record) => {
+  try {
+    setLoading(true)
+
+    const res = await getStudents()
+
+    const raw = res.data?.data || []
+
+    // 👇 lọc theo lớp
+    const filtered = raw.filter(
+      (u) => u.classes?.id === record.id
+    )
+
+    // 👇 map lại cho UI
+    const mapped = filtered.map(u => ({
+      id: u.id,
+      username: u.username,
+      fullName: `${u.firstName} ${u.lastName}`
+    }))
+
+    setStudents(mapped)
+    setOpenView(true)
+
+  } catch (error) {
+    console.error(error)
+    toast.error('Lỗi tải danh sách sinh viên!')
+  } finally {
+    setLoading(false)
+  }
+}
   return (
     <div style={{ padding: 24 }}>
       <ClassesHeader
@@ -167,6 +210,7 @@ const Classes = () => {
         onDelete={handleDelete}
         page={page}
         total={total}
+          onview={handleView} // 👈 THÊM DÒNG NÀY
         onPageChange={setPage}
       />
 
@@ -186,6 +230,11 @@ const Classes = () => {
         onCancel={() => setShowAddUserModal(false)}
         onSubmit={handleAddUsersToClass}
       />
+      <View
+  open={openView}
+  onCancel={() => setOpenView(false)}
+  students={students}
+/>
     </div>
   )
 }

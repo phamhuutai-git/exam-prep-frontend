@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react'
-import { Modal, Form, Select, Input } from 'antd'
+import { Modal, Form, Select, Table } from 'antd'
+import { toast } from 'react-toastify'
 
 const Add = ({
   open,
@@ -14,17 +15,15 @@ const Add = ({
 
   const [form] = Form.useForm()
 
-  // 👇 Lắng nghe teacherId
-  const selectedTeacherId = Form.useWatch('teacherId', form)
-
-  // 👇 tìm teacher
-  const selectedTeacher = teachers.find(
-    t => t.id === selectedTeacherId
-  )
+  // 👇 lấy danh sách (nhưng chỉ cho 1 phần tử)
+  const selectedTeacherIds = Form.useWatch('teacherIds', form) || []
 
   useEffect(() => {
     if (open && initialValues) {
-      form.setFieldsValue(initialValues)
+      form.setFieldsValue({
+        ...initialValues,
+        teacherIds: initialValues.teacherIds || []
+      })
     } else {
       form.resetFields()
     }
@@ -32,10 +31,36 @@ const Add = ({
 
   const handleOk = () => {
     form.validateFields().then(values => {
-      onSubmit(values)
+      if (!values.teacherIds || !values.teacherIds.length) {
+        toast.warning('Vui lòng chọn giáo viên!')
+        return
+      }
+
+      // 👉 chỉ lấy 1 thằng
+      onSubmit({
+        ...values,
+        teacherId: values.teacherIds[0]
+      })
+
       form.resetFields()
     })
   }
+
+  const columns = [
+    {
+      title: 'STT',
+      align: 'center',
+      render: (_, __, index) => index + 1
+    },
+    {
+      title: 'Username',
+      dataIndex: 'username'
+    },
+    {
+      title: 'Họ và tên GV',
+      dataIndex: 'name'
+    }
+  ]
 
   return (
     <Modal
@@ -46,11 +71,11 @@ const Add = ({
       confirmLoading={loading}
       okText="Lưu"
       cancelText="Hủy"
-      forceRender
+      width={700}
     >
       <Form form={form} layout="vertical">
 
-        {/* Chọn lớp */}
+        {/* chọn lớp */}
         <Form.Item
           name="classId"
           label="Chọn lớp"
@@ -65,29 +90,49 @@ const Add = ({
           </Select>
         </Form.Item>
 
-        {/* Chọn tài khoản giáo viên */}
-        <Form.Item
-          name="teacherId"
-          label="Chọn tài khoản giáo viên"
-          rules={[{ required: true, message: 'Vui lòng chọn giáo viên' }]}
-        >
-          <Select placeholder="Chọn tài khoản">
-            {teachers.map(t => (
-              <Select.Option key={t.id} value={t.id}>
-                {t.username || t.name} {/* 👈 có thể là username */}
-              </Select.Option>
-            ))}
-          </Select>
-        </Form.Item>
+        {/* hidden field */}
+        <Form.Item name="teacherIds" hidden />
 
-        {/* Hiển thị tên giáo viên */}
-        <Form.Item label="Tên giáo viên">
-          <Input
-            value={selectedTeacher?.name || ''}
-            placeholder="Tên giáo viên sẽ hiển thị"
-            disabled
-          />
-        </Form.Item>
+        {/* table */}
+        <Table
+          columns={columns}
+          dataSource={teachers}
+          rowKey="id"
+          pagination={false}
+          loading={loading}
+          scroll={{ y: 300 }}
+
+          rowSelection={{
+            type: 'checkbox',
+            selectedRowKeys: selectedTeacherIds,
+
+            // 👇 chỉ giữ 1 cái
+            onChange: (selectedRowKeys) => {
+              const last = selectedRowKeys.slice(-1)
+              form.setFieldsValue({ teacherIds: last })
+            },
+
+            // 👇 disable các checkbox khác khi đã chọn 1
+            getCheckboxProps: (record) => ({
+              disabled:
+                selectedTeacherIds.length > 0 &&
+                !selectedTeacherIds.includes(record.id)
+            })
+          }}
+
+          // 👇 click row để chọn luôn (UX xịn)
+          onRow={(record) => ({
+            onClick: () => {
+              const current = selectedTeacherIds
+
+              if (current.includes(record.id)) {
+                form.setFieldsValue({ teacherIds: [] })
+              } else {
+                form.setFieldsValue({ teacherIds: [record.id] })
+              }
+            }
+          })}
+        />
 
       </Form>
     </Modal>

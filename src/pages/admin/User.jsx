@@ -30,10 +30,13 @@ const [total, setTotal] = useState(0)
     fetchUsers(page)
   }, [page])
 
-  const fetchUsers = async (pageParam = page) => {
+const fetchUsers = async (pageParam = page) => {
   setLoading(true)
   try {
-    const res = await getUsers({ page: pageParam })
+    const res = await getUsers({
+      page: pageParam,
+      size: 5 // 👈 THÊM DÒNG NÀY
+    })
 
     const rawData = res.data?.data?.content || []
 
@@ -50,12 +53,10 @@ const [total, setTotal] = useState(0)
     }))
 
     setUsers(mappedData)
-
-    // 🔥 QUAN TRỌNG
     setTotal(res.data?.data?.totalElements || 0)
 
   } catch (error) {
-    toast.error('Lỗi khi tải danh sách!'+ error.message)
+    toast.error('Lỗi khi tải danh sách!' + error.message)
   } finally {
     setLoading(false)
   }

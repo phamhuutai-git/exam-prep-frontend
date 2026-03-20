@@ -33,3 +33,7 @@ export const unlockUser = (id) => {
 export const lockUser = (id) => {
   return api.put(`/auth/admin/account/lock/${id}`);
 }
+//users/students
+export const getStudents = (params = {}) => {
+  return api.get("/users/students", { params: { size: 5, ...params } });
+}
