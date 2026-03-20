@@ -123,12 +123,12 @@ export default function ExamFormModal({ exam, questions, onClose, onSave }) {
 
   return (
     <Modal
-      title={exam ? "Cập nhật đề thi" : "Tạo đề thi mới"}
+      title={exam ? "Edit Exam" : "Create Exam"}
       open
       onCancel={onClose}
       onOk={handleOk}
-      okText={exam ? "Lưu thay đổi" : "Tạo đề thi"}
-      cancelText="Hủy"
+      okText={exam ? "Save" : "Create Exam"}
+      cancelText="Cancel"
       width={680}
     >
       <Form

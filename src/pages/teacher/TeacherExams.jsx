@@ -38,6 +38,7 @@ const TeacherExams = () => {
       try {
         const response = await examsAPI.getExamsByTeacher(page, size);
         const result = response.data.data;
+
         setExams(result.content);
         setTotal(result.totalElements);
       } catch (error) {
@@ -64,7 +65,7 @@ const TeacherExams = () => {
     }
 
     fetchQuestion();
-  }, []);
+  }, [reload]);
 
   const handlePreview = async (exam) => {
     try {
@@ -107,6 +108,22 @@ const TeacherExams = () => {
     setEditingExam(null);
   };
 
+  const handleDelete = async (examId) => {
+    try {
+      await examService.deleteExam(examId);
+
+      toast.success("Xóa đề thi thành công");
+      setReload(prev => !prev);
+
+    } catch (error) {
+      toast.error("Có lỗi xảy ra khi xóa đề thi");
+      console.error(error);
+    }
+  }
+
+  const totalCategories = new Set(exams.map((e) => e.category)).size;
+
+
   return (
     <div className="teacher-question-page">
       <UserHeader
@@ -118,10 +135,10 @@ const TeacherExams = () => {
 
       <StatsCards
         items={[
-          { title: "Total Exams", value: 0 },
+          { title: "Total Exams", value: exams.length },
           { title: "Total Questions", value: 0 },
           { title: "Avg Duration", value: 0 },
-          { title: "Categories", value: 0 },
+          { title: "Categories", value: totalCategories },
         ]}
       />
       {/* FILTER */}
@@ -129,7 +146,7 @@ const TeacherExams = () => {
         <div style={{ flex: 1, minWidth: 220 }}>
           <Input
             prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
-            placeholder="Tìm kiếm đề thi..."
+            placeholder="Search Exam..."
             allowClear
             onChange={(e) => setSearchInput(e.target.value)}
           />
@@ -157,7 +174,7 @@ const TeacherExams = () => {
       </div>
 
       <div className="question-table-wrapper">
-        <ExamTable data={exams} onPreview={handlePreview} onEdit={handleEdit} />
+        <ExamTable data={exams} onPreview={handlePreview} onEdit={handleEdit} onDelete={handleDelete} />
       </div>
 
       <ExamPreviewModal exam={previewExam} onClose={handleClosePreview} />
@@ -175,13 +192,10 @@ const TeacherExams = () => {
               if (editingExam) {
                 // Update exam
                 await examService.updateExam(editingExam.id, data);
-                console.log("Update exam: ", editingExam.id, data);
                 toast.success("Cập nhật đề thi thành công");
               } else {
                 // Create new exam
-                console.log("Create exam: ", data);
                 await examService.createExam(data);
-
                 toast.success("Tạo đề thi thành công");
               }
 

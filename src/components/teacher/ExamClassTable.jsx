@@ -1,42 +1,30 @@
-import { Tag, Button } from "antd";
 import BaseTable from "../common/BaseTable";
+import TableActions from "../common/TableActions";
 
-export default function ExamClassTable({ data, onAssign, loading }) {
+export default function ExamClassTable({ data, onView, onEdit, loading }) {
   const columns = [
     {
       title: "Class",
       dataIndex: "name",
     },
     {
-      title: "Students Number",
+      title: "Students",
       dataIndex: "students",
     },
     {
-      title: "Exam",
-      dataIndex: "exam",
-      render: (exam) => exam || "Chưa có",
-    },
-    {
-      title: "Duration",
-      dataIndex: "duration",
-      render: (d) => (d ? `${d} phút` : "—"),
-    },
-    {
-      title: "Status",
-      dataIndex: "status",
-      render: (s) =>
-        s === "HAS_EXAM" ? (
-          <Tag color="green">HAS_EXAM</Tag>
-        ) : (
-          <Tag color="red">NO_EXAM</Tag>
-        ),
+      title: "Total Exams",
+      render: (_, record) => record.exams?.length || 0,
     },
     {
       title: "Action",
+      align: "center",
       render: (_, record) => (
-        <Button type="primary" onClick={() => onAssign(record)}>
-          {record.exam ? "Đổi đề" : "Gán đề"}
-        </Button>
+        <TableActions
+          record={record}
+          onView={onView}
+          onEdit={onEdit}
+          showDelete={false}
+        />
       ),
     },
   ];

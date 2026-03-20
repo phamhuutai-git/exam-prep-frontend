@@ -49,7 +49,7 @@ export default function CreateQuestionModal({
       onCancel={handleCancel}
       onOk={handleOk}
       okText="Create"
-      destroyOnClose
+      destroyOnHidden
       width={600}
     >
       <Form form={form} layout="vertical" onFinish={handleFinish}>

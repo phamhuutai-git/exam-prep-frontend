@@ -12,6 +12,7 @@ export const resetPasswordApi = (data) => {
   return api.post("/auth/reset-password", data);
 };
 
-export const changePasswordApi = (data) => {
-  return api.post("/auth/change-password", data);
+export const verifyOtpApi = (data) => {
+  return api.post("/auth/verify-otp", data);
 };
+

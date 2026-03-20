@@ -32,7 +32,7 @@ const Quenmatkhau = ({ open, onClose }) => {
       open={open}
       footer={null}
       onCancel={onClose}
-      style={{ top: 220 }}
+      style={{ top: 320 }}
     >
       <Form layout="vertical" onFinish={handleForgotPassword}>
         <Form.Item

@@ -1,32 +1,17 @@
 import React from 'react'
-import { Table, Button, Tag, Switch, Space, Popconfirm, Pagination } from 'antd'
+import { Table, Button, Space, Popconfirm, Pagination } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPencil, faTrash } from '@fortawesome/free-solid-svg-icons'
 
-const UserTable = ({
+const SubjectsTable = ({
   data = [],
   loading,
   onEdit,
   onDelete,
-  onToggleStatus,
   page = 0,
   total = 0,
   onPageChange
 }) => {
-
-  const getRoleTag = (role) => {
-    const roleColors = {
-      admin: 'blue',
-      teacher: 'green',
-      student: 'orange'
-    }
-    const roleLabels = {
-      admin: 'Quản trị viên',
-      teacher: 'Giáo viên',
-      student: 'Học sinh'
-    }
-    return <Tag color={roleColors[role]}>{roleLabels[role]}</Tag>
-  }
 
   const columns = [
     {
@@ -35,41 +20,8 @@ const UserTable = ({
       render: (_, __, index) => page * 5 + index + 1
     },
     {
-      title: 'Email',
-      dataIndex: 'email'
-    },
-    {
-      title: 'Tên đăng nhập',
-      dataIndex: 'username'
-    },
-    {
-      title: 'Họ và tên',
-      dataIndex: 'fullName'
-    },
-    {
-      title: 'Vai trò',
-      dataIndex: 'role',
-      render: (role) => getRoleTag(role)
-    },
-    {
-      title: 'Trạng thái',
-      dataIndex: 'isActive',
-      render: (isActive, record) => (
-        <Popconfirm
-          title={isActive ? 'Vô hiệu hóa người dùng?' : 'Kích hoạt người dùng?'}
-          onConfirm={() => onToggleStatus(record)}
-        >
-          <Switch
-            checked={isActive}
-            checkedChildren="Hoạt động"
-            unCheckedChildren="Khóa"
-          />
-        </Popconfirm>
-      )
-    },
-    {
-      title: 'Ngày tạo',
-      dataIndex: 'createdAt'
+      title: 'Tên môn',
+      dataIndex: 'subjectName'
     },
     {
       title: 'Hành động',
@@ -81,8 +33,9 @@ const UserTable = ({
             icon={<FontAwesomeIcon icon={faPencil} />}
             onClick={() => onEdit(record)}
           />
+
           <Popconfirm
-            title="Xóa người dùng?"
+            title="Xóa môn học?"
             onConfirm={() => onDelete(record.id)}
           >
             <Button
@@ -119,4 +72,4 @@ const UserTable = ({
   )
 }
 
-export default UserTable
+export default SubjectsTable

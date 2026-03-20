@@ -40,7 +40,6 @@ export default function ExamPreviewModal({ exam, onClose }) {
       onCancel={onClose}
       footer={null}
       width={620}
-      styles={{ body: { maxHeight: "70vh", overflowY: "auto" } }}
     >
       {
         questions.length === 0 ?
@@ -84,6 +83,23 @@ export default function ExamPreviewModal({ exam, onClose }) {
                       <Tag color={d.color} style={{ marginTop: 4 }}>
                         {d.label}
                       </Tag>
+                      {
+                        q.explanation && (
+                          <Text
+                            type="secondary"
+                            style={{
+                              display: "block",
+                              marginTop: 6,
+                              fontSize: 14,
+                              background: "#fafafa",
+                              padding: "6px 10px",
+                              borderRadius: 6,
+                              border: "1px dashed #e8e8e8"
+                            }}>
+                            Explanation: {q.explanation}
+                          </Text>
+                        )
+                      }
                     </div>
                   </Space>
                   <div
