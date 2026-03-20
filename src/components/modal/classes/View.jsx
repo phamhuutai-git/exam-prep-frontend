@@ -16,7 +16,6 @@ const View = ({ open, onCancel, students = [] }) => {
       dataIndex: 'fullName'
     }
   ]
-
   return (
     <Modal
       title="Danh sách sinh viên"
