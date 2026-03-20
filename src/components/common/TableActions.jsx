@@ -29,7 +29,7 @@ const TableActions = ({
 
       {showDelete && (
         <Popconfirm
-          title="Delete exam?"
+          title="Delete item?"
           onConfirm={() => onDelete && onDelete(record.id)}
         >
           <Button danger icon={<DeleteOutlined />} />
