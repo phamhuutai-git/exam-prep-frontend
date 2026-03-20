@@ -1,7 +1,7 @@
 import React from 'react'
 import { Card, Row, Col, Statistic } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faUser, faBook, faUsers } from '@fortawesome/free-solid-svg-icons'
+import { faUser, faUsers } from '@fortawesome/free-solid-svg-icons'
 const Dashboard = () => {
   return (
     <div style={{ padding: '24px' }}>
@@ -25,16 +25,6 @@ const Dashboard = () => {
               value={0}
               prefix={<FontAwesomeIcon icon={faUsers} />}
               styles={{ content: { color: '#52c41a' } }}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} lg={8}>
-          <Card variant="borderless">
-            <Statistic
-              title="Tổng số môn học"
-              value={0}
-              prefix={<FontAwesomeIcon icon={faBook} />}
-              styles={{ content: { color: '#faad14' } }}
             />
           </Card>
         </Col>
