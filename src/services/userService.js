@@ -25,10 +25,11 @@ export const changePasswordApi = (data) => {
 export const getUsers = (params = {}) => {
   return api.get("/users", { params: { size: 5, ...params } });
 }
-
+//Cho user hoạt động lại
 export const unlockUser = (id) => {
   return api.put(`/auth/admin/account/unlock/${id}`);
 }
+//Khóa user
 export const lockUser = (id) => {
   return api.put(`/auth/admin/account/lock/${id}`);
 }
