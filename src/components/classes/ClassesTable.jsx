@@ -57,7 +57,7 @@ const ClassesTable = ({ data, loading, onadd, onEdit, onDelete, onview, page, to
               danger
             />
           </Popconfirm>
-                    {/* Nút xem chi tiết */}
+          {/* Nút xem danh sách sinh viên */}
           <Button
             type="text"
             icon={<FontAwesomeIcon icon={faEye} />}

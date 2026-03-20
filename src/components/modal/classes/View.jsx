@@ -1,6 +1,5 @@
 import React from 'react'
 import { Modal, Table } from 'antd'
-
 const View = ({ open, onCancel, students = [] }) => {
   const columns = [
     {
@@ -17,7 +16,6 @@ const View = ({ open, onCancel, students = [] }) => {
       dataIndex: 'fullName'
     }
   ]
-
   return (
     <Modal
       title="Danh sách sinh viên"
