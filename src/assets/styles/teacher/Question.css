@@ -1,0 +1,124 @@
+/* HEADER */
+.teacher-question-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.teacher-question-header h2 {
+  font-size: 22px;
+  font-weight: 600;
+}
+
+/* STATS CARD */
+.ant-card {
+  border-radius: 10px !important;
+  border: none !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+
+.ant-statistic-title {
+  font-size: 14px;
+}
+
+.ant-statistic-content {
+  font-weight: 600;
+}
+
+/* FILTER BAR */
+.filter-bar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding: 12px 16px;
+  background: #ffffff;
+  border-radius: 10px;
+  border: 1px solid #ececec;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.filter-divider {
+  width: 1px;
+  height: 32px;
+  background: #e8e8e8;
+}
+
+/* SEARCH INPUT */
+.filter-bar .ant-input {
+  border-radius: 6px;
+}
+
+.filter-bar .ant-select-selector {
+  border-radius: 6px !important;
+}
+
+/* TABLE WRAPPER */
+.question-table-wrapper {
+  background: #fff;
+  padding: 10px;
+  border-radius: 12px;
+  border: 1px solid #eee;
+}
+
+/* TABLE */
+.ant-table {
+  border-radius: 10px;
+}
+
+.ant-table-thead > tr > th {
+  background: #fafafa !important;
+  font-weight: 600;
+}
+
+/* ACTION BUTTON */
+.ant-table .ant-btn {
+  border-radius: 6px;
+}
+
+/* TAG */
+.ant-tag {
+  font-weight: 500;
+  border-radius: 6px;
+}
+
+/* PAGINATION */
+.question-pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+/* BUTTON */
+.ant-btn-primary {
+  border-radius: 6px;
+}
+
+/* HOVER TABLE ROW */
+.ant-table-tbody > tr:hover > td {
+  background: #f7f9fc !important;
+}
+.question-table-wrapper {
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #eee;
+  height: 320px;
+  /* fix cứng */
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .teacher-question-header {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+}
