@@ -5,121 +5,121 @@ import AssignTeacherTable from '../../components/assignTeacher/AssignTeacherTabl
 import { toast } from 'react-toastify'
 import Add from '../../components/modal/assignTeacher/Add'
 
+import { getTeachers } from '../../services/userService.js'
+
 const AssignTeacher = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [isEditMode, setIsEditMode] = useState(false)
-  const [editingRecord, setEditingRecord] = useState(null)
+
+  // loading riêng
+  const [teacherLoading, setTeacherLoading] = useState(false)
 
   const [searchTerm, setSearchTerm] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [page, setPage] = useState(0)
 
-  const [page, setPage] = useState(0) // ✅ thêm pagination
+  const [selectedClass, setSelectedClass] = useState(null)
 
+  // ✅ DATA CLASS (demo, sau này thay bằng API)
   const [data, setData] = useState([
     {
       id: 1,
-      classId: 1,
-      className: 'Lớp 10A1',
-      teacherId: 1,
-      teacherName: 'Nguyễn Văn A',
-      teacherUsername: 'teacherA'
+      name: 'Lớp 10A1',
+      students: [
+        { id: 1, name: 'SV 1' },
+        { id: 2, name: 'SV 2' }
+      ],
+      teachers: [
+        { id: 1, username: 'teacherA', firstName: 'Nguyễn', lastName: 'A' }
+      ]
+    },
+    {
+      id: 2,
+      name: 'Lớp 11A2',
+      students: [],
+      teachers: []
     }
   ])
 
-  const classes = [
-    { id: 1, name: 'Lớp 10A1' },
-    { id: 2, name: 'Lớp 11A2' }
-  ]
+  // ✅ danh sách teacher từ API
+  const [teachers, setTeachers] = useState([])
 
-  const teachers = [
-    { id: 1, name: 'Nguyễn Văn A', username: 'teacherA' },
-    { id: 2, name: 'Trần Thị B', username: 'teacherB' }
-  ]
+  // ================= OPEN MODAL =================
+  const handleOpenAddTeacher = async (record) => {
+    setSelectedClass(record)
+    setIsModalOpen(true)
 
-  // ================= ADD + EDIT =================
-  const handleSubmit = (values) => {
-    setLoading(true)
+    try {
+      setTeacherLoading(true)
 
-    const classObj = classes.find(c => c.id === values.classId)
-    const teacherObj = teachers.find(t => t.id === values.teacherId)
+      const res = await getTeachers()
+
+      // ⚠️ tùy backend (content hoặc data)
+      const teacherList =
+        res.data?.data?.content ||
+        res.data?.data ||
+        []
+
+      setTeachers(teacherList)
+
+    } catch (err) {
+      console.error(err)
+      toast.error('Lỗi load danh sách giáo viên!')
+    } finally {
+      setTeacherLoading(false)
+    }
+  }
+
+  // ================= SUBMIT =================
+  const handleSubmit = (teacherIds) => {
+    setTeacherLoading(true)
 
     setTimeout(() => {
 
-      if (isEditMode) {
-        // UPDATE
-        setData(prev =>
-          prev.map(item =>
-            item.id === editingRecord.id
-              ? {
-                  ...item,
-                  classId: values.classId,
-                  className: classObj?.name,
-                  teacherId: values.teacherId,
-                  teacherName: teacherObj?.name,
-                  teacherUsername: teacherObj?.username
-                }
-              : item
+      setData(prev =>
+        prev.map(cls => {
+          if (cls.id !== selectedClass.id) return cls
+
+          // 🔥 replace danh sách teacher
+          const newTeachers = teachers.filter(t =>
+            teacherIds.includes(t.id)
           )
-        )
 
-        toast.success('Cập nhật thành công 🎉')
+          return {
+            ...cls,
+            teachers: newTeachers
+          }
+        })
+      )
 
-      } else {
-        // CHECK TRÙNG LỚP
-        const isExist = data.some(item => item.classId === values.classId)
-        if (isExist) {
-          toast.error('Lớp này đã có giáo viên!')
-          setLoading(false)
-          return
-        }
+      toast.success('Cập nhật giáo viên thành công 🎉')
 
-        const newItem = {
-          id: Date.now(),
-          classId: values.classId,
-          className: classObj?.name,
-          teacherId: values.teacherId,
-          teacherName: teacherObj?.name,
-          teacherUsername: teacherObj?.username
-        }
-
-        setData(prev => [...prev, newItem])
-        toast.success('Thêm thành công 🎉')
-      }
-
-      setLoading(false)
+      setTeacherLoading(false)
       setIsModalOpen(false)
-      setIsEditMode(false)
-      setEditingRecord(null)
+      setSelectedClass(null)
 
     }, 300)
   }
 
-  // ================= DELETE =================
-  const handleDelete = (id) => {
-    setData(prev => prev.filter(item => item.id !== id))
-    toast.success('Xóa thành công')
+  // ================= VIEW =================
+  const handleViewTeachers = (record) => {
+    const names = record.teachers
+      .map(t => `${t.firstName} ${t.lastName}`)
+      .join(', ') || 'Không có'
+
+    toast.info(`Giáo viên: ${names}`)
   }
 
-  // ================= EDIT =================
-  const handleEdit = (record) => {
-    setEditingRecord(record) // ✅ truyền full record
-    setIsEditMode(true)
-    setIsModalOpen(true)
-  }
+  const handleViewStudents = (record) => {
+    const names = record.students
+      .map(s => s.name)
+      .join(', ') || 'Không có'
 
-  // ================= ADD =================
-  const handleAdd = () => {
-    setIsEditMode(false)
-    setEditingRecord(null)
-    setIsModalOpen(true)
+    toast.info(`Sinh viên: ${names}`)
   }
 
   // ================= FILTER =================
   const filteredData = data.filter(item =>
-    item.className.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.teacherName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.teacherUsername?.toLowerCase().includes(searchTerm.toLowerCase())
+    item.name.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   // ================= PAGINATION =================
@@ -131,11 +131,11 @@ const AssignTeacher = () => {
 
   return (
     <div style={{ padding: 20 }}>
+
       <AssignTeacherHeader
         title="Phân công giáo viên"
         description="Quản lý việc phân công giáo viên"
-        buttonText="Thêm phân công"
-        handleAdd={handleAdd}
+        handleAdd={() => toast.info('Chọn lớp rồi bấm +')}
       />
 
       <AssignTeacherFilter
@@ -146,24 +146,28 @@ const AssignTeacher = () => {
 
       <AssignTeacherTable
         data={paginatedData}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
         page={page}
         total={filteredData.length}
         onPageChange={setPage}
+        onAddTeacher={handleOpenAddTeacher}
+        onViewTeachers={handleViewTeachers}
+        onViewStudents={handleViewStudents}
       />
 
+      {/* ✅ MODAL */}
       <Add
         open={isModalOpen}
         onCancel={() => setIsModalOpen(false)}
         onSubmit={handleSubmit}
-        loading={loading}
-        classes={classes}
-        teachers={teachers}
-        isEditMode={isEditMode}
-        initialValues={editingRecord}
+        loading={teacherLoading}
+        users={teachers}
+        currentClassTeacherIds={
+          selectedClass?.teachers?.map(t => t.id) || []
+        }
       />
+
     </div>
   )
 }
+
 export default AssignTeacher

@@ -33,3 +33,23 @@ export const unlockUser = (id) => {
 export const lockUser = (id) => {
   return api.put(`/auth/admin/account/lock/${id}`);
 }
+
+export const getStudentsByClass = (classId) => {
+  return api.get(`/users/students/class-id/${classId}`);
+}
+///users/teachers
+export const getTeachers = () => {
+  return api.get("/users/teachers");
+}
+///users/students
+export const getStudents = () => {
+  return api.get("/users/students");
+}
+//users/teachers/class-id/1
+export const getTeachersByClass = (classId) => {
+  return api.get(`/users/teachers/class/${classId}`);
+}
+
+export const createStudent = (data) => {
+  return api.post("/admin/users", data);
+}

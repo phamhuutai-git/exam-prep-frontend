@@ -1,9 +1,6 @@
 import React from "react"
-import { Button } from "antd"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faPlus } from "@fortawesome/free-solid-svg-icons"
 
-const AssignTeacherHeader = ({ title, description, buttonText, handleAdd }) => {
+const AssignTeacherHeader = ({ title, description }) => {
   return (
     <div
       style={{
@@ -21,16 +18,6 @@ const AssignTeacherHeader = ({ title, description, buttonText, handleAdd }) => {
           {description}
         </p>
       </div>
-
-      {handleAdd && (
-        <Button
-          type="primary"
-          icon={<FontAwesomeIcon icon={faPlus} />}
-          onClick={handleAdd}
-        >
-          {buttonText}
-        </Button>
-      )}
     </div>
   )
 }

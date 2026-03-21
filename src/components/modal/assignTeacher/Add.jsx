@@ -1,95 +1,86 @@
-import React, { useEffect } from 'react'
-import { Modal, Form, Select, Input } from 'antd'
+import React, { useState, useEffect } from 'react'
+import { Modal, Table, Button } from 'antd'
 
 const Add = ({
   open,
   onCancel,
   onSubmit,
+  users = [], // danh sách giáo viên
   loading,
-  classes = [],
-  teachers = [],
-  isEditMode = false,
-  initialValues = null
+  currentClassTeacherIds = [],
+  disabledTeacherIds = [] // thường teacher KHÔNG cần disable
 }) => {
 
-  const [form] = Form.useForm()
+  const [selectedRowKeys, setSelectedRowKeys] = useState([])
 
-  // 👇 Lắng nghe teacherId
-  const selectedTeacherId = Form.useWatch('teacherId', form)
-
-  // 👇 tìm teacher
-  const selectedTeacher = teachers.find(
-    t => t.id === selectedTeacherId
-  )
-
+  // ✅ Sync khi mở modal
   useEffect(() => {
-    if (open && initialValues) {
-      form.setFieldsValue(initialValues)
-    } else {
-      form.resetFields()
+    if (open) {
+      setSelectedRowKeys(currentClassTeacherIds)
     }
-  }, [open, initialValues, form])
+  }, [open, currentClassTeacherIds])
 
-  const handleOk = () => {
-    form.validateFields().then(values => {
-      onSubmit(values)
-      form.resetFields()
+  const columns = [
+    {
+      title: 'STT',
+      align: 'center',
+      render: (_, __, index) => index + 1
+    },
+    {
+      title: 'Username',
+      dataIndex: 'username'
+    },
+    {
+      title: 'Tên giáo viên',
+      render: (_, record) =>
+        `${record.firstName || ''} ${record.lastName || ''}`
+    },
+  ]
+
+  const rowSelection = {
+    selectedRowKeys,
+
+    onChange: (keys) => {
+      setSelectedRowKeys(keys)
+    },
+
+    // ⚠️ Teacher thường KHÔNG disable (vì dạy nhiều lớp)
+    getCheckboxProps: (record) => ({
+      disabled: disabledTeacherIds.includes(record.id)
     })
+  }
+
+  const handleSubmit = () => {
+    onSubmit(selectedRowKeys)
   }
 
   return (
     <Modal
-      title={isEditMode ? 'Sửa phân công' : 'Thêm phân công'}
+      title="Phân công giáo viên"
       open={open}
       onCancel={onCancel}
-      onOk={handleOk}
-      confirmLoading={loading}
-      okText="Lưu"
-      cancelText="Hủy"
-      forceRender
+      width={700}
+      footer={[
+        <Button key="cancel" onClick={onCancel}>
+          Hủy
+        </Button>,
+        <Button
+          key="submit"
+          type="primary"
+          onClick={handleSubmit}
+          loading={loading}
+        >
+          Lưu
+        </Button>
+      ]}
     >
-      <Form form={form} layout="vertical">
-
-        {/* Chọn lớp */}
-        <Form.Item
-          name="classId"
-          label="Chọn lớp"
-          rules={[{ required: true, message: 'Vui lòng chọn lớp' }]}
-        >
-          <Select placeholder="Chọn lớp">
-            {classes.map(c => (
-              <Select.Option key={c.id} value={c.id}>
-                {c.name}
-              </Select.Option>
-            ))}
-          </Select>
-        </Form.Item>
-
-        {/* Chọn tài khoản giáo viên */}
-        <Form.Item
-          name="teacherId"
-          label="Chọn tài khoản giáo viên"
-          rules={[{ required: true, message: 'Vui lòng chọn giáo viên' }]}
-        >
-          <Select placeholder="Chọn tài khoản">
-            {teachers.map(t => (
-              <Select.Option key={t.id} value={t.id}>
-                {t.username || t.name} {/* 👈 có thể là username */}
-              </Select.Option>
-            ))}
-          </Select>
-        </Form.Item>
-
-        {/* Hiển thị tên giáo viên */}
-        <Form.Item label="Tên giáo viên">
-          <Input
-            value={selectedTeacher?.name || ''}
-            placeholder="Tên giáo viên sẽ hiển thị"
-            disabled
-          />
-        </Form.Item>
-
-      </Form>
+      <Table
+        rowKey="id"
+        columns={columns}
+        dataSource={users}
+        rowSelection={rowSelection}
+        pagination={{ pageSize: 5 }}
+      />
     </Modal>
   )
 }

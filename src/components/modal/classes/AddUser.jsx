@@ -1,44 +1,58 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Modal, Table, Button } from 'antd'
 
 const AddUser = ({
   open,
   onCancel,
   onSubmit,
-  users = [], // danh sách user truyền từ ngoài
-  loading
+  users = [],
+  loading,
+  currentClassUserIds = [],
+  disabledUserIds = []
 }) => {
+
   const [selectedRowKeys, setSelectedRowKeys] = useState([])
 
-const columns = [
-  {
-    title: 'STT',
-    align: 'center',
-    render: (_, __, index) => index + 1
-  },
-  {
-    title: 'Username',
-    dataIndex: 'username'
-  },
-  {
-    title: 'Tên đăng nhập',
-    render: (_, record) =>
-      `${record.firstName || ''} ${record.lastName || ''}`
-  },
-  {
-    title: 'Role',
-    dataIndex: 'role'
-  }
-]
+  // ✅ Sync khi mở modal
+  useEffect(() => {
+    if (open) {
+      setSelectedRowKeys(currentClassUserIds)
+    }
+  }, [open, currentClassUserIds])
+
+  const columns = [
+    {
+      title: 'STT',
+      align: 'center',
+      render: (_, __, index) => index + 1
+    },
+    {
+      title: 'Username',
+      dataIndex: 'username'
+    },
+    {
+      title: 'Tên đăng nhập',
+      render: (_, record) =>
+        `${record.firstName || ''} ${record.lastName || ''}`
+    },
+   
+  ]
 
   const rowSelection = {
     selectedRowKeys,
-    onChange: (keys) => setSelectedRowKeys(keys)
+
+    onChange: (keys) => {
+      setSelectedRowKeys(keys)
+    },
+
+    // ✅ disable user thuộc class khác
+    getCheckboxProps: (record) => ({
+      disabled: disabledUserIds.includes(record.id)
+    })
   }
 
   const handleSubmit = () => {
-    onSubmit(selectedRowKeys) // trả về list id user đã chọn
-    setSelectedRowKeys([])
+    onSubmit(selectedRowKeys)
   }
 
   return (
@@ -56,7 +70,6 @@ const columns = [
           type="primary"
           onClick={handleSubmit}
           loading={loading}
-          disabled={selectedRowKeys.length === 0}
         >
           Thêm
         </Button>

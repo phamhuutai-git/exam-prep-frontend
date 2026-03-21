@@ -24,5 +24,5 @@ export const getClassStudents = (classId) => {
 };
 
 export const addUsersToClass = (classId, userIds) => {
-  return api.post(`/admin/classes/${classId}/students`, { userIds });
+  return api.put(`/admin/classes/${classId}/students`, userIds);
 };
