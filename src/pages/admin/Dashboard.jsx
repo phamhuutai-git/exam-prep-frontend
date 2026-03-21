@@ -2,6 +2,7 @@ import React from 'react'
 import { Card, Row, Col, Statistic } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faUser, faUsers } from '@fortawesome/free-solid-svg-icons'
+
 const Dashboard = () => {
   return (
     <div style={{ padding: '24px' }}>

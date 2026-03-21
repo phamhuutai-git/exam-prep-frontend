@@ -2,8 +2,7 @@ import React from 'react'
 import { Table, Button, Space, Popconfirm, Pagination } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome' // 👈 THIẾU DÒNG NÀY
 import { faPencil, faTrash, faUserPlus, faEye } from '@fortawesome/free-solid-svg-icons'
-
-const ClassesTable = ({ data, loading, onadd, onEdit, onDelete, onview, page, total, onPageChange }) => {
+const ClassesTable = ({ data, loading, onadd, onEdit, onDelete, onView, page, total, onPageChange }) => {
   const columns = [
     {
       title: 'STT',
@@ -61,7 +60,7 @@ const ClassesTable = ({ data, loading, onadd, onEdit, onDelete, onview, page, to
           <Button
             type="text"
             icon={<FontAwesomeIcon icon={faEye} />}
-            onClick={() => onview(record)}
+            onClick={() => onView(record)}
           />
         </Space>
       )
