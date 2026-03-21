@@ -34,9 +34,6 @@ const TeacherExams = () => {
     async function fetchExams() {
       try {
         const response = await examService.getExamsByTeacher();
-
-        console.log("response:", response); // debug
-
         const result = response.data.data;
 
         setExams(result.content);
@@ -47,7 +44,7 @@ const TeacherExams = () => {
       }
     }
 
-    fetchExams(); // ✅ đúng
+    fetchExams(); 
   }, []);
 
   const handlePreview = async (exam) => {
