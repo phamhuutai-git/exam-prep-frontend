@@ -7,7 +7,6 @@ import UserFilter from '../../components/user/UserFilter'
 import UserTable from '../../components/user/UserTable'
 import Add from '../../components/modal/user/Add'
 import { getUsers, unlockUser, lockUser } from '../../services/userService.js'
-
 const User = () => {
   const [users, setUsers] = useState([])
   const [page, setPage] = useState(0)
