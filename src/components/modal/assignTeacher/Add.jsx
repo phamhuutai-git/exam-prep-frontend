@@ -1,50 +1,23 @@
-import React, { useEffect } from 'react'
-import { Modal, Form, Select, Table } from 'antd'
-import { toast } from 'react-toastify'
-
+import React, { useState, useEffect } from 'react'
+import { Modal, Table, Button } from 'antd'
 const Add = ({
   open,
   onCancel,
   onSubmit,
+  users = [], // danh sách giáo viên
   loading,
-  classes = [],
-  teachers = [],
-  isEditMode = false,
-  initialValues = null
+  currentClassTeacherIds = [],
+  disabledTeacherIds = [] // thường teacher KHÔNG cần disable
 }) => {
 
-  const [form] = Form.useForm()
+  const [selectedRowKeys, setSelectedRowKeys] = useState([])
 
-  // 👇 lấy danh sách (nhưng chỉ cho 1 phần tử)
-  const selectedTeacherIds = Form.useWatch('teacherIds', form) || []
-
+  // ✅ Sync khi mở modal
   useEffect(() => {
-    if (open && initialValues) {
-      form.setFieldsValue({
-        ...initialValues,
-        teacherIds: initialValues.teacherIds || []
-      })
-    } else {
-      form.resetFields()
+    if (open) {
+      setSelectedRowKeys(currentClassTeacherIds)
     }
-  }, [open, initialValues, form])
-
-  const handleOk = () => {
-    form.validateFields().then(values => {
-      if (!values.teacherIds || !values.teacherIds.length) {
-        toast.warning('Vui lòng chọn giáo viên!')
-        return
-      }
-
-      // 👉 chỉ lấy 1 thằng
-      onSubmit({
-        ...values,
-        teacherId: values.teacherIds[0]
-      })
-
-      form.resetFields()
-    })
-  }
+  }, [open, currentClassTeacherIds])
 
   const columns = [
     {
@@ -57,84 +30,56 @@ const Add = ({
       dataIndex: 'username'
     },
     {
-      title: 'Họ và tên GV',
-      dataIndex: 'name'
-    }
+      title: 'Tên giáo viên',
+      render: (_, record) =>
+        `${record.firstName || ''} ${record.lastName || ''}`
+    },
   ]
+
+  const rowSelection = {
+    selectedRowKeys,
+
+    onChange: (keys) => {
+      setSelectedRowKeys(keys)
+    },
+
+    // ⚠️ Teacher thường KHÔNG disable (vì dạy nhiều lớp)
+    getCheckboxProps: (record) => ({
+      disabled: disabledTeacherIds.includes(record.id)
+    })
+  }
+
+  const handleSubmit = () => {
+    onSubmit(selectedRowKeys)
+  }
 
   return (
     <Modal
-      title={isEditMode ? 'Sửa phân công' : 'Thêm phân công'}
+      title="Phân công giáo viên"
       open={open}
       onCancel={onCancel}
-      onOk={handleOk}
-      confirmLoading={loading}
-      okText="Lưu"
-      cancelText="Hủy"
       width={700}
-    >
-      <Form form={form} layout="vertical">
-
-        {/* chọn lớp */}
-        <Form.Item
-          name="classId"
-          label="Chọn lớp"
-          rules={[{ required: true, message: 'Vui lòng chọn lớp' }]}
-        >
-          <Select placeholder="Chọn lớp">
-            {classes.map(c => (
-              <Select.Option key={c.id} value={c.id}>
-                {c.name}
-              </Select.Option>
-            ))}
-          </Select>
-        </Form.Item>
-
-        {/* hidden field */}
-        <Form.Item name="teacherIds" hidden />
-
-        {/* table */}
-        <Table
-          columns={columns}
-          dataSource={teachers}
-          rowKey="id"
-          pagination={false}
+      footer={[
+        <Button key="cancel" onClick={onCancel}>
+          Hủy
+        </Button>,
+        <Button
+          key="submit"
+          type="primary"
+          onClick={handleSubmit}
           loading={loading}
-          scroll={{ y: 300 }}
-
-          rowSelection={{
-            type: 'checkbox',
-            selectedRowKeys: selectedTeacherIds,
-
-            // 👇 chỉ giữ 1 cái
-            onChange: (selectedRowKeys) => {
-              const last = selectedRowKeys.slice(-1)
-              form.setFieldsValue({ teacherIds: last })
-            },
-
-            // 👇 disable các checkbox khác khi đã chọn 1
-            getCheckboxProps: (record) => ({
-              disabled:
-                selectedTeacherIds.length > 0 &&
-                !selectedTeacherIds.includes(record.id)
-            })
-          }}
-
-          // 👇 click row để chọn luôn (UX xịn)
-          onRow={(record) => ({
-            onClick: () => {
-              const current = selectedTeacherIds
-
-              if (current.includes(record.id)) {
-                form.setFieldsValue({ teacherIds: [] })
-              } else {
-                form.setFieldsValue({ teacherIds: [record.id] })
-              }
-            }
-          })}
-        />
-
-      </Form>
+        >
+          Lưu
+        </Button>
+      ]}
+    >
+      <Table
+        rowKey="id"
+        columns={columns}
+        dataSource={users}
+        rowSelection={rowSelection}
+        pagination={{ pageSize: 5 }}
+      />
     </Modal>
   )
 }
