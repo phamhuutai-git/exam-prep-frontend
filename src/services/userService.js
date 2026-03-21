@@ -41,15 +41,11 @@ export const getStudentsByClass = (classId) => {
 export const getTeachers = () => {
   return api.get("/users/teachers");
 }
-///users/students
+// ///users/students
 export const getStudents = () => {
   return api.get("/users/students");
 }
 //users/teachers/class-id/1
-export const getTeachersByClass = (classId) => {
-  return api.get(`/users/teachers/class/${classId}`);
-}
 
-export const createStudent = (data) => {
-  return api.post("/admin/users", data);
-}
+
+

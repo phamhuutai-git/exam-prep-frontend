@@ -5,7 +5,6 @@ import TeacherLayout from "./layouts/teacher/TeacherLayout";
 import AdminLayouts from "./layouts/admin/AdminLayout";
 import ResetPassword from "./pages/login/ResetPassword";
 import Dashboard from "./pages/admin/Dashboard";
-// import ComingSoon from './pages/admin/ComingSoon'
 import { Routes, Route } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import ProtectedRoute from "./route/ProtectedRoute";
@@ -20,6 +19,11 @@ import StudentDashboard from "./pages/student/Dashboard";
 import LichSuThi from "./pages/student/LichSuThi";
 import DeThiYeuThich from "./pages/student/DeThiYeuThich";
 import BaiThi from "./pages/student/BaiThi";
+import TeacherExams from "./pages/teacher/TeacherExams";
+import TeacherQuestions from "./pages/teacher/TeacherQuestions";
+import TeacherStudents from "./pages/teacher/TeacherStudents";
+import TeacherDashboard from "./pages/teacher/TeacherDashboard";
+import TeacherExamsClass from "./pages/teacher/TeacherExamClass";
 const App = () => {
   return (
     <>
@@ -57,6 +61,7 @@ const App = () => {
           <Route path="bai-thi" element={<BaiThi />} />
         </Route>
 
+        {/* TEACHER */}
         <Route
           path="/teacher"
           element={
@@ -64,7 +69,13 @@ const App = () => {
               <TeacherLayout />
             </ProtectedRoute>
           }
-        />
+        >
+          <Route index element={<TeacherDashboard />} />
+          <Route path="exams" element={<TeacherExams />} />
+          <Route path="questions" element={<TeacherQuestions />} />
+          <Route path="students" element={<TeacherStudents />} />
+          <Route path="exam-classes" element={<TeacherExamsClass />} />
+        </Route>
 
         <Route
           path="/admin"

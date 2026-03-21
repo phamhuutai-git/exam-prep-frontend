@@ -57,38 +57,38 @@ const Header = () => {
     localStorage.removeItem("userRole");
     localStorage.removeItem("userInfo");
     localStorage.removeItem("accessToken");
-    
+
     // Gọi logout từ AuthContext để cập nhật state
     logout();
-    
-    message.success('Đăng xuất thành công!');
+
+    message.success("Đăng xuất thành công!");
     // Chuyển về trang login
-    window.location.href = '/';
+    window.location.href = "/";
   };
 
   const menuItems = [
     {
-      key: 'profile',
+      key: "profile",
       icon: <FontAwesomeIcon icon={faUser} />,
-      label: 'Cập nhật thông tin',
-      onClick: () => setIsModalOpen(true)
+      label: "Cập nhật thông tin",
+      onClick: () => setIsModalOpen(true),
     },
     {
-      key: 'password',
+      key: "password",
       icon: <FontAwesomeIcon icon={faKey} />,
-      label: 'Đổi mật khẩu',
-      onClick: () => setIsPasswordModalOpen(true)
+      label: "Đổi mật khẩu",
+      onClick: () => setIsPasswordModalOpen(true),
     },
     {
-      type: 'divider'
+      type: "divider",
     },
     {
-      key: 'logout',
+      key: "logout",
       icon: <FontAwesomeIcon icon={faSignOutAlt} />,
-      label: 'Đăng xuất',
+      label: "Đăng xuất",
       danger: true,
-      onClick: handleLogout
-    }
+      onClick: handleLogout,
+    },
   ];
 
  
@@ -97,14 +97,12 @@ const Header = () => {
 
   return (
     <header className="header">
-      <div className="header-left">
-        
-      </div>
-      
+      <div className="header-left"></div>
+
       <div className="header-right">
-        <Dropdown 
-          menu={{ items: menuItems }} 
-          trigger={['click']}
+        <Dropdown
+          menu={{ items: menuItems }}
+          trigger={["click"]}
           placement="bottomRight"
         >
           <div className="user-info">
@@ -115,7 +113,7 @@ const Header = () => {
             <FontAwesomeIcon icon={faCog} className="dropdown-icon" />
           </div>
         </Dropdown>
-        <Capnhatthongtin 
+        <Capnhatthongtin
           open={isModalOpen}
           onCancel={() => setIsModalOpen(false)}
           onUpdate={handleProfileUpdate}
@@ -125,11 +123,9 @@ const Header = () => {
           open={isPasswordModalOpen}
           onCancel={() => setIsPasswordModalOpen(false)}
           onChangePassword={handleChangePassword}
-                   
         />
       </div>
     </header>
   );
 };
 export default Header;
-

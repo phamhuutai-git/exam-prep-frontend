@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react'
 import { Modal, Table, Button } from 'antd'
-
 const Add = ({
   open,
   onCancel,
@@ -37,6 +36,24 @@ const Add = ({
     },
   ]
 
+=======
+
+  const columns = [
+    {
+      title: 'STT',
+      align: 'center',
+      render: (_, __, index) => index + 1
+    },
+    {
+      title: 'Username',
+      dataIndex: 'username'
+    },
+    {
+      title: 'Tên giáo viên',
+      render: (_, record) =>
+        `${record.firstName || ''} ${record.lastName || ''}`
+    },
+  ]
   const rowSelection = {
     selectedRowKeys,
 

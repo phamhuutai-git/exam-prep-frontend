@@ -8,7 +8,7 @@ import {
   faChalkboardUser
 } from '@fortawesome/free-solid-svg-icons'
 import '../../assets/styles/Sider.css'
-import logo from '../../assets//images/logo.png'
+import logo from '../../assets/images/logo.png'
 
 const adminMenuItems = [
   { 
