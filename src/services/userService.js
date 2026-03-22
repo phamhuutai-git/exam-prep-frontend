@@ -37,6 +37,10 @@ export const lockUser = (id) => {
 export const getStudentsByClass = (classId) => {
   return api.get(`/users/students/class-id/${classId}`);
 }
+///users/teachers/class-id/{classId}
+export const getTeachersByClass = (classId) => {
+  return api.get(`/users/teachers/class-id/${classId}`);
+}
 ///users/teachers
 export const getTeachers = () => {
   return api.get("/users/teachers");
