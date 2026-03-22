@@ -34,7 +34,18 @@ export async function getQuestionsByExamId(examId) {
       return response;
     })
     .catch((error) => {
-      toast.error("Lỗi khi tải danh sách câu hỏi");
       throw error;
     });
 }
+
+export async function getClassesByTeacher(page, size) {
+  return api
+    .get(`/admin/classes/teacher?page=${page}&size=${size}`)
+    .then((response) => {
+      return response;
+    })
+    .catch((error) => {
+      throw error;
+    });
+}
+
