@@ -13,7 +13,8 @@ const AssignTeacherTable = ({
   onPageChange,
   onAddTeacher,
   onViewTeachers,
-  onViewStudents
+  onViewStudents,
+  loading
 }) => {
 
   const columns = [
@@ -29,13 +30,13 @@ const AssignTeacherTable = ({
     },
     {
       title: 'Số sinh viên',
-      key: 'studentCount',
-      render: (_, record) => record.studentCount || record.students?.length || 0
+      dataIndex: 'studentCount',
+      key: 'studentCount'
     },
     {
       title: 'Số giáo viên',
-      key: 'teacherCount',
-      render: (_, record) => record.teachers?.length || 0
+      dataIndex: 'teacherCount', // ✅ FIX CHÍNH
+      key: 'teacherCount'
     },
     {
       title: 'Hành động',
@@ -43,28 +44,23 @@ const AssignTeacherTable = ({
       align: 'center',
       render: (_, record) => (
         <Space>
-
-          {/* ➕ Thêm giáo viên */}
           <Button
             type="text"
             icon={<FontAwesomeIcon icon={faUserPlus} />}
-            onClick={() => onAddTeacher && onAddTeacher(record)}
+            onClick={() => onAddTeacher(record)}
           />
 
-          {/* 👁 Xem giáo viên */}
           <Button
             type="text"
             icon={<FontAwesomeIcon icon={faEye} />}
-            onClick={() => onViewTeachers && onViewTeachers(record)}
+            onClick={() => onViewTeachers(record)}
           />
 
-          {/* 👁 Xem sinh viên */}
           <Button
             type="text"
             icon={<FontAwesomeIcon icon={faEye} />}
-            onClick={() => onViewStudents && onViewStudents(record)}
+            onClick={() => onViewStudents(record)}
           />
-
         </Space>
       )
     }
@@ -78,15 +74,15 @@ const AssignTeacherTable = ({
         rowKey="id"
         bordered
         pagination={false}
+        loading={loading}
       />
 
-      {/* Pagination */}
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16 }}>
         <Pagination
           current={page + 1}
           total={total}
           pageSize={5}
-          onChange={(p) => onPageChange && onPageChange(p - 1)}
+          onChange={(p) => onPageChange(p - 1)}
         />
       </div>
     </>
