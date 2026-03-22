@@ -26,7 +26,6 @@ const UserTable = ({
     }
     return <Tag color={roleColors[role]}>{roleLabels[role]}</Tag>
   }
-
   const columns = [
     {
       title: 'STT',
