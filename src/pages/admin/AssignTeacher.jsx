@@ -42,7 +42,6 @@ const AssignTeacher = () => {
   const [currentRecord, setCurrentRecord] = useState(null)
 
   // ================= LOAD CLASSES =================
-  useEffect(() => {
   const fetchClasses = async () => {
     try {
       setClassLoading(true)
@@ -53,26 +52,30 @@ const AssignTeacher = () => {
       })
 
       const raw = res.data?.data?.content || []
+
       setTotal(res.data?.data?.totalElements || 0)
 
       const classList = raw.map(item => ({
         id: item.id,
         name: item.name,
         studentCount: item.studentCount || 0,
-        teachers: []
+        teacherCount: item.teacherCount || 0
       }))
 
       setData(classList)
 
     } catch (err) {
-      toast.error('Lỗi load danh sách lớp!' + err)
+      console.error(err)
+      toast.error('Lỗi load danh sách lớp!')
     } finally {
       setClassLoading(false)
     }
   }
 
-  fetchClasses()
-}, [page])
+  useEffect(() => {
+    fetchClasses()
+  }, [page])
+
   // ================= OPEN MODAL =================
   const handleOpenAddTeacher = async (record) => {
     setIsModalOpen(true)
@@ -112,44 +115,47 @@ const AssignTeacher = () => {
 
   // ================= SUBMIT =================
   const handleSubmit = async (teacherIds) => {
-  if (!selectedClass) return;
+    if (!selectedClass) return
 
-  try {
-    setTeacherLoading(true);
+    try {
+      setTeacherLoading(true)
 
-    // ✅ GỬI ĐÚNG FORMAT: [1,2,3]
-    await addTeachersToClass(selectedClass.id, teacherIds);
+      await addTeachersToClass(selectedClass.id, teacherIds)
 
-    // ✅ reload lại từ backend cho chuẩn
-    const res = await getTeachersByClass(selectedClass.id);
+      // reload teacher list
+      const res = await getTeachersByClass(selectedClass.id)
 
-    const updatedTeachers =
-      res.data?.data?.content ||
-      res.data?.data ||
-      [];
+      const updatedTeachers =
+        res.data?.data?.content ||
+        res.data?.data ||
+        []
 
-    setData(prev =>
-      prev.map(cls =>
-        cls.id === selectedClass.id
-          ? { ...cls, teachers: updatedTeachers }
-          : cls
+      // update UI
+      setData(prev =>
+        prev.map(cls =>
+          cls.id === selectedClass.id
+            ? {
+                ...cls,
+                teacherCount: updatedTeachers.length // ✅ FIX QUAN TRỌNG
+              }
+            : cls
+        )
       )
-    );
 
-    toast.success('Phân công giáo viên thành công 🎉');
+      toast.success('Phân công giáo viên thành công 🎉')
 
-    setIsModalOpen(false);
-    setSelectedClass(null);
+      setIsModalOpen(false)
+      setSelectedClass(null)
 
-  } catch (err) {
-    console.error(err);
-    toast.error('Lỗi phân công giáo viên!');
-  } finally {
-    setTeacherLoading(false);
+    } catch (err) {
+      console.error(err)
+      toast.error('Lỗi phân công giáo viên!')
+    } finally {
+      setTeacherLoading(false)
+    }
   }
-};
 
-  // ================= VIEW =================
+  // ================= VIEW TEACHERS =================
   const handleViewTeachers = async (record) => {
     setCurrentRecord(record)
     setViewTeacherDrawer(true)
@@ -167,12 +173,13 @@ const AssignTeacher = () => {
       setClassTeachers(teacherList)
 
     } catch (err) {
-      toast.error('Lỗi load giáo viên!' + err);
+      toast.error('Lỗi load giáo viên!')
     } finally {
       setTeacherViewLoading(false)
     }
   }
 
+  // ================= VIEW STUDENTS =================
   const handleViewStudents = async (record) => {
     setCurrentRecord(record)
     setViewStudentDrawer(true)
@@ -190,7 +197,7 @@ const AssignTeacher = () => {
       setStudents(studentList)
 
     } catch (err) {
-      toast.error('Lỗi load sinh viên!' + err);
+      toast.error('Lỗi load sinh viên!')
     } finally {
       setStudentLoading(false)
     }
@@ -199,12 +206,6 @@ const AssignTeacher = () => {
   // ================= FILTER =================
   const filteredData = data.filter(item =>
     item.name.toLowerCase().includes(searchTerm.toLowerCase())
-  )
-
-  const pageSize = 5
-  const paginatedData = filteredData.slice(
-    page * pageSize,
-    page * pageSize + pageSize
   )
 
   return (
@@ -221,7 +222,7 @@ const AssignTeacher = () => {
       />
 
       <AssignTeacherTable
-        data={filteredData} // ✅ dùng trực tiếp
+        data={filteredData}
         page={page}
         total={total}
         onPageChange={setPage}
