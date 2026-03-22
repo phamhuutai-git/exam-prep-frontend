@@ -9,7 +9,7 @@ export default function ExamClassTable({ data, onView, onEdit, loading }) {
     },
     {
       title: "Students",
-      dataIndex: "students",
+      dataIndex: "studentCount",
     },
     {
       title: "Total Exams",
