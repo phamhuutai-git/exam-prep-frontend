@@ -30,7 +30,7 @@ const AssignTeacherTable = ({
     {
       title: 'Số sinh viên',
       key: 'studentCount',
-      render: (_, record) => record.students?.length || 0
+      render: (_, record) => record.studentCount || record.students?.length || 0
     },
     {
       title: 'Số giáo viên',

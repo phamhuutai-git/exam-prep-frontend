@@ -1,120 +1,199 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import AssignTeacherHeader from '../../components/assignTeacher/AssignTeacherHeader'
 import AssignTeacherFilter from '../../components/assignTeacher/AssignTeacherFilter'
 import AssignTeacherTable from '../../components/assignTeacher/AssignTeacherTable'
 import { toast } from 'react-toastify'
 import Add from '../../components/modal/assignTeacher/Add'
+import ViewTeacher from '../../components/modal/assignTeacher/ViewTeacher'
+import ViewStudent from '../../components/modal/assignTeacher/ViewStudent'
 
-import { getTeachers } from '../../services/userService.js'
+import {
+  getTeachers,
+  getStudentsByClass,
+  getTeachersByClass
+} from '../../services/userService.js'
+
+import {
+  getClasses,
+  addTeachersToClass
+} from '../../services/classes.js'
 
 const AssignTeacher = () => {
+  const [total, setTotal] = useState(0)
+  const [data, setData] = useState([])
+  const [teachers, setTeachers] = useState([])
+
+  const [classTeachers, setClassTeachers] = useState([])
+  const [students, setStudents] = useState([])
+
+  const [teacherLoading, setTeacherLoading] = useState(false)
+  const [classLoading, setClassLoading] = useState(false)
+  const [teacherViewLoading, setTeacherViewLoading] = useState(false)
+  const [studentLoading, setStudentLoading] = useState(false)
 
   const [isModalOpen, setIsModalOpen] = useState(false)
-
-  // loading riêng
-  const [teacherLoading, setTeacherLoading] = useState(false)
+  const [selectedClass, setSelectedClass] = useState(null)
 
   const [searchTerm, setSearchTerm] = useState('')
   const [page, setPage] = useState(0)
 
-  const [selectedClass, setSelectedClass] = useState(null)
+  const [viewStudentDrawer, setViewStudentDrawer] = useState(false)
+  const [viewTeacherDrawer, setViewTeacherDrawer] = useState(false)
+  const [currentRecord, setCurrentRecord] = useState(null)
 
-  // ✅ DATA CLASS (demo, sau này thay bằng API)
-  const [data, setData] = useState([
-    {
-      id: 1,
-      name: 'Lớp 10A1',
-      students: [
-        { id: 1, name: 'SV 1' },
-        { id: 2, name: 'SV 2' }
-      ],
-      teachers: [
-        { id: 1, username: 'teacherA', firstName: 'Nguyễn', lastName: 'A' }
-      ]
-    },
-    {
-      id: 2,
-      name: 'Lớp 11A2',
-      students: [],
-      teachers: []
+  // ================= LOAD CLASSES =================
+  useEffect(() => {
+  const fetchClasses = async () => {
+    try {
+      setClassLoading(true)
+
+      const res = await getClasses({
+        page: page,
+        size: 5
+      })
+
+      const raw = res.data?.data?.content || []
+      setTotal(res.data?.data?.totalElements || 0)
+
+      const classList = raw.map(item => ({
+        id: item.id,
+        name: item.name,
+        studentCount: item.studentCount || 0,
+        teachers: []
+      }))
+
+      setData(classList)
+
+    } catch (err) {
+      toast.error('Lỗi load danh sách lớp!' + err)
+    } finally {
+      setClassLoading(false)
     }
-  ])
+  }
 
-  // ✅ danh sách teacher từ API
-  const [teachers, setTeachers] = useState([])
-
+  fetchClasses()
+}, [page])
   // ================= OPEN MODAL =================
   const handleOpenAddTeacher = async (record) => {
-    setSelectedClass(record)
     setIsModalOpen(true)
 
     try {
       setTeacherLoading(true)
 
-      const res = await getTeachers()
+      const [teacherRes, classTeacherRes] = await Promise.all([
+        getTeachers(),
+        getTeachersByClass(record.id)
+      ])
 
-      // ⚠️ tùy backend (content hoặc data)
       const teacherList =
-        res.data?.data?.content ||
-        res.data?.data ||
+        teacherRes.data?.data?.content ||
+        teacherRes.data?.data ||
+        []
+
+      const classTeacherList =
+        classTeacherRes.data?.data?.content ||
+        classTeacherRes.data?.data ||
         []
 
       setTeachers(teacherList)
 
+      setSelectedClass({
+        ...record,
+        teachers: classTeacherList
+      })
+
     } catch (err) {
       console.error(err)
-      toast.error('Lỗi load danh sách giáo viên!')
+      toast.error('Lỗi load giáo viên!')
     } finally {
       setTeacherLoading(false)
     }
   }
 
   // ================= SUBMIT =================
-  const handleSubmit = (teacherIds) => {
-    setTeacherLoading(true)
+  const handleSubmit = async (teacherIds) => {
+  if (!selectedClass) return;
 
-    setTimeout(() => {
+  try {
+    setTeacherLoading(true);
 
-      setData(prev =>
-        prev.map(cls => {
-          if (cls.id !== selectedClass.id) return cls
+    // ✅ GỬI ĐÚNG FORMAT: [1,2,3]
+    await addTeachersToClass(selectedClass.id, teacherIds);
 
-          // 🔥 replace danh sách teacher
-          const newTeachers = teachers.filter(t =>
-            teacherIds.includes(t.id)
-          )
+    // ✅ reload lại từ backend cho chuẩn
+    const res = await getTeachersByClass(selectedClass.id);
 
-          return {
-            ...cls,
-            teachers: newTeachers
-          }
-        })
+    const updatedTeachers =
+      res.data?.data?.content ||
+      res.data?.data ||
+      [];
+
+    setData(prev =>
+      prev.map(cls =>
+        cls.id === selectedClass.id
+          ? { ...cls, teachers: updatedTeachers }
+          : cls
       )
+    );
 
-      toast.success('Cập nhật giáo viên thành công 🎉')
+    toast.success('Phân công giáo viên thành công 🎉');
 
-      setTeacherLoading(false)
-      setIsModalOpen(false)
-      setSelectedClass(null)
+    setIsModalOpen(false);
+    setSelectedClass(null);
 
-    }, 300)
+  } catch (err) {
+    console.error(err);
+    toast.error('Lỗi phân công giáo viên!');
+  } finally {
+    setTeacherLoading(false);
   }
+};
 
   // ================= VIEW =================
-  const handleViewTeachers = (record) => {
-    const names = record.teachers
-      .map(t => `${t.firstName} ${t.lastName}`)
-      .join(', ') || 'Không có'
+  const handleViewTeachers = async (record) => {
+    setCurrentRecord(record)
+    setViewTeacherDrawer(true)
 
-    toast.info(`Giáo viên: ${names}`)
+    try {
+      setTeacherViewLoading(true)
+
+      const res = await getTeachersByClass(record.id)
+
+      const teacherList =
+        res.data?.data?.content ||
+        res.data?.data ||
+        []
+
+      setClassTeachers(teacherList)
+
+    } catch (err) {
+      toast.error('Lỗi load giáo viên!' + err);
+    } finally {
+      setTeacherViewLoading(false)
+    }
   }
 
-  const handleViewStudents = (record) => {
-    const names = record.students
-      .map(s => s.name)
-      .join(', ') || 'Không có'
+  const handleViewStudents = async (record) => {
+    setCurrentRecord(record)
+    setViewStudentDrawer(true)
 
-    toast.info(`Sinh viên: ${names}`)
+    try {
+      setStudentLoading(true)
+
+      const res = await getStudentsByClass(record.id)
+
+      const studentList =
+        res.data?.data?.content ||
+        res.data?.data ||
+        []
+
+      setStudents(studentList)
+
+    } catch (err) {
+      toast.error('Lỗi load sinh viên!' + err);
+    } finally {
+      setStudentLoading(false)
+    }
   }
 
   // ================= FILTER =================
@@ -122,7 +201,6 @@ const AssignTeacher = () => {
     item.name.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
-  // ================= PAGINATION =================
   const pageSize = 5
   const paginatedData = filteredData.slice(
     page * pageSize,
@@ -131,11 +209,9 @@ const AssignTeacher = () => {
 
   return (
     <div style={{ padding: 20 }}>
-
       <AssignTeacherHeader
         title="Phân công giáo viên"
         description="Quản lý việc phân công giáo viên"
-        handleAdd={() => toast.info('Chọn lớp rồi bấm +')}
       />
 
       <AssignTeacherFilter
@@ -145,16 +221,32 @@ const AssignTeacher = () => {
       />
 
       <AssignTeacherTable
-        data={paginatedData}
+        data={filteredData} // ✅ dùng trực tiếp
         page={page}
-        total={filteredData.length}
+        total={total}
         onPageChange={setPage}
         onAddTeacher={handleOpenAddTeacher}
         onViewTeachers={handleViewTeachers}
         onViewStudents={handleViewStudents}
+        loading={classLoading}
       />
 
-      {/* ✅ MODAL */}
+      <ViewTeacher
+        open={viewTeacherDrawer}
+        classInfo={currentRecord}
+        teachers={classTeachers}
+        loading={teacherViewLoading}
+        onClose={() => setViewTeacherDrawer(false)}
+      />
+
+      <ViewStudent
+        open={viewStudentDrawer}
+        classInfo={currentRecord}
+        students={students}
+        loading={studentLoading}
+        onClose={() => setViewStudentDrawer(false)}
+      />
+
       <Add
         open={isModalOpen}
         onCancel={() => setIsModalOpen(false)}
@@ -165,7 +257,6 @@ const AssignTeacher = () => {
           selectedClass?.teachers?.map(t => t.id) || []
         }
       />
-
     </div>
   )
 }
