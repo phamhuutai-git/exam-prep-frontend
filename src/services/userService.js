@@ -25,10 +25,31 @@ export const changePasswordApi = (data) => {
 export const getUsers = (params = {}) => {
   return api.get("/users", { params: { size: 5, ...params } });
 }
-
+//Cho user hoạt động lại
 export const unlockUser = (id) => {
   return api.put(`/auth/admin/account/unlock/${id}`);
 }
+//Khóa user
 export const lockUser = (id) => {
   return api.put(`/auth/admin/account/lock/${id}`);
 }
+
+export const getStudentsByClass = (classId) => {
+  return api.get(`/users/students/class-id/${classId}`);
+}
+///users/teachers/class-id/{classId}
+export const getTeachersByClass = (classId) => {
+  return api.get(`/users/teachers/class-id/${classId}`);
+}
+///users/teachers
+export const getTeachers = () => {
+  return api.get("/users/teachers");
+}
+// ///users/students
+export const getStudents = () => {
+  return api.get("/users/students");
+}
+//users/teachers/class-id/1
+
+
+

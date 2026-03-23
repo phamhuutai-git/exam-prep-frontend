@@ -2,18 +2,16 @@ import React, { useState, useMemo, useEffect } from 'react'
 import { Form } from 'antd'
 import { toast } from 'react-toastify'
 import '../../assets/styles/User.css'
-
 import UserHeader from '../../components/user/UserHeader'
 import UserFilter from '../../components/user/UserFilter'
 import UserTable from '../../components/user/UserTable'
 import Add from '../../components/modal/user/Add'
-
 import { getUsers, unlockUser, lockUser } from '../../services/userService.js'
-
 const User = () => {
   const [users, setUsers] = useState([])
+  const [page, setPage] = useState(0)
   const [loading, setLoading] = useState(false)
-
+const [total, setTotal] = useState(0)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isEditMode, setIsEditMode] = useState(false)
   const [selectedUser, setSelectedUser] = useState(null)
@@ -26,38 +24,40 @@ const User = () => {
 
   // ================= FETCH DATA =================
   useEffect(() => {
-    fetchUsers()
-  }, [])
+    fetchUsers(page)
+  }, [page])
 
-  const fetchUsers = async () => {
-    setLoading(true)
-    try {
-      const res = await getUsers()
+const fetchUsers = async (pageParam = page) => {
+  setLoading(true)
+  try {
+    const res = await getUsers({
+      page: pageParam,
+      size: 5 // 👈 THÊM DÒNG NÀY
+    })
 
-      const rawData = res.data?.data?.content || []
+    const rawData = res.data?.data?.content || []
 
-      const mappedData = rawData.map(user => ({
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        fullName: `${user.firstName || ''} ${user.lastName || ''}`.trim(),
-        role: user.role?.toLowerCase(),
-        isActive: user.status === 'ACTIVED',
-        className: user.classes?.name || '-',
-        subject: user.subject || '-',
-        createdAt: user.createdDate
-          ? user.createdDate.split('T')[0]
-          : ''
-      }))
+    const mappedData = rawData.map(user => ({
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      fullName: `${user.firstName || ''} ${user.lastName || ''}`.trim(),
+      role: user.role?.toLowerCase(),
+      isActive: user.status === 'ACTIVED',
+      createdAt: user.createdDate
+        ? user.createdDate.split('T')[0]
+        : ''
+    }))
 
-      setUsers(mappedData)
-    } catch (error) {
-      console.error(error)
-      toast.error('Lỗi khi tải danh sách người dùng!')
-    } finally {
-      setLoading(false)
-    }
+    setUsers(mappedData)
+    setTotal(res.data?.data?.totalElements || 0)
+
+  } catch (error) {
+    toast.error('Lỗi khi tải danh sách!' + error.message)
+  } finally {
+    setLoading(false)
   }
+}
 
   // ================= FILTER =================
   const filteredUsers = useMemo(() => {
@@ -201,12 +201,15 @@ const User = () => {
       />
 
       <UserTable
-        data={filteredUsers}
-        loading={loading}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-        onToggleStatus={handleToggleStatus}
-      />
+  data={filteredUsers}
+  loading={loading}
+  onEdit={handleEdit}
+  onDelete={handleDelete}
+  onToggleStatus={handleToggleStatus}
+  page={page}
+  total={total}
+  onPageChange={setPage}
+/>
 
       <Add
         open={isModalOpen}

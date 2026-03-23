@@ -1,132 +1,211 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import AssignTeacherHeader from '../../components/assignTeacher/AssignTeacherHeader'
 import AssignTeacherFilter from '../../components/assignTeacher/AssignTeacherFilter'
 import AssignTeacherTable from '../../components/assignTeacher/AssignTeacherTable'
 import { toast } from 'react-toastify'
 import Add from '../../components/modal/assignTeacher/Add'
+import ViewTeacher from '../../components/modal/assignTeacher/ViewTeacher'
+import ViewStudent from '../../components/modal/assignTeacher/ViewStudent'
+
+import {
+  getTeachers,
+  getStudentsByClass,
+  getTeachersByClass
+} from '../../services/userService.js'
+
+import {
+  getClasses,
+  addTeachersToClass
+} from '../../services/classes.js'
 
 const AssignTeacher = () => {
+  const [total, setTotal] = useState(0)
+  const [data, setData] = useState([])
+  const [teachers, setTeachers] = useState([])
+
+  const [classTeachers, setClassTeachers] = useState([])
+  const [students, setStudents] = useState([])
+
+  const [teacherLoading, setTeacherLoading] = useState(false)
+  const [classLoading, setClassLoading] = useState(false)
+  const [teacherViewLoading, setTeacherViewLoading] = useState(false)
+  const [studentLoading, setStudentLoading] = useState(false)
 
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [isEditMode, setIsEditMode] = useState(false)
-  const [editingRecord, setEditingRecord] = useState(null)
+  const [selectedClass, setSelectedClass] = useState(null)
 
   const [searchTerm, setSearchTerm] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [page, setPage] = useState(0)
 
-  const [page, setPage] = useState(0) // ✅ thêm pagination
+  const [viewStudentDrawer, setViewStudentDrawer] = useState(false)
+  const [viewTeacherDrawer, setViewTeacherDrawer] = useState(false)
+  const [currentRecord, setCurrentRecord] = useState(null)
 
-  const [data, setData] = useState([
-    {
-      id: 1,
-      classId: 1,
-      className: 'Lớp 10A1',
-      teacherId: 1,
-      teacherName: 'Nguyễn Văn A',
-      teacherUsername: 'teacherA'
+  // ================= LOAD CLASSES =================
+  const fetchClasses = async () => {
+    try {
+      setClassLoading(true)
+
+      const res = await getClasses({
+        page: page,
+        size: 5
+      })
+
+      const raw = res.data?.data?.content || []
+
+      setTotal(res.data?.data?.totalElements || 0)
+
+      const classList = raw.map(item => ({
+        id: item.id,
+        name: item.name,
+        studentCount: item.studentCount || 0,
+        teacherCount: item.teacherCount || 0
+      }))
+
+      setData(classList)
+
+    } catch (err) {
+      console.error(err)
+      toast.error('Lỗi load danh sách lớp!')
+    } finally {
+      setClassLoading(false)
     }
-  ])
+  }
 
-  const classes = [
-    { id: 1, name: 'Lớp 10A1' },
-    { id: 2, name: 'Lớp 11A2' }
-  ]
+  useEffect(() => {
+    fetchClasses()
+  }, [page])
 
-  const teachers = [
-    { id: 1, name: 'Nguyễn Văn A', username: 'teacherA' },
-    { id: 2, name: 'Trần Thị B', username: 'teacherB' }
-  ]
+  // ================= OPEN MODAL =================
+  const handleOpenAddTeacher = async (record) => {
+    setIsModalOpen(true)
 
-  // ================= ADD + EDIT =================
-  const handleSubmit = (values) => {
-    setLoading(true)
+    try {
+      setTeacherLoading(true)
 
-    const classObj = classes.find(c => c.id === values.classId)
-    const teacherObj = teachers.find(t => t.id === values.teacherId)
+      const [teacherRes, classTeacherRes] = await Promise.all([
+        getTeachers(),
+        getTeachersByClass(record.id)
+      ])
 
-    setTimeout(() => {
+      const teacherList =
+        teacherRes.data?.data?.content ||
+        teacherRes.data?.data ||
+        []
 
-      if (isEditMode) {
-        // UPDATE
-        setData(prev =>
-          prev.map(item =>
-            item.id === editingRecord.id
-              ? {
-                  ...item,
-                  classId: values.classId,
-                  className: classObj?.name,
-                  teacherId: values.teacherId,
-                  teacherName: teacherObj?.name,
-                  teacherUsername: teacherObj?.username
-                }
-              : item
-          )
+      const classTeacherList =
+        classTeacherRes.data?.data?.content ||
+        classTeacherRes.data?.data ||
+        []
+
+      setTeachers(teacherList)
+
+      setSelectedClass({
+        ...record,
+        teachers: classTeacherList
+      })
+
+    } catch (err) {
+      console.error(err)
+      toast.error('Lỗi load giáo viên!')
+    } finally {
+      setTeacherLoading(false)
+    }
+  }
+
+  // ================= SUBMIT =================
+  const handleSubmit = async (teacherIds) => {
+    if (!selectedClass) return
+
+    try {
+      setTeacherLoading(true)
+
+      await addTeachersToClass(selectedClass.id, teacherIds)
+
+      // reload teacher list
+      const res = await getTeachersByClass(selectedClass.id)
+
+      const updatedTeachers =
+        res.data?.data?.content ||
+        res.data?.data ||
+        []
+
+      // update UI
+      setData(prev =>
+        prev.map(cls =>
+          cls.id === selectedClass.id
+            ? {
+                ...cls,
+                teacherCount: updatedTeachers.length // ✅ FIX QUAN TRỌNG
+              }
+            : cls
         )
+      )
 
-        toast.success('Cập nhật thành công 🎉')
+      toast.success('Phân công giáo viên thành công 🎉')
 
-      } else {
-        // CHECK TRÙNG LỚP
-        const isExist = data.some(item => item.classId === values.classId)
-        if (isExist) {
-          toast.error('Lớp này đã có giáo viên!')
-          setLoading(false)
-          return
-        }
-
-        const newItem = {
-          id: Date.now(),
-          classId: values.classId,
-          className: classObj?.name,
-          teacherId: values.teacherId,
-          teacherName: teacherObj?.name,
-          teacherUsername: teacherObj?.username
-        }
-
-        setData(prev => [...prev, newItem])
-        toast.success('Thêm thành công 🎉')
-      }
-
-      setLoading(false)
       setIsModalOpen(false)
-      setIsEditMode(false)
-      setEditingRecord(null)
+      setSelectedClass(null)
 
-    }, 300)
+    } catch (err) {
+      console.error(err)
+      toast.error('Lỗi phân công giáo viên!')
+    } finally {
+      setTeacherLoading(false)
+    }
   }
 
-  // ================= DELETE =================
-  const handleDelete = (id) => {
-    setData(prev => prev.filter(item => item.id !== id))
-    toast.success('Xóa thành công')
+  // ================= VIEW TEACHERS =================
+  const handleViewTeachers = async (record) => {
+    setCurrentRecord(record)
+    setViewTeacherDrawer(true)
+
+    try {
+      setTeacherViewLoading(true)
+
+      const res = await getTeachersByClass(record.id)
+
+      const teacherList =
+        res.data?.data?.content ||
+        res.data?.data ||
+        []
+
+      setClassTeachers(teacherList)
+
+    } catch (err) {
+      toast.error('Lỗi load giáo viên!')
+    } finally {
+      setTeacherViewLoading(false)
+    }
   }
 
-  // ================= EDIT =================
-  const handleEdit = (record) => {
-    setEditingRecord(record) // ✅ truyền full record
-    setIsEditMode(true)
-    setIsModalOpen(true)
-  }
+  // ================= VIEW STUDENTS =================
+  const handleViewStudents = async (record) => {
+    setCurrentRecord(record)
+    setViewStudentDrawer(true)
 
-  // ================= ADD =================
-  const handleAdd = () => {
-    setIsEditMode(false)
-    setEditingRecord(null)
-    setIsModalOpen(true)
+    try {
+      setStudentLoading(true)
+
+      const res = await getStudentsByClass(record.id)
+
+      const studentList =
+        res.data?.data?.content ||
+        res.data?.data ||
+        []
+
+      setStudents(studentList)
+
+    } catch (err) {
+      toast.error('Lỗi load sinh viên!')
+    } finally {
+      setStudentLoading(false)
+    }
   }
 
   // ================= FILTER =================
   const filteredData = data.filter(item =>
-    item.className.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.teacherName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.teacherUsername?.toLowerCase().includes(searchTerm.toLowerCase())
-  )
-
-  // ================= PAGINATION =================
-  const pageSize = 5
-  const paginatedData = filteredData.slice(
-    page * pageSize,
-    page * pageSize + pageSize
+    item.name.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   return (
@@ -134,8 +213,6 @@ const AssignTeacher = () => {
       <AssignTeacherHeader
         title="Phân công giáo viên"
         description="Quản lý việc phân công giáo viên"
-        buttonText="Thêm phân công"
-        handleAdd={handleAdd}
       />
 
       <AssignTeacherFilter
@@ -145,25 +222,44 @@ const AssignTeacher = () => {
       />
 
       <AssignTeacherTable
-        data={paginatedData}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
+        data={filteredData}
         page={page}
-        total={filteredData.length}
+        total={total}
         onPageChange={setPage}
+        onAddTeacher={handleOpenAddTeacher}
+        onViewTeachers={handleViewTeachers}
+        onViewStudents={handleViewStudents}
+        loading={classLoading}
+      />
+
+      <ViewTeacher
+        open={viewTeacherDrawer}
+        classInfo={currentRecord}
+        teachers={classTeachers}
+        loading={teacherViewLoading}
+        onClose={() => setViewTeacherDrawer(false)}
+      />
+
+      <ViewStudent
+        open={viewStudentDrawer}
+        classInfo={currentRecord}
+        students={students}
+        loading={studentLoading}
+        onClose={() => setViewStudentDrawer(false)}
       />
 
       <Add
         open={isModalOpen}
         onCancel={() => setIsModalOpen(false)}
         onSubmit={handleSubmit}
-        loading={loading}
-        classes={classes}
-        teachers={teachers}
-        isEditMode={isEditMode}
-        initialValues={editingRecord}
+        loading={teacherLoading}
+        users={teachers}
+        currentClassTeacherIds={
+          selectedClass?.teachers?.map(t => t.id) || []
+        }
       />
     </div>
   )
 }
+
 export default AssignTeacher

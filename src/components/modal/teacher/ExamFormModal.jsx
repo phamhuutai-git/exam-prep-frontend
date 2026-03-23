@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   Modal,
   Form,
@@ -31,80 +31,53 @@ const CAT_COLORS = {
   HTML: "orange",
   JavaScript: "magenta",
 };
-const ALL_QUESTIONS = [
-  {
-    id: 1,
-    content: "What is Java?",
-    difficulty: "EASY",
-    category: "Java",
-    answers: [
-      { content: "Programming Language", isCorrect: true },
-      { content: "Database", isCorrect: false },
-      { content: "Operating System", isCorrect: false },
-      { content: "Web Browser", isCorrect: false },
-    ],
-  },
-  {
-    id: 2,
-    content: "Explain OOP principles",
-    difficulty: "MEDIUM",
-    category: "Java",
-    answers: [
-      {
-        content: "Encapsulation, Inheritance, Polymorphism, Abstraction",
-        isCorrect: true,
-      },
-      { content: "Compilation only", isCorrect: false },
-      { content: "Indexing", isCorrect: false },
-      { content: "None of the above", isCorrect: false },
-    ],
-  },
-  {
-    id: 3,
-    content: "What is Spring Boot?",
-    difficulty: "EASY",
-    category: "Spring",
-    answers: [
-      { content: "Java Framework", isCorrect: false },
-      { content: "Spring Boot Framework", isCorrect: true },
-      { content: "Database Tool", isCorrect: false },
-      { content: "Programming Language", isCorrect: false },
-    ],
-  },
-  {
-    id: 4,
-    content: "What is Primary Key?",
-    difficulty: "EASY",
-    category: "SQL",
-    answers: [
-      { content: "Unique identifier", isCorrect: true },
-      { content: "Allows duplicate", isCorrect: false },
-      { content: "Can be null", isCorrect: false },
-      { content: "Optional field", isCorrect: false },
-    ],
-  },
-  {
-    id: 5,
-    content: "What is HTML?",
-    difficulty: "EASY",
-    category: "HTML",
-    answers: [
-      { content: "Programming Language", isCorrect: false },
-      { content: "Markup Language", isCorrect: true },
-      { content: "Database System", isCorrect: false },
-      { content: "Operating System", isCorrect: false },
-    ],
-  },
-];
 
-export default function ExamFormModal({ exam, onClose, onSave }) {
+
+export default function ExamFormModal({ exam, questions, onClose, onSave }) {
+
   const [form] = Form.useForm();
-  const [selectedIds, setSelectedIds] = useState(exam?.questionIds || []);
+  const [selectedIds, setSelectedIds] = useState([]);
   const [qSearch, setQSearch] = useState("");
   const [qCat, setQCat] = useState("");
 
+  useEffect(() => {
+    if (exam) {
+      console.log("Edit exam: ", exam);
+      form.setFieldValue({
+        code: exam.code,
+        title: exam.title,
+        duration: exam.duration ? Number(exam.duration) : undefined,
+        category: exam.category,
+      });
+
+      if (exam.questionIds) {
+        setSelectedIds(exam.questionIds);
+      }
+    } else {
+      form.resetFields();
+      setSelectedIds([]);
+    }
+  }, [exam]);
+
+
+  function convertToMinutes(time) {
+    if (!time) return undefined;
+
+    const [h, m] = time.split(":").map(Number);
+    return h * 60 + m;
+  }
+
+  function convertToTime(minutes) {
+    if (minutes === undefined) return undefined;
+
+    const h = Math.floor(minutes / 60);
+    const m = minutes % 60;
+
+    return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:00`;
+  }
+
   const filteredQ = useMemo(() => {
-    let d = ALL_QUESTIONS;
+    let d = questions;
     if (qSearch)
       d = d.filter((q) =>
         q.content.toLowerCase().includes(qSearch.toLowerCase()),
@@ -113,15 +86,35 @@ export default function ExamFormModal({ exam, onClose, onSave }) {
     return d;
   }, [qSearch, qCat]);
 
-  const handleOk = () => {
-    form.validateFields().then((values) => {
-      onSave({
+  //Lay du lieu tu form va selectedIds, chuyen duration ve dinh dang "hh:mm:ss", sau do goi onSave
+  //onSave se duoc truyen tu TeacherExams.jsx, va se goi API de luu du lieu
+  //Sau khi luu xong, dong modal va refresh lai danh sach de thi
+  const handleOk = async () => {
+    try {
+      const values = await form.validateFields();
+
+      const dataLoad = {
         ...values,
-        duration: String(values.duration),
+        duration: convertToTime(values.duration), //Chuyen ve dinh dang "hh:mm:ss"
         questionIds: selectedIds,
-      });
-    });
+      };
+
+      onSave(dataLoad);
+    } catch (error) {
+      console.log("Validate failed:", error);
+    }
   };
+
+
+  // const handleOk = () => {
+  //   form.validateFields().then((values) => {
+  //     onSave({
+  //       ...values,
+  //       duration: String(values.duration),
+  //       questionIds: selectedIds,
+  //     });
+  //   });
+  // };
 
   const toggleQuestion = (id) =>
     setSelectedIds((prev) =>
@@ -144,7 +137,7 @@ export default function ExamFormModal({ exam, onClose, onSave }) {
         initialValues={{
           code: exam?.code,
           title: exam?.title,
-          duration: Number(exam?.duration) || undefined,
+          duration: convertToMinutes(exam?.duration),
           category: exam?.category || "Java",
         }}
       >

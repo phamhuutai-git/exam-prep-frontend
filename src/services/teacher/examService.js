@@ -7,22 +7,24 @@ const examService = {
 
   getAllCategory: () => api.get("/teacher/exams/allCategory"),
 
-  // createExam: (data) => api.post("/teacher/exams", data),
+  createExam: (data) => api.post("/teacher/exams", data),
 
-  // updateExam: (id, data) => api.put(`/teacher/exams/${id}`, data),
+  updateExam: (id, data) => api.put(`/teacher/exams/${id}`, data),
 
   deleteExam: (id) => api.delete(`/teacher/exams/${id}`),
 };
 
 export default examService;
 
-export async function getExamsByTeacher() {
-  try {
-    return await api.get("/teacher/exams/teacher-name");
-  } catch (error) {
-    toast.error("Lỗi khi tải danh sách đề thi");
-    throw error;
-  }
+export async function getExamsByTeacher(page, size) {
+  return api
+    .get(`/teacher/exams/teacher-name?page=${page}&size=${size}`)
+    .then((response) => {
+      return response;
+    })
+    .catch((error) => {
+      throw error;
+    });
 }
 
 export async function getQuestionsByExamId(examId) {
@@ -31,7 +33,19 @@ export async function getQuestionsByExamId(examId) {
     .then((response) => {
       return response;
     })
-    .catch(() => {
-      toast.error("Lỗi khi tải danh sách câu hỏi");
+    .catch((error) => {
+      throw error;
     });
 }
+
+export async function getClassesByTeacher(page, size) {
+  return api
+    .get(`/admin/classes/teacher?page=${page}&size=${size}`)
+    .then((response) => {
+      return response;
+    })
+    .catch((error) => {
+      throw error;
+    });
+}
+

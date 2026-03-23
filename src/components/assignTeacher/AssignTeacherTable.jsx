@@ -1,15 +1,20 @@
 import React from 'react'
-import { Table, Button, Space, Popconfirm, Pagination, Tag } from 'antd'
+import { Table, Button, Space, Pagination } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPencil, faTrash } from '@fortawesome/free-solid-svg-icons'
+import {
+  faUserPlus,
+  faEye
+} from '@fortawesome/free-solid-svg-icons'
 
 const AssignTeacherTable = ({
   data = [],
-  onEdit,
-  onDelete,
   page = 0,
   total = 0,
-  onPageChange
+  onPageChange,
+  onAddTeacher,
+  onViewTeachers,
+  onViewStudents,
+  loading
 }) => {
 
   const columns = [
@@ -20,19 +25,18 @@ const AssignTeacherTable = ({
     },
     {
       title: 'Lớp',
-      dataIndex: 'className',
-      key: 'className'
+      dataIndex: 'name',
+      key: 'name'
     },
     {
-      title: 'Tài khoản GV',
-      dataIndex: 'teacherUsername',
-      key: 'teacherUsername',
-      render: (username) => <Tag color="blue">{username}</Tag>
+      title: 'Số sinh viên',
+      dataIndex: 'studentCount',
+      key: 'studentCount'
     },
     {
-      title: 'Tên giáo viên',
-      dataIndex: 'teacherName',
-      key: 'teacherName'
+      title: 'Số giáo viên',
+      dataIndex: 'teacherCount', // ✅ FIX CHÍNH
+      key: 'teacherCount'
     },
     {
       title: 'Hành động',
@@ -40,26 +44,23 @@ const AssignTeacherTable = ({
       align: 'center',
       render: (_, record) => (
         <Space>
-          {/* Sửa */}
           <Button
             type="text"
-            icon={<FontAwesomeIcon icon={faPencil} />}
-            onClick={() => onEdit(record)}
+            icon={<FontAwesomeIcon icon={faUserPlus} />}
+            onClick={() => onAddTeacher(record)}
           />
 
-          {/* Xóa */}
-          <Popconfirm
-            title="Bạn có chắc muốn xóa?"
-            onConfirm={() => onDelete(record.id)}
-            okText="Xóa"
-            cancelText="Hủy"
-          >
-            <Button
-              type="text"
-              icon={<FontAwesomeIcon icon={faTrash} />}
-              danger
-            />
-          </Popconfirm>
+          <Button
+            type="text"
+            icon={<FontAwesomeIcon icon={faEye} />}
+            onClick={() => onViewTeachers(record)}
+          />
+
+          <Button
+            type="text"
+            icon={<FontAwesomeIcon icon={faEye} />}
+            onClick={() => onViewStudents(record)}
+          />
         </Space>
       )
     }
@@ -72,16 +73,16 @@ const AssignTeacherTable = ({
         dataSource={data}
         rowKey="id"
         bordered
-        pagination={false} // ❗ dùng pagination riêng
+        pagination={false}
+        loading={loading}
       />
 
-      {/* Pagination riêng */}
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16 }}>
         <Pagination
           current={page + 1}
           total={total}
           pageSize={5}
-          onChange={(p) => onPageChange && onPageChange(p - 1)}
+          onChange={(p) => onPageChange(p - 1)}
         />
       </div>
     </>

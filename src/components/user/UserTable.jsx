@@ -2,7 +2,6 @@ import React from 'react'
 import { Table, Button, Tag, Switch, Space, Popconfirm, Pagination } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPencil, faTrash } from '@fortawesome/free-solid-svg-icons'
-
 const UserTable = ({
   data = [],
   loading,
@@ -27,7 +26,6 @@ const UserTable = ({
     }
     return <Tag color={roleColors[role]}>{roleLabels[role]}</Tag>
   }
-
   const columns = [
     {
       title: 'STT',
@@ -118,5 +116,4 @@ const UserTable = ({
     </>
   )
 }
-
 export default UserTable

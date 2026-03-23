@@ -6,34 +6,37 @@ import ExamPreviewModal from "../../components/modal/teacher/ExamPreviewModal";
 import ExamFormModal from "../../components/modal/teacher/ExamFormModal.jsx";
 import AppPagination from "../../components/common/AppPagination.jsx";
 import StatsCards from "../../components/common/StatsCards";
-import * as examService from "../../services/teacher/examService.js";
+import examService from "../../services/teacher/examService.js";
+import questionService from "../../services/teacher/questionService.js";
+
 //thu vien
 import React, { useState, useEffect } from "react";
-import { Form, DatePicker, Input, Select } from "antd";
+import { DatePicker, Input, Select } from "antd";
 import { toast } from "react-toastify";
 import { SearchOutlined } from "@ant-design/icons";
 // css
 import "../../assets/styles/User.css";
 import "../../assets/styles/teacher/Question.css";
+
+
 const TeacherExams = () => {
   const [exams, setExams] = useState([]);
   const [previewExam, setPreviewExam] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isEditMode, setIsEditMode] = useState(false);
-  const [form] = Form.useForm();
+
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(4);
   const [total, setTotal] = useState(0);
-  const [searchInput, setSearchInput] = useState("");
   const [categories, setCategories] = useState([]);
-  const [catFilter, setCatFilter] = useState(null);
-  const [dateFilter, setDateFilter] = useState(null);
+  const [allQuestions, setAllQuestions] = useState([]);
+  const [editingExam, setEditingExam] = useState(null);
+  const [reload, setReload] = useState(false);
 
   //Get all exams of teacher
   useEffect(() => {
     async function fetchExams() {
       try {
-        const response = await examService.getExamsByTeacher();
+        const response = await examsAPI.getExamsByTeacher(page, size);
         const result = response.data.data;
 
         setExams(result.content);
@@ -44,8 +47,25 @@ const TeacherExams = () => {
       }
     }
 
-    fetchExams(); 
-  }, []);
+    fetchExams();
+  }, [page, size, reload]);
+
+  useEffect(() => {
+    async function fetchQuestion() {
+      try {
+
+        const response = await questionService.getAllQuestion({ page: 0, size: 1000 });
+        console.log("All question: ", response.data.data.content);
+        setAllQuestions(response.data.data.content);
+
+      } catch (error) {
+        console.error(error);
+        toast.error("Không tải được danh sách câu hỏi");
+      }
+    }
+
+    fetchQuestion();
+  }, [reload]);
 
   const handlePreview = async (exam) => {
     try {
@@ -61,9 +81,22 @@ const TeacherExams = () => {
     }
   };
 
-  const handleEdit = (exam) => {
-    setIsEditMode(true);
-    setIsModalOpen(true);
+  const handleEdit = async (exam) => {
+    try {
+      const response = await examsAPI.getQuestionsByExamId(exam.id);
+      const questions = response.data.data || [];
+
+      const questionIds = questions.map((q) => q.id);
+      const examWithQuestions = {
+        ...exam,
+        questionIds,
+      };
+      setEditingExam(examWithQuestions);
+      setIsModalOpen(true);
+
+    } catch (error) {
+      toast.error("Lỗi khi tải danh sách câu hỏi");
+    }
   };
 
   const handleClosePreview = () => {
@@ -71,10 +104,25 @@ const TeacherExams = () => {
   };
 
   const handleAdd = () => {
-    setIsEditMode(false);
-    form.resetFields();
     setIsModalOpen(true);
+    setEditingExam(null);
   };
+
+  const handleDelete = async (examId) => {
+    try {
+      await examService.deleteExam(examId);
+
+      toast.success("Xóa đề thi thành công");
+      setReload(prev => !prev);
+
+    } catch (error) {
+      toast.error("Có lỗi xảy ra khi xóa đề thi");
+      console.error(error);
+    }
+  }
+
+  const totalCategories = new Set(exams.map((e) => e.category)).size;
+
 
   return (
     <div className="teacher-question-page">
@@ -87,10 +135,10 @@ const TeacherExams = () => {
 
       <StatsCards
         items={[
-          { title: "Total Exams", value: 0 },
+          { title: "Total Exams", value: exams.length },
           { title: "Total Questions", value: 0 },
           { title: "Avg Duration", value: 0 },
-          { title: "Categories", value: 0 },
+          { title: "Categories", value: totalCategories },
         ]}
       />
       {/* FILTER */}
@@ -126,25 +174,46 @@ const TeacherExams = () => {
       </div>
 
       <div className="question-table-wrapper">
-        <ExamTable data={exams} onPreview={handlePreview} onEdit={handleEdit} />
+        <ExamTable data={exams} onPreview={handlePreview} onEdit={handleEdit} onDelete={handleDelete} />
       </div>
 
       <ExamPreviewModal exam={previewExam} onClose={handleClosePreview} />
 
       {isModalOpen && (
         <ExamFormModal
-          exam={isEditMode}
+          exam={editingExam}
+          questions={allQuestions}
           onClose={() => {
             setIsModalOpen(false);
-            setIsEditMode(null);
+            setEditingExam(null);
           }}
-          onSave={(data) => {
-            console.log("Data save: ", data);
-            setIsModalOpen(false);
-            setIsEditMode(null);
+          onSave={async (data) => {
+            try {
+              if (editingExam) {
+                // Update exam
+                await examService.updateExam(editingExam.id, data);
+                toast.success("Cập nhật đề thi thành công");
+              } else {
+                // Create new exam
+                await examService.createExam(data);
+                toast.success("Tạo đề thi thành công");
+              }
+
+              // Refresh exam list
+              setReload(prev => !prev);
+
+              setIsModalOpen(false);
+              setEditingExam(null);
+
+            } catch (error) {
+              toast.error("Có lỗi xảy ra khi lưu đề thi");
+              console.error(error);
+
+            }
           }}
         />
       )}
+
       <AppPagination
         page={page}
         size={size}
