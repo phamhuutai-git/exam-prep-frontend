@@ -46,8 +46,9 @@ const TeacherExams = () => {
     try {
       const response = await examsAPI.getExamsByTeacher({
         title: search || undefined,
-        categoryId: catFilter || undefined,
-        createdAt: dateFilter || undefined,
+        categoryName: catFilter || undefined,
+        minDate: dateFilter?.start || undefined,
+        maxDate: dateFilter?.end || undefined,
         page,
         size,
       });
@@ -64,7 +65,6 @@ const TeacherExams = () => {
     fetchExams();
   }, [search, catFilter, dateFilter, page, size, reload]);
 
-  // Fetch categories — giống TeacherQuestion
   useEffect(() => {
     async function fetchCategories() {
       try {
@@ -146,8 +146,7 @@ const TeacherExams = () => {
       console.error(error);
     }
   };
-
-  // Tạo câu hỏi mới từ bên trong ExamFormModal — giống handleCreate trong TeacherQuestion
+  
   const handleCreateQuestion = async (payload) => {
     try {
       const res = await questionService.createQuestion(payload);
@@ -203,17 +202,22 @@ const TeacherExams = () => {
           }}
         >
           {categories.map((c) => (
-            <Select.Option key={c.id} value={c.id}>
+            <Select.Option key={c.id} value={c.name}>
               {c.name}
             </Select.Option>
           ))}
         </Select>
-        <DatePicker
-          placeholder="Create date"
+        {/* Date range filter */}
+        <DatePicker.RangePicker
+          placeholder={["From", "To"]}
           allowClear
-          style={{ width: 180 }}
-          onChange={(_, dateString) => {
-            setDateFilter(dateString || undefined);
+          style={{ width: 280 }}
+          onChange={(_, dateStrings) => {
+            const [start, end] = dateStrings;
+            setDateFilter({
+              start: start || undefined,
+              end: end || undefined,
+            });
             setPage(0);
           }}
         />

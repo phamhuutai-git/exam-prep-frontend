@@ -41,15 +41,6 @@ export default function ExamFormModal({
   const [questions, setQuestions] = useState(initialQuestions || []);
   const [createQOpen, setCreateQOpen] = useState(false);
 
-  // Map categoryId → name để hiển thị tag
-  const catMap = useMemo(() => {
-    const m = {};
-    categories.forEach((c) => {
-      m[c.id] = { name: c.name };
-    });
-    return m;
-  }, [categories]);
-
   useEffect(() => {
     setQuestions(initialQuestions || []);
   }, [initialQuestions]);
@@ -122,7 +113,6 @@ export default function ExamFormModal({
       if (onCreateQuestion) {
         newQuestion = await onCreateQuestion(payload);
       } else {
-        // Fallback demo
         newQuestion = { id: Date.now(), ...payload };
       }
       if (newQuestion?.id) {
@@ -131,7 +121,6 @@ export default function ExamFormModal({
       }
       setCreateQOpen(false);
     } catch (err) {
-      // lỗi đã được xử lý ở parent
       console.error("Tạo câu hỏi thất bại:", err);
     }
   };
@@ -281,7 +270,6 @@ export default function ExamFormModal({
             {filteredQ.map((q) => {
               const sel = selectedIds.includes(q.id);
               const diff = DIFF_MAP[q.difficulty];
-              const cat = catMap[q.categoryId];
               return (
                 <div
                   key={q.id}
@@ -305,7 +293,7 @@ export default function ExamFormModal({
                     </Text>
                     <Space size={4} style={{ marginTop: 3 }}>
                       {diff && <Tag color={diff.color}>{diff.label}</Tag>}
-                      {cat && <Tag color={cat.color}>{cat.name}</Tag>}
+                      {q.category && <Tag>{q.category}</Tag>}
                     </Space>
                   </div>
                 </div>
