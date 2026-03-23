@@ -16,9 +16,9 @@ const examService = {
 
 export default examService;
 
-export async function getExamsByTeacher(page, size) {
+export async function getExamsByTeacher(page, size, params) {
   return api
-    .get(`/teacher/exams/teacher-name?page=${page}&size=${size}`)
+    .get(`/teacher/exams/teacher-name?page=${page}&size=${size}`, { params })
     .then((response) => {
       return response;
     })

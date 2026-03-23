@@ -32,11 +32,33 @@ const TeacherExams = () => {
   const [editingExam, setEditingExam] = useState(null);
   const [reload, setReload] = useState(false);
 
+  //filter states
+  const [titleInput, setSearchInput] = useState("");
+  const [titleFilter, setTitleFilter] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [minDate, setMinDate] = useState(null);
+  const [maxDate, setMaxDate] = useState(null);
+
+  //Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setTitleFilter(titleInput);
+      setPage(0); // reset page when filter changes
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [titleInput]);
+
   //Get all exams of teacher
   useEffect(() => {
     async function fetchExams() {
       try {
-        const response = await examsAPI.getExamsByTeacher(page, size);
+        const response = await examsAPI.getExamsByTeacher(page, size, {
+          title: titleFilter,
+          categoryName: categoryFilter,
+          minDate,
+          maxDate,
+        });
         const result = response.data.data;
 
         setExams(result.content);
@@ -48,7 +70,7 @@ const TeacherExams = () => {
     }
 
     fetchExams();
-  }, [page, size, reload]);
+  }, [page, size, reload, titleFilter, categoryFilter, minDate, maxDate]);
 
   useEffect(() => {
     async function fetchQuestion() {
@@ -66,6 +88,20 @@ const TeacherExams = () => {
 
     fetchQuestion();
   }, [reload]);
+
+  //Get all category
+  useEffect(() => {
+    async function fetchCategory() {
+      try {
+        const response = await questionService.getAllCategory();
+        setCategories(response.data.data.content);
+      } catch (error) {
+        console.error(error);
+        toast.error("Không tải được danh sách thể loại");
+      }
+
+    } fetchCategory();
+  }, []);
 
   const handlePreview = async (exam) => {
     try {
@@ -146,7 +182,7 @@ const TeacherExams = () => {
         <div style={{ flex: 1, minWidth: 220 }}>
           <Input
             prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
-            placeholder="Search Exam..."
+            placeholder="Search Exam by title..."
             allowClear
             onChange={(e) => setSearchInput(e.target.value)}
           />
@@ -157,20 +193,36 @@ const TeacherExams = () => {
           placeholder="Category"
           allowClear
           style={{ width: 150 }}
-          onChange={(v) => setCatFilter(v)}
+          onChange={(v) => {
+            setCategoryFilter(v ?? null);
+            setPage(0);
+          }}
         >
           {categories.map((c) => (
-            <Select.Option key={c.id} value={c.id}>
+            <Select.Option key={c.id} value={c.name}>
               {c.name}
             </Select.Option>
           ))}
         </Select>
         <DatePicker
-          placeholder="Create date"
+          placeholder="Từ ngày"
           allowClear
-          style={{ width: 180 }}
-          onChange={(date, dateString) => setDateFilter(dateString)}
+          style={{ width: 155 }}
+          onChange={(_, dateString) => {
+            setMinDate(dateString || null);
+            setPage(0);
+          }}
         />
+        <DatePicker
+          placeholder="Đến ngày"
+          allowClear
+          style={{ width: 155 }}
+          onChange={(_, dateString) => {
+            setMaxDate(dateString || null);
+            setPage(0);
+          }}
+        />
+
       </div>
 
       <div className="question-table-wrapper">
