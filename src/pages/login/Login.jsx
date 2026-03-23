@@ -8,31 +8,15 @@ import { useNavigate } from "react-router-dom";
 import Quenmatkhau from "../../components/modal/auth/Quenmatkhau";
 import { toast } from "react-toastify";
 import { useAuth } from "../../hooks/useAuth";
-
-
-
 const Login = () => {
   const [loading, setLoading] = React.useState(false);
   const [openForgot, setOpenForgot] = React.useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
-
-/**
- * Xử lý submit form đăng nhập.
- * Gọi API login thông qua AuthContext, hiển thị thông báo và điều hướng theo role.
- * @param {Object} values - Giá trị form { emailOrUsername, password }
- */
-  /**
-   * Xử lý submit form đăng nhập.
-   * Gọi API login thông qua AuthContext, hiển thị thông báo và điều hướng theo role.
-   * @param {Object} values - Giá trị form { emailOrUsername, password }
-   */
   const onFinish = async (values) => {
     setLoading(true);
-
     try {
       const userData = await login(values);
-
       // Hiển thị cảnh báo nếu có lần đăng nhập sai
       if (userData.failCount > 0) {
         toast.warning(`Bạn đã nhập sai ${userData.failCount} lần`);
@@ -60,9 +44,6 @@ const Login = () => {
       setLoading(false);
     }
   };
-
-
-
   return (
     <div className="login-wrapper">
       <div className="login-container">

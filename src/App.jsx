@@ -5,7 +5,6 @@ import TeacherLayout from "./layouts/teacher/TeacherLayout";
 import AdminLayouts from "./layouts/admin/AdminLayout";
 import ResetPassword from "./pages/login/ResetPassword";
 import Dashboard from "./pages/admin/Dashboard";
-// import ComingSoon from './pages/admin/ComingSoon'
 import { Routes, Route } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import ProtectedRoute from "./route/ProtectedRoute";
@@ -13,13 +12,22 @@ import PublicRoute from "./route/PublicRoute";
 import NotFound from "./pages/NotFound";
 import User from "./pages/admin/User";
 import Classes from "./pages/admin/Classes";
-import Subjects from "./pages/admin/Subjects";
+
 import AssignTeacher from "./pages/admin/AssignTeacher";
+
 import StudentDashboard from "./pages/student/Dashboard";
 import LichSuThi from "./pages/student/LichSuThi";
 import DeThiYeuThich from "./pages/student/DeThiYeuThich";
 import BaiThi from "./pages/student/BaiThi";
+<<<<<<< HEAD
 import ErrorBoundary from "./components/ErrorBoundary";
+=======
+import TeacherExams from "./pages/teacher/TeacherExams";
+import TeacherQuestions from "./pages/teacher/TeacherQuestions";
+import TeacherStudents from "./pages/teacher/TeacherStudents";
+import TeacherDashboard from "./pages/teacher/TeacherDashboard";
+import TeacherExamsClass from "./pages/teacher/TeacherExamClass";
+>>>>>>> a7abd600ff27425f8409b4545005591696aef189
 const App = () => {
   return (
     <>
@@ -64,6 +72,7 @@ const App = () => {
           />
         </Route>
 
+        {/* TEACHER */}
         <Route
           path="/teacher"
           element={
@@ -71,7 +80,13 @@ const App = () => {
               <TeacherLayout />
             </ProtectedRoute>
           }
-        />
+        >
+          <Route index element={<TeacherDashboard />} />
+          <Route path="exams" element={<TeacherExams />} />
+          <Route path="questions" element={<TeacherQuestions />} />
+          <Route path="students" element={<TeacherStudents />} />
+          <Route path="exam-classes" element={<TeacherExamsClass />} />
+        </Route>
 
         <Route
           path="/admin"
@@ -84,8 +99,8 @@ const App = () => {
           <Route index element={<Dashboard />} />
           <Route path="users" element={<User />} />
           <Route path="classes" element={<Classes />} />
-          <Route path="subjects" element={<Subjects />} />
           <Route path="assign-teacher" element={<AssignTeacher />} />
+
         </Route>
 
         {/* 404 Page */}

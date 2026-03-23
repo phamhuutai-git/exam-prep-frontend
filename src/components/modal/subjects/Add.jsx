@@ -9,7 +9,7 @@ const Add = ({ open, isEditMode, form, loading, onCancel, onSubmit }) => {
       confirmLoading={loading}
       onCancel={onCancel}
       footer={null}
-      destroyOnClose
+      destroyOnHidden
     >
       <Form
         form={form}

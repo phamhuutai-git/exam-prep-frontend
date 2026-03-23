@@ -1,6 +1,5 @@
 import React from 'react'
 import { Modal, Form, Input, Button, Space } from 'antd'
-
 const Add = ({ open, isEditMode, form, loading, onCancel, onSubmit }) => {
   return (
     <Modal
@@ -9,7 +8,7 @@ const Add = ({ open, isEditMode, form, loading, onCancel, onSubmit }) => {
       confirmLoading={loading}
       onCancel={onCancel}
       footer={null}
-      destroyOnClose
+      destroyOnHidden
     >
       <Form
         form={form}
@@ -17,7 +16,7 @@ const Add = ({ open, isEditMode, form, loading, onCancel, onSubmit }) => {
         onFinish={onSubmit}
       >
         <Form.Item
-          name="className"
+          name="name"
           label="Tên lớp"
           rules={[{ required: true, message: 'Vui lòng nhập tên lớp!' }]}
         >

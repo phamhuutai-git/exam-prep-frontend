@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
+<<<<<<< HEAD
 import { Card, Row, Col, Tag, Button, Select, Input, InputNumber, Space, Spin, Alert } from "antd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faClock, faBook, faHeart } from "@fortawesome/free-solid-svg-icons";
@@ -6,6 +7,11 @@ import "../../assets/styles/StudentExam.css";
 import examService from "../../services/examService";
 
 const { Option } = Select;
+=======
+import { Card, Row, Col, Tag, Button, Input } from "antd";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faClock, faBook, faHeart, faSearch } from "@fortawesome/free-solid-svg-icons";
+>>>>>>> a7abd600ff27425f8409b4545005591696aef189
 
 const mockData = [
   {
@@ -37,6 +43,7 @@ const mockData = [
 const STORAGE_KEY = "student_exams_v1";
 
 const BaiThi = () => {
+<<<<<<< HEAD
   const [exams, setExams] = useState(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -154,6 +161,88 @@ const BaiThi = () => {
           </Select>
         </div>
       </header>
+=======
+  const [liked, setLiked] = useState({});
+  const [searchTerm, setSearchTerm] = useState('');
+
+  useEffect(() => {
+    const loadData = () => {
+      const saved = JSON.parse(localStorage.getItem("favoriteExams")) || {};
+      setLiked(saved);
+    };
+
+    loadData();
+
+    // lắng nghe thay đổi từ component khác
+    window.addEventListener("storage", loadData);
+
+    return () => {
+      window.removeEventListener("storage", loadData);
+    };
+  }, []);
+
+  const filteredData = useMemo(() => {
+    return mockData.filter((exam) =>
+      !searchTerm ||
+      exam.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      exam.subject.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [searchTerm]);
+
+  const toggleLike = (exam) => {
+    const newLiked = {
+      ...liked,
+      [exam.id]: !liked[exam.id],
+    };
+
+    setLiked(newLiked);
+    localStorage.setItem("favoriteExams", JSON.stringify(newLiked));
+
+    // phát sự kiện để component khác update
+    window.dispatchEvent(new Event("storage"));
+  };
+
+  return (
+    <div style={{ padding: "24px" }}>
+      <h1>Danh sách bài thi</h1>
+      <p style={{ marginBottom: "32px", color: "#666" }}>
+        Chọn bài thi để bắt đầu luyện tập
+      </p>
+      <div style={{ marginBottom: '24px' }}>
+        <Input
+          className="search-input"
+          prefix={<FontAwesomeIcon icon={faSearch} />}
+          placeholder="Tìm kiếm bài thi theo tiêu đề, môn học..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={{ maxWidth: 400 }}
+        />
+      </div>
+      <Row gutter={[24, 24]}>
+        {filteredData.map((exam) => (
+          <Col xs={24} sm={12} md={8} lg={6} key={exam.id}>
+            <Card
+              hoverable
+              style={{
+                borderRadius: 12,
+                position: "relative",
+                textAlign: "center",
+              }}
+            >
+              {/* ❤️ Icon */}
+              <FontAwesomeIcon
+                icon={faHeart}
+                onClick={() => toggleLike(exam)}
+                style={{
+                  position: "absolute",
+                  top: 16,
+                  right: 16,
+                  fontSize: 20,
+                  cursor: "pointer",
+                  color: liked[exam.id] ? "hotpink" : "#ccc",
+                }}
+              />
+>>>>>>> a7abd600ff27425f8409b4545005591696aef189
 
       {error && (
         <div style={{ marginBottom: 12 }}>
@@ -197,6 +286,7 @@ const BaiThi = () => {
                       />
                     </Space>
 
+<<<<<<< HEAD
                     <div className="edit-actions">
                       <Button onClick={() => saveEdit(exam.id)} type="primary">
                         Lưu
@@ -226,6 +316,16 @@ const BaiThi = () => {
           ))}
         </Row>
       )}
+=======
+              <div style={{ display: "flex", justifyContent: "center", gap: 10 }}>
+                <Button>Thi thử</Button>
+                <Button type="primary">Thi</Button>
+              </div>
+            </Card>
+          </Col>
+        ))}
+      </Row>
+>>>>>>> a7abd600ff27425f8409b4545005591696aef189
     </div>
   );
 };

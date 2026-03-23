@@ -9,47 +9,28 @@ const Capnhatmatkhau = ({
   onCancel = () => {},
   onChangePassword = () => {},
 }) => {
-
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
-
   const handleSubmit = async (values) => {
-
     try {
-
-      setLoading(true);
-
+      setLoading(true)
       await onChangePassword(values);
-
       toast.success("Đổi mật khẩu thành công!");
-
       form.resetFields();
-
       onCancel();
-
     } catch (error) {
-
       toast.error(
         error?.message || "Đổi mật khẩu thất bại. Vui lòng thử lại."
       );
-
     } finally {
-
       setLoading(false);
 
     }
   };
-
-
   const handleCancel = () => {
-
     form.resetFields();
-
     onCancel();
-
   };
-
-
   return (
     <Modal
       title="Đổi mật khẩu"
@@ -59,7 +40,6 @@ const Capnhatmatkhau = ({
       width={500}
       className="change-password-modal"
     >
-
       <Form
         form={form}
         layout="vertical"

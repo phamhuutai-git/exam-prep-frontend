@@ -1,198 +1,265 @@
-import React, { useState, useMemo } from 'react'
-import { Form } from 'antd'
-import { toast } from 'react-toastify'
-import '../../assets/styles/User.css'
+import React, { useState, useEffect } from 'react'
 import AssignTeacherHeader from '../../components/assignTeacher/AssignTeacherHeader'
 import AssignTeacherFilter from '../../components/assignTeacher/AssignTeacherFilter'
 import AssignTeacherTable from '../../components/assignTeacher/AssignTeacherTable'
-import AddAssignTeacher from '../../components/modal/assignTeacher/Add'
-// Mock data
-const initialAssignments = [
-  {
-    id: 1,
-    classId: 1,
-    className: '10A1',
-    teacherId: 'GV01',
-    teacherName: 'teacher1',
-    subjectName: 'Toán'
-  },
-  {
-    id: 2,
-    classId: 1,
-    className: '10A1',
-    teacherId: 'GV02',
-    teacherName: 'teacher2',
-    subjectName: 'Văn'
-  }
-]
+import { toast } from 'react-toastify'
+import Add from '../../components/modal/assignTeacher/Add'
+import ViewTeacher from '../../components/modal/assignTeacher/ViewTeacher'
+import ViewStudent from '../../components/modal/assignTeacher/ViewStudent'
 
-const mockClasses = [
-  { id: 1, name: '10A1' },
-  { id: 2, name: '11B2' },
-  { id: 3, name: '12A1' }
-]
+import {
+  getTeachers,
+  getStudentsByClass,
+  getTeachersByClass
+} from '../../services/userService.js'
 
-const mockTeachers = [
-  { id: 1, teacherId: 'GV01', username: 'teacher1' },
-  { id: 2, teacherId: 'GV02', username: 'teacher2' },
-  { id: 3, teacherId: 'GV03', username: 'teacher3' }
-]
-
-const mockSubjects = [
-  { id: 1, name: 'Toán' },
-  { id: 2, name: 'Văn' },
-  { id: 3, name: 'Anh' },
-  { id: 4, name: 'Lý' }
-]
+import {
+  getClasses,
+  addTeachersToClass
+} from '../../services/classes.js'
 
 const AssignTeacher = () => {
-  const [assignments, setAssignments] = useState(initialAssignments)
-  const [loading, setLoading] = useState(false)
+  const [total, setTotal] = useState(0)
+  const [data, setData] = useState([])
+  const [teachers, setTeachers] = useState([])
+
+  const [classTeachers, setClassTeachers] = useState([])
+  const [students, setStudents] = useState([])
+
+  const [teacherLoading, setTeacherLoading] = useState(false)
+  const [classLoading, setClassLoading] = useState(false)
+  const [teacherViewLoading, setTeacherViewLoading] = useState(false)
+  const [studentLoading, setStudentLoading] = useState(false)
+
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [isEditMode, setIsEditMode] = useState(false)
-  const [selectedAssignment, setSelectedAssignment] = useState(null)
-  const [form] = Form.useForm()
+  const [selectedClass, setSelectedClass] = useState(null)
 
-  // Filter states
   const [searchTerm, setSearchTerm] = useState('')
-  const [classFilter, setClassFilter] = useState('')
-  const [teacherFilter, setTeacherFilter] = useState('')
-  const [subjectFilter, setSubjectFilter] = useState('')
+  const [page, setPage] = useState(0)
 
-  // Filtered assignments
-  const filteredAssignments = useMemo(() => {
-    return assignments.filter(assignment => {
-      const matchesSearch = !searchTerm ||
-        assignment.className.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        assignment.teacherName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        assignment.subjectName.toLowerCase().includes(searchTerm.toLowerCase())
-      
-      const matchesClass = !classFilter || assignment.className === classFilter
-      const matchesTeacher = !teacherFilter || assignment.teacherName === teacherFilter
-      const matchesSubject = !subjectFilter || assignment.subjectName === subjectFilter
-      
-      return matchesSearch && matchesClass && matchesTeacher && matchesSubject
-    })
-  }, [assignments, searchTerm, classFilter, teacherFilter, subjectFilter])
+  const [viewStudentDrawer, setViewStudentDrawer] = useState(false)
+  const [viewTeacherDrawer, setViewTeacherDrawer] = useState(false)
+  const [currentRecord, setCurrentRecord] = useState(null)
 
-  const handleAdd = () => {
-    setIsEditMode(false)
-    setSelectedAssignment(null)
-    form.resetFields()
+  // ================= LOAD CLASSES =================
+  const fetchClasses = async () => {
+    try {
+      setClassLoading(true)
+
+      const res = await getClasses({
+        page: page,
+        size: 5
+      })
+
+      const raw = res.data?.data?.content || []
+
+      setTotal(res.data?.data?.totalElements || 0)
+
+      const classList = raw.map(item => ({
+        id: item.id,
+        name: item.name,
+        studentCount: item.studentCount || 0,
+        teacherCount: item.teacherCount || 0
+      }))
+
+      setData(classList)
+
+    } catch (err) {
+      console.error(err)
+      toast.error('Lỗi load danh sách lớp!')
+    } finally {
+      setClassLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchClasses()
+  }, [page])
+
+  // ================= OPEN MODAL =================
+  const handleOpenAddTeacher = async (record) => {
     setIsModalOpen(true)
+
+    try {
+      setTeacherLoading(true)
+
+      const [teacherRes, classTeacherRes] = await Promise.all([
+        getTeachers(),
+        getTeachersByClass(record.id)
+      ])
+
+      const teacherList =
+        teacherRes.data?.data?.content ||
+        teacherRes.data?.data ||
+        []
+
+      const classTeacherList =
+        classTeacherRes.data?.data?.content ||
+        classTeacherRes.data?.data ||
+        []
+
+      setTeachers(teacherList)
+
+      setSelectedClass({
+        ...record,
+        teachers: classTeacherList
+      })
+
+    } catch (err) {
+      console.error(err)
+      toast.error('Lỗi load giáo viên!')
+    } finally {
+      setTeacherLoading(false)
+    }
   }
-  const handleEdit = (record) => {
-    setIsEditMode(true)
-    setSelectedAssignment(record)
-    form.setFieldsValue({
-      classId: record.classId,
-      teacherCode: record.teacherId,
-      subjectId: mockSubjects.find(s => s.name === record.subjectName)?.id
-    })
-    setIsModalOpen(true)
-  }
-  const handleDelete = (id) => {
-    setLoading(true)
-    setTimeout(() => {
-      setAssignments(assignments.filter(a => a.id !== id))
-      setLoading(false)
-      toast.success('Xóa phân công thành công!')
-    }, 500)
-  }
-  const handleSubmit = (values) => {
-    setLoading(true)
-    setTimeout(() => {
-      const classInfo = mockClasses.find(c => c.id === values.classId)
-      const teacherInfo = mockTeachers.find(t => t.teacherId === values.teacherCode)
-      if (!classInfo) {
-        toast.error('Lớp không tồn tại!')
-        setLoading(false)
-        return
-      }
-      if (!teacherInfo) {
-        toast.error('Mã giáo viên không tồn tại!')
-        setLoading(false)
-        return
-      }
-      const subjectInfo = mockSubjects.find(s => s.id === values.subjectId)
-      if (!subjectInfo) {
-        toast.error('Môn học không tồn tại!')
-        setLoading(false)
-        return
-      }
-      const assignmentData = {
-        classId: values.classId,
-        className: classInfo.name,
-        teacherId: values.teacherCode,
-        teacherName: teacherInfo.username,
-        subjectName: subjectInfo.name
-      }
-      if (isEditMode && selectedAssignment) {
-        setAssignments(assignments.map(a =>
-          a.id === selectedAssignment.id ? { ...a, ...assignmentData } : a
-        ))
-        toast.success('Cập nhật phân công thành công!')
-      } else {
-        const newAssignment = {
-          id: Date.now(),
-          ...assignmentData
-        }
-        setAssignments([...assignments, newAssignment])
-        toast.success('Gán giáo viên thành công!')
-      }
-      setLoading(false)
+
+  // ================= SUBMIT =================
+  const handleSubmit = async (teacherIds) => {
+    if (!selectedClass) return
+
+    try {
+      setTeacherLoading(true)
+
+      await addTeachersToClass(selectedClass.id, teacherIds)
+
+      // reload teacher list
+      const res = await getTeachersByClass(selectedClass.id)
+
+      const updatedTeachers =
+        res.data?.data?.content ||
+        res.data?.data ||
+        []
+
+      // update UI
+      setData(prev =>
+        prev.map(cls =>
+          cls.id === selectedClass.id
+            ? {
+                ...cls,
+                teacherCount: updatedTeachers.length // ✅ FIX QUAN TRỌNG
+              }
+            : cls
+        )
+      )
+
+      toast.success('Phân công giáo viên thành công 🎉')
+
       setIsModalOpen(false)
-      form.resetFields()
-    }, 1000)
+      setSelectedClass(null)
+
+    } catch (err) {
+      console.error(err)
+      toast.error('Lỗi phân công giáo viên!')
+    } finally {
+      setTeacherLoading(false)
+    }
   }
-  const handleCancel = () => {
-    setIsModalOpen(false)
-    form.resetFields()
+
+  // ================= VIEW TEACHERS =================
+  const handleViewTeachers = async (record) => {
+    setCurrentRecord(record)
+    setViewTeacherDrawer(true)
+
+    try {
+      setTeacherViewLoading(true)
+
+      const res = await getTeachersByClass(record.id)
+
+      const teacherList =
+        res.data?.data?.content ||
+        res.data?.data ||
+        []
+
+      setClassTeachers(teacherList)
+
+    } catch (err) {
+      toast.error('Lỗi load giáo viên!')
+    } finally {
+      setTeacherViewLoading(false)
+    }
   }
+
+  // ================= VIEW STUDENTS =================
+  const handleViewStudents = async (record) => {
+    setCurrentRecord(record)
+    setViewStudentDrawer(true)
+
+    try {
+      setStudentLoading(true)
+
+      const res = await getStudentsByClass(record.id)
+
+      const studentList =
+        res.data?.data?.content ||
+        res.data?.data ||
+        []
+
+      setStudents(studentList)
+
+    } catch (err) {
+      toast.error('Lỗi load sinh viên!')
+    } finally {
+      setStudentLoading(false)
+    }
+  }
+
+  // ================= FILTER =================
+  const filteredData = data.filter(item =>
+    item.name.toLowerCase().includes(searchTerm.toLowerCase())
+  )
+
   return (
-    <div style={{ padding: 24 }}>
-      {/* Header */}
+    <div style={{ padding: 20 }}>
       <AssignTeacherHeader
-        title="Gán giáo viên cho lớp"
-        description="Quản lý phân công giáo viên giảng dạy cho các lớp học"
-        buttonText="Gán giáo viên"
-        handleAdd={handleAdd}
+        title="Phân công giáo viên"
+        description="Quản lý việc phân công giáo viên"
       />
-      {/* Filter */}
+
       <AssignTeacherFilter
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
-        classFilter={classFilter}
-        setClassFilter={setClassFilter}
-        teacherFilter={teacherFilter}
-        setTeacherFilter={setTeacherFilter}
-        subjectFilter={subjectFilter}
-        setSubjectFilter={setSubjectFilter}
-        classes={mockClasses}
-        teachers={mockTeachers}
-        subjects={mockSubjects}
+        handleClear={() => setSearchTerm('')}
       />
-      {/* Table */}
+
       <AssignTeacherTable
-        data={filteredAssignments}
-        loading={loading}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
+        data={filteredData}
+        page={page}
+        total={total}
+        onPageChange={setPage}
+        onAddTeacher={handleOpenAddTeacher}
+        onViewTeachers={handleViewTeachers}
+        onViewStudents={handleViewStudents}
+        loading={classLoading}
       />
-      {/* Modal */}
-      <AddAssignTeacher
+
+      <ViewTeacher
+        open={viewTeacherDrawer}
+        classInfo={currentRecord}
+        teachers={classTeachers}
+        loading={teacherViewLoading}
+        onClose={() => setViewTeacherDrawer(false)}
+      />
+
+      <ViewStudent
+        open={viewStudentDrawer}
+        classInfo={currentRecord}
+        students={students}
+        loading={studentLoading}
+        onClose={() => setViewStudentDrawer(false)}
+      />
+
+      <Add
         open={isModalOpen}
-        isEditMode={isEditMode}
-        form={form}
-        loading={loading}
-        onCancel={handleCancel}
+        onCancel={() => setIsModalOpen(false)}
         onSubmit={handleSubmit}
-        classes={mockClasses}
-        teachers={mockTeachers}
-        subjects={mockSubjects}
+        loading={teacherLoading}
+        users={teachers}
+        currentClassTeacherIds={
+          selectedClass?.teachers?.map(t => t.id) || []
+        }
       />
     </div>
   )
 }
-export default AssignTeacher
 
+export default AssignTeacher

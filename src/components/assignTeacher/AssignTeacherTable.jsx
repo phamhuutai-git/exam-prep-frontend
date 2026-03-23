@@ -1,74 +1,92 @@
 import React from 'react'
-import { Table, Button, Space, Popconfirm, Tag } from 'antd'
+import { Table, Button, Space, Pagination } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPencil, faTrash } from '@fortawesome/free-solid-svg-icons'
+import {
+  faUserPlus,
+  faEye
+} from '@fortawesome/free-solid-svg-icons'
 
-const AssignTeacherTable = ({ data, loading, onEdit, onDelete }) => {
+const AssignTeacherTable = ({
+  data = [],
+  page = 0,
+  total = 0,
+  onPageChange,
+  onAddTeacher,
+  onViewTeachers,
+  onViewStudents,
+  loading
+}) => {
+
   const columns = [
     {
       title: 'STT',
       align: 'center',
-      render: (text, record, index) => index + 1
+      render: (_, __, index) => page * 5 + index + 1
     },
     {
       title: 'Lớp',
-      dataIndex: 'className',
-      align: 'center'
+      dataIndex: 'name',
+      key: 'name'
     },
     {
-      title: 'Mã GV',
-      dataIndex: 'teacherId',
-      align: 'center'
+      title: 'Số sinh viên',
+      dataIndex: 'studentCount',
+      key: 'studentCount'
     },
     {
-      title: 'Giáo viên',
-      dataIndex: 'teacherName',
-      align: 'center'
-    },
-    {
-      title: 'Môn',
-      dataIndex: 'subjectName',
-      render: (subject) => (
-        <Tag color="blue">{subject}</Tag>
-      )
+      title: 'Số giáo viên',
+      dataIndex: 'teacherCount', // ✅ FIX CHÍNH
+      key: 'teacherCount'
     },
     {
       title: 'Hành động',
+      key: 'action',
       align: 'center',
       render: (_, record) => (
         <Space>
           <Button
             type="text"
-            icon={<FontAwesomeIcon icon={faPencil} />}
-            onClick={() => onEdit(record)}
-            title="Sửa"
+            icon={<FontAwesomeIcon icon={faUserPlus} />}
+            onClick={() => onAddTeacher(record)}
           />
-          <Popconfirm
-            title="Xóa phân công giáo viên này?"
-            onConfirm={() => onDelete(record.id)}
-          >
-            <Button
-              type="text"
-              icon={<FontAwesomeIcon icon={faTrash} />}
-              danger
-              title="Xóa"
-            />
-          </Popconfirm>
+
+          <Button
+            type="text"
+            icon={<FontAwesomeIcon icon={faEye} />}
+            onClick={() => onViewTeachers(record)}
+          />
+
+          <Button
+            type="text"
+            icon={<FontAwesomeIcon icon={faEye} />}
+            onClick={() => onViewStudents(record)}
+          />
         </Space>
       )
     }
   ]
 
   return (
-    <Table
-      columns={columns}
-      dataSource={data}
-      rowKey="id"
-      loading={loading}
-      bordered
-    />
+    <>
+      <Table
+        columns={columns}
+        dataSource={data}
+        rowKey="id"
+        bordered
+        pagination={false}
+        loading={loading}
+      />
+
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16 }}>
+        <Pagination
+          current={page + 1}
+          total={total}
+          pageSize={5}
+          onChange={(p) => onPageChange(p - 1)}
+        />
+      </div>
+    </>
   )
 }
 
 export default AssignTeacherTable
-

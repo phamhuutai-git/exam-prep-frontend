@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { Card, Row, Col, Tag } from "antd";
+import React, { useEffect, useState, useMemo } from "react";
+import { Card, Row, Col, Tag, Input } from "antd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faClock, faBook, faHeart } from "@fortawesome/free-solid-svg-icons";
+import { faClock, faBook, faHeart, faSearch } from "@fortawesome/free-solid-svg-icons";
 
 const mockData = [
   {
@@ -29,34 +29,76 @@ const mockData = [
 
 const DeThiYeuThich = () => {
   const [favorites, setFavorites] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
+    const loadFavorites = () => {
+      const liked = JSON.parse(localStorage.getItem("favoriteExams")) || {};
+      const favList = mockData.filter((exam) => liked[exam.id]);
+      setFavorites(favList);
+    };
+
+    loadFavorites();
+
+    // nghe thay đổi từ BaiThi
+    window.addEventListener("storage", loadFavorites);
+
+    return () => {
+      window.removeEventListener("storage", loadFavorites);
+    };
+  }, []);
+
+  const filteredFavorites = useMemo(() => {
+    return favorites.filter((exam) =>
+      !searchTerm ||
+      exam.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      exam.subject.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [favorites, searchTerm]);
+
+  const handleRemove = (id) => {
     const liked = JSON.parse(localStorage.getItem("favoriteExams")) || {};
 
-    const favList = mockData.filter((exam) => liked[exam.id]);
+    delete liked[id];
 
-    setFavorites(favList);
-  }, []);
+    localStorage.setItem("favoriteExams", JSON.stringify(liked));
+
+    setFavorites((prev) => prev.filter((item) => item.id !== id));
+
+    // báo cho BaiThi update lại icon
+    window.dispatchEvent(new Event("storage"));
+  };
 
   return (
     <div style={{ padding: "24px" }}>
       <h1>Đề thi yêu thích</h1>
       <p>Danh sách các đề thi bạn đã lưu.</p>
 
-      {favorites.length === 0 ? (
+   <div style={{ marginBottom: '24px' }}>
+           <Input
+             className="search-input"
+             prefix={<FontAwesomeIcon icon={faSearch} />}
+             placeholder="Tìm kiếm bài thi theo tiêu đề, môn học..."
+             value={searchTerm}
+             onChange={(e) => setSearchTerm(e.target.value)}
+             style={{ maxWidth: 400 }}
+           />
+         </div>
+      {filteredFavorites.length === 0 ? (
         <div
           style={{
             marginTop: 24,
             padding: 24,
             background: "white",
             borderRadius: 8,
+            textAlign: "center",
           }}
         >
-          
+          <h3>Chưa có đề thi yêu thích ❤️{searchTerm && ' hoặc không khớp tìm kiếm'}</h3>
         </div>
       ) : (
         <Row gutter={[24, 24]} style={{ marginTop: 24 }}>
-          {favorites.map((exam) => (
+          {filteredFavorites.map((exam) => (
             <Col xs={24} sm={12} md={8} lg={6} key={exam.id}>
               <Card
                 hoverable
@@ -66,14 +108,17 @@ const DeThiYeuThich = () => {
                   textAlign: "center",
                 }}
               >
+                {/* ❤️ Xoá */}
                 <FontAwesomeIcon
                   icon={faHeart}
+                  onClick={() => handleRemove(exam.id)}
                   style={{
                     position: "absolute",
                     top: 16,
                     right: 16,
                     fontSize: 20,
                     color: "hotpink",
+                    cursor: "pointer",
                   }}
                 />
 

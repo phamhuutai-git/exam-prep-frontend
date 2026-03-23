@@ -1,15 +1,23 @@
 import React from 'react'
-import { Table, Button, Space, Popconfirm } from 'antd'
+import { Table, Button, Space, Popconfirm, Pagination } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPencil, faTrash } from '@fortawesome/free-solid-svg-icons'
 
-const SubjectsTable = ({ data, loading, onEdit, onDelete }) => {
+const SubjectsTable = ({
+  data = [],
+  loading,
+  onEdit,
+  onDelete,
+  page = 0,
+  total = 0,
+  onPageChange
+}) => {
+
   const columns = [
     {
       title: 'STT',
-      dataIndex: 'id',
       align: 'center',
-      render: (text, record, index) => index + 1
+      render: (_, __, index) => page * 5 + index + 1
     },
     {
       title: 'Tên môn',
@@ -17,14 +25,15 @@ const SubjectsTable = ({ data, loading, onEdit, onDelete }) => {
     },
     {
       title: 'Hành động',
+      align: 'center',
       render: (_, record) => (
         <Space>
           <Button
             type="text"
             icon={<FontAwesomeIcon icon={faPencil} />}
             onClick={() => onEdit(record)}
-            title="Sửa"
           />
+
           <Popconfirm
             title="Xóa môn học?"
             onConfirm={() => onDelete(record.id)}
@@ -33,7 +42,6 @@ const SubjectsTable = ({ data, loading, onEdit, onDelete }) => {
               type="text"
               icon={<FontAwesomeIcon icon={faTrash} />}
               danger
-              title="Xóa"
             />
           </Popconfirm>
         </Space>
@@ -42,15 +50,26 @@ const SubjectsTable = ({ data, loading, onEdit, onDelete }) => {
   ]
 
   return (
-    <Table
-      columns={columns}
-      dataSource={data}
-      rowKey="id"
-      loading={loading}
-      bordered
-    />
+    <>
+      <Table
+        columns={columns}
+        dataSource={data}
+        rowKey="id"
+        loading={loading}
+        bordered
+        pagination={false} // ❗ tắt pagination mặc định
+      />
+
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16 }}>
+        <Pagination
+          current={page + 1}
+          total={total}
+          pageSize={5}
+          onChange={(p) => onPageChange && onPageChange(p - 1)}
+        />
+      </div>
+    </>
   )
 }
 
 export default SubjectsTable
-

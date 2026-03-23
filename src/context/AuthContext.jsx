@@ -126,3 +126,4 @@ const login = async (credentials) => {
     </AuthContext.Provider>
   );
 };
+

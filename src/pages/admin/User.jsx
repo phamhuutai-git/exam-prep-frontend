@@ -1,93 +1,81 @@
-import React, { useState, useMemo } from 'react'
-import { Button, Form } from 'antd'
+import React, { useState, useMemo, useEffect } from 'react'
+import { Form } from 'antd'
 import { toast } from 'react-toastify'
 import '../../assets/styles/User.css'
 import UserHeader from '../../components/user/UserHeader'
 import UserFilter from '../../components/user/UserFilter'
 import UserTable from '../../components/user/UserTable'
 import Add from '../../components/modal/user/Add'
-// Mock data - Dữ liệu mẫu
-const initialUsers = [
-  {
-    id: 1,
-    username: 'admin',
-    email: 'admin@vti.com',
-    fullName: 'Quản trị viên',
-    role: 'admin',
-    isActive: true,
-    className: '-',
-    subject: '-',
-    createdAt: '2024-01-01'
-  },
-  {
-    id: 2,
-    username: 'teacher1',
-    email: 'teacher1@vti.com',
-    fullName: 'Nguyễn Văn A',
-    role: 'teacher',
-    isActive: true,
-    className: '-',
-    subject: 'Toán',
-    createdAt: '2024-01-15'
-  },
-  {
-    id: 3,
-    username: 'teacher2',
-    email: 'teacher2@vti.com',
-    fullName: 'Trần Thị B',
-    role: 'teacher',
-    isActive: false,
-    className: '-',
-    subject: 'Văn',
-    createdAt: '2024-02-01'
-  },
-  {
-    id: 4,
-    username: 'student1',
-    email: 'student1@vti.com',
-    fullName: 'Lê Văn C',
-    role: 'student',
-    isActive: true,
-    className: 'Lớp 10A1',
-    subject: '-',
-    createdAt: '2024-03-01'
-  }
-]
-
+import { getUsers, unlockUser, lockUser } from '../../services/userService.js'
 const User = () => {
-  const [users, setUsers] = useState(initialUsers)
+  const [users, setUsers] = useState([])
+  const [page, setPage] = useState(0)
   const [loading, setLoading] = useState(false)
+const [total, setTotal] = useState(0)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isEditMode, setIsEditMode] = useState(false)
   const [selectedUser, setSelectedUser] = useState(null)
+
   const [form] = Form.useForm()
-  
 
-
-  // Search and filter states
+  // 🔍 Search + Role filter
   const [searchTerm, setSearchTerm] = useState('')
   const [roleFilter, setRoleFilter] = useState('')
-  const [classFilter, setClassFilter] = useState('')
-  const [subjectFilter, setSubjectFilter] = useState('')
 
-  // Filtered users based on search and filters
+  // ================= FETCH DATA =================
+  useEffect(() => {
+    fetchUsers(page)
+  }, [page])
+
+const fetchUsers = async (pageParam = page) => {
+  setLoading(true)
+  try {
+    const res = await getUsers({
+      page: pageParam,
+      size: 5 // 👈 THÊM DÒNG NÀY
+    })
+
+    const rawData = res.data?.data?.content || []
+
+    const mappedData = rawData.map(user => ({
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      fullName: `${user.firstName || ''} ${user.lastName || ''}`.trim(),
+      role: user.role?.toLowerCase(),
+      isActive: user.status === 'ACTIVED',
+      createdAt: user.createdDate
+        ? user.createdDate.split('T')[0]
+        : ''
+    }))
+
+    setUsers(mappedData)
+    setTotal(res.data?.data?.totalElements || 0)
+
+  } catch (error) {
+    toast.error('Lỗi khi tải danh sách!' + error.message)
+  } finally {
+    setLoading(false)
+  }
+}
+
+  // ================= FILTER =================
   const filteredUsers = useMemo(() => {
     return users.filter(user => {
-      const matchesSearch = !searchTerm || 
+      const matchesSearch =
+        !searchTerm ||
         user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.fullName.toLowerCase().includes(searchTerm.toLowerCase())
-      
-      const matchesRole = !roleFilter || user.role === roleFilter
-      
-      const matchesClass = !classFilter || user.className.includes(classFilter)
-      
-      const matchesSubject = !subjectFilter || user.subject.includes(subjectFilter)
-      
-      return matchesSearch && matchesRole && matchesClass && matchesSubject
-    })
-  }, [users, searchTerm, roleFilter, classFilter, subjectFilter])
 
+      const matchesRole =
+        !roleFilter || user.role === roleFilter
+
+      return matchesSearch && matchesRole
+    })
+  }, [users, searchTerm, roleFilter])
+
+  // ================= CRUD =================
   const handleAdd = () => {
     setIsEditMode(false)
     setSelectedUser(null)
@@ -104,6 +92,7 @@ const User = () => {
 
   const handleDelete = (id) => {
     setLoading(true)
+
     setTimeout(() => {
       setUsers(users.filter(user => user.id !== id))
       setLoading(false)
@@ -115,22 +104,20 @@ const User = () => {
     setLoading(true)
 
     setTimeout(() => {
-
       const currentDate = new Date().toISOString().split('T')[0]
 
       if (isEditMode) {
-
-        setUsers(users.map(user =>
-          user.id === selectedUser.id ? { ...user, ...values } : user
-        ))
-
+        setUsers(
+          users.map(user =>
+            user.id === selectedUser.id
+              ? { ...user, ...values }
+              : user
+          )
+        )
         toast.success('Cập nhật người dùng thành công!')
-      }
-
-      else {
-
+      } else {
         const newUser = {
-          id: Math.max(...users.map(u => u.id)) + 1,
+          id: users.length ? Math.max(...users.map(u => u.id)) + 1 : 1,
           ...values,
           isActive: true,
           createdAt: currentDate,
@@ -145,28 +132,50 @@ const User = () => {
       setLoading(false)
       setIsModalOpen(false)
       form.resetFields()
-
     }, 500)
   }
 
-  const handleToggleStatus = (record) => {
+  // 🔄 Toggle trạng thái
+  const handleToggleStatus = async (record) => {
     setLoading(true)
 
-    setTimeout(() => {
+    const newIsActive = !record.isActive
 
-      setUsers(users.map(user =>
+    // Optimistic update
+    setUsers(
+      users.map(user =>
         user.id === record.id
-          ? { ...user, isActive: !user.isActive }
+          ? { ...user, isActive: newIsActive }
           : user
-      ))
+      )
+    )
 
-      setLoading(false)
+    try {
+      if (newIsActive) {
+        await unlockUser(record.id)
+      } else {
+        await lockUser(record.id)
+      }
 
       toast.success(
-        `Đã ${record.isActive ? 'vô hiệu hóa' : 'kích hoạt'} người dùng!`
+        `Đã ${newIsActive ? 'kích hoạt' : 'vô hiệu hóa'} người dùng!`
+      )
+    } catch (error) {
+      // rollback nếu lỗi
+      setUsers(
+        users.map(user =>
+          user.id === record.id
+            ? { ...user, isActive: record.isActive }
+            : user
+        )
       )
 
-    }, 300)
+      toast.error('Lỗi khi thay đổi trạng thái!')
+      console.error(error)
+    } finally {
+      setLoading(false)
+      await fetchUsers()
+    }
   }
 
   const handleCancel = () => {
@@ -174,11 +183,9 @@ const User = () => {
     form.resetFields()
   }
 
+  // ================= UI =================
   return (
-
     <div style={{ padding: 24 }}>
-
-      {/* Header + Button cùng hàng */}
       <UserHeader
         title="Quản lý người dùng"
         description="Tạo, chỉnh sửa, xóa và quản lý trạng thái người dùng"
@@ -186,25 +193,25 @@ const User = () => {
         handleAdd={handleAdd}
       />
 
-      {/* Search and Filter Section */}
       <UserFilter
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
         roleFilter={roleFilter}
         setRoleFilter={setRoleFilter}
-        classFilter={classFilter}
-        setClassFilter={setClassFilter}
-        subjectFilter={subjectFilter}
-        setSubjectFilter={setSubjectFilter}
       />
+
       <UserTable
-        data={filteredUsers}
-        loading={loading}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-        onToggleStatus={handleToggleStatus}
-      />
-      <Add 
+  data={filteredUsers}
+  loading={loading}
+  onEdit={handleEdit}
+  onDelete={handleDelete}
+  onToggleStatus={handleToggleStatus}
+  page={page}
+  total={total}
+  onPageChange={setPage}
+/>
+
+      <Add
         open={isModalOpen}
         isEditMode={isEditMode}
         form={form}
@@ -212,8 +219,8 @@ const User = () => {
         onCancel={handleCancel}
         onSubmit={handleSubmit}
       />
-
     </div>
   )
 }
+
 export default User
