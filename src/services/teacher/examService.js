@@ -1,4 +1,3 @@
-import { toast } from "react-toastify";
 import api from "../apiClient";
 
 const examService = {
@@ -16,9 +15,19 @@ const examService = {
 
 export default examService;
 
-export async function getExamsByTeacher(page, size) {
+// export async function getExamsByTeacher(page, size) {
+//   return api
+//     .get(`/teacher/exams/teacher-name?page=${page}&size=${size}`)
+//     .then((response) => {
+//       return response;
+//     })
+//     .catch((error) => {
+//       throw error;
+//     });
+// }
+export async function getExamsByTeacher(params) {
   return api
-    .get(`/teacher/exams/teacher-name?page=${page}&size=${size}`)
+    .get("/teacher/exams/teacher-name", { params })
     .then((response) => {
       return response;
     })
@@ -48,4 +57,3 @@ export async function getClassesByTeacher(page, size) {
       throw error;
     });
 }
-
