@@ -67,17 +67,6 @@ const Add = ({
           <Input />
         </Form.Item>
 
-        {/* PASSWORD chỉ khi thêm */}
-        {!isEditMode && (
-          <Form.Item
-            name="password"
-            label="Mật khẩu"
-            rules={[{ required: true, message: 'Vui lòng nhập mật khẩu' }]}
-          >
-            <Input.Password />
-          </Form.Item>
-        )}
-
         {/* ROLE */}
         <Form.Item
           name="role"

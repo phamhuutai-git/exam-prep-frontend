@@ -6,7 +6,7 @@ import {
   faClock,
   faCalendar,
 } from "@fortawesome/free-solid-svg-icons";
-
+import View from "../../components/modal/lichSuThi/View";
 const mockHistoryData = [
   {
     id: "LS001",
@@ -20,7 +20,30 @@ const mockHistoryData = [
     wrong: 8,
     timeDone: "32m",
     status: "ĐẠT",
+
+    questions: [
+      {
+        question: "Cho hàm số y = f(x)...",
+        selected: 0, // ✅ đúng
+        answers: [
+          { text: "A. Đồng biến trên (0;2)", correct: true },
+          { text: "B. Nghịch biến trên (0;2)", correct: false },
+          { text: "C. Đồng biến trên (-∞;0)", correct: false },
+          { text: "D. Không xác định", correct: false },
+        ],
+      },
+      {
+        question: "Đạo hàm của y = x^2 là?",
+        selected: 2, // ❌ sai
+        answers: [
+          { text: "A. 2x", correct: true },
+          { text: "B. x", correct: false },
+          { text: "C. x^2", correct: false },
+        ],
+      },
+    ],
   },
+
   {
     id: "LS002",
     title: "Toán 12 - Chương 2",
@@ -33,7 +56,30 @@ const mockHistoryData = [
     wrong: 12,
     timeDone: "30m",
     status: "ĐẠT",
+
+    questions: [
+      {
+        question: "Tìm đạo hàm của hàm số y = x³",
+        selected: 1, // ❌ sai
+        answers: [
+          { text: "A. 3x²", correct: true },
+          { text: "B. x²", correct: false },
+          { text: "C. 2x", correct: false },
+          { text: "D. 3x", correct: false },
+        ],
+      },
+      {
+        question: "Hàm số y = x² đồng biến trên khoảng nào?",
+        selected: 1, // ✅ đúng
+        answers: [
+          { text: "A. (-∞;0)", correct: false },
+          { text: "B. (0;+∞)", correct: true },
+          { text: "C. (-∞;+∞)", correct: false },
+        ],
+      },
+    ],
   },
+
   {
     id: "LS003",
     title: "Toán 12 - Chương 3",
@@ -46,7 +92,28 @@ const mockHistoryData = [
     wrong: 20,
     timeDone: "50m",
     status: "CHƯA ĐẠT",
+
+    questions: [
+      {
+        question: "Tính nguyên hàm của ∫x dx",
+        selected: 1, // ❌ sai
+        answers: [
+          { text: "A. x²/2 + C", correct: true },
+          { text: "B. x² + C", correct: false },
+          { text: "C. 2x + C", correct: false },
+        ],
+      },
+      {
+        question: "∫1 dx bằng bao nhiêu?",
+        selected: 0, // ✅ đúng
+        answers: [
+          { text: "A. x + C", correct: true },
+          { text: "B. 1 + C", correct: false },
+        ],
+      },
+    ],
   },
+
   {
     id: "LS004",
     title: "Toán 12 - Chương 4",
@@ -59,11 +126,34 @@ const mockHistoryData = [
     wrong: 5,
     timeDone: "28m",
     status: "ĐẠT",
+
+    questions: [
+      {
+        question: "Giải phương trình x² - 4 = 0",
+        selected: 0, // ✅ đúng
+        answers: [
+          { text: "A. x = ±2", correct: true },
+          { text: "B. x = 2", correct: false },
+          { text: "C. x = -2", correct: false },
+        ],
+      },
+      {
+        question: "Giá trị của x trong phương trình x + 2 = 5 là?",
+        selected: 2, // ❌ sai
+        answers: [
+          { text: "A. 3", correct: true },
+          { text: "B. 2", correct: false },
+          { text: "C. 5", correct: false },
+        ],
+      },
+    ],
   },
 ];
 
 const LichSuThi = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [openModal, setOpenModal] = useState(false);
+const [selectedExam, setSelectedExam] = useState(null);
 
   const filteredHistory = useMemo(() => {
     return mockHistoryData.filter((item) =>
@@ -193,35 +283,45 @@ const LichSuThi = () => {
               {/* BUTTON */}
               <div style={{ marginTop: 12 }}>
   <button
-    style={{
-      width: "100%",
-      padding: "10px 16px",
-      borderRadius: 25,
-      border: "none",
-      background: "linear-gradient(135deg, #2196F3 0%, #1E3A8A 100%)",
-      color: "white",
-      fontWeight: "600",
-      cursor: "pointer",
-      transition: "all 0.3s ease",
-      boxShadow: "0 4px 15px rgba(33, 150, 243, 0.4)",
-    }}
-    onMouseEnter={(e) => {
-      e.target.style.transform = "scale(1.05)";
-      e.target.style.boxShadow = "0 8px 25px rgba(33, 150, 243, 0.6)";
-    }}
-    onMouseLeave={(e) => {
-      e.target.style.transform = "scale(1)";
-      e.target.style.boxShadow = "0 4px 15px rgba(33, 150, 243, 0.4)";
-    }}
-  >
-    Xem chi tiết →
-  </button>
+  onClick={() => {
+    setSelectedExam(exam);
+    setOpenModal(true);
+  }}
+  style={{
+    width: "100%",
+    padding: "10px 16px",
+    borderRadius: 25,
+    border: "none",
+    background: "linear-gradient(135deg, #1677ff 0%, #1e3a8a 100%)",
+    color: "white",
+    fontWeight: 600,
+    cursor: "pointer",
+    transition: "all 0.3s ease",
+    boxShadow: "0 4px 15px rgba(22, 119, 255, 0.4)",
+  }}
+  onMouseEnter={(e) => {
+    e.target.style.transform = "scale(1.05)";
+    e.target.style.boxShadow = "0 8px 25px rgba(22, 119, 255, 0.6)";
+  }}
+  onMouseLeave={(e) => {
+    e.target.style.transform = "scale(1)";
+    e.target.style.boxShadow = "0 4px 15px rgba(22, 119, 255, 0.4)";
+  }}
+>
+  Xem chi tiết →
+</button>
 </div>
             </Card>
           </Col>
         ))}
       </Row>
+      <View
+      open={openModal}
+      onClose={() => setOpenModal(false)}
+      data={selectedExam}
+    />
     </div>
+    
   );
 };
 
