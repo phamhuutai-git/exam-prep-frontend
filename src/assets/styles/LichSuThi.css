@@ -1,0 +1,108 @@
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0% { 
+    box-shadow: 0 0 0 0 rgba(82, 196, 26, 0.7); 
+  }
+  70% { 
+    box-shadow: 0 0 0 10px rgba(82, 196, 26, 0); 
+  }
+  100% { 
+    box-shadow: 0 0 0 0 rgba(82, 196, 26, 0); 
+  }
+}
+
+/* Exam Card */
+.exam-card {
+  border-radius: 16px !important;
+  height: 100%;
+  border: 1px solid rgba(255,255,255,0.2) !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
+}
+
+.exam-card:hover {
+  transform: translateY(-8px) !important;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.2) !important;
+}
+
+.exam-card .ant-card-body {
+  padding: 16px !important;
+}
+
+/* Status border */
+.exam-status-header {
+  border-bottom: 2px solid;
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+}
+
+/* Button */
+.detail-btn {
+  width: 100%;
+  padding: 10px 16px;
+  border-radius: 25px;
+  border: none;
+  background: linear-gradient(135deg, #2196F3 0%, #1E3A8A 100%);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(33, 150, 243, 0.4);
+  margin-top: 12px;
+}
+
+.detail-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 25px rgba(33, 150, 243, 0.6) !important;
+}
+
+/* Status Tag */
+.status-tag {
+  font-weight: bold !important;
+  border-radius: 20px !important;
+  padding: 4px 12px !important;
+  animation: pulse 2s infinite;
+}
+
+.status-dat {
+  border-color: #52c41a !important;
+  background-color: #52c41a !important;
+}
+
+.status-chua-dat {
+  border-color: #f5222d !important;
+  background-color: #f5222d !important;
+}
+
+/* Info icons */
+.exam-info {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.exam-info svg {
+  color: #667eea;
+}
+
+/* Fade animation for cards */
+.exam-card {
+  opacity: 0;
+  animation: fadeInUp 0.6s ease forwards;
+}
+
+/* Container */
+.lich-su-thi-container {
+  padding: 24px;
+}
+
