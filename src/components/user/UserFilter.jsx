@@ -23,7 +23,7 @@ const UserFilter = ({
         <Input
           className="search-input"
           prefix={<FontAwesomeIcon icon={faSearch} />}
-          placeholder="Tìm kiếm theo mã đề thi"
+          placeholder="Tìm kiếm theo username, họ tên hoặc email"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           allowClear

@@ -142,7 +142,7 @@ const AssignTeacher = () => {
         )
       )
 
-      toast.success('Phân công giáo viên thành công 🎉')
+      toast.success('Phân công giáo viên thành công')
 
       setIsModalOpen(false)
       setSelectedClass(null)
@@ -173,7 +173,7 @@ const AssignTeacher = () => {
       setClassTeachers(teacherList)
 
     } catch (err) {
-      toast.error('Lỗi load giáo viên!')
+      toast.error('Lỗi load giáo viên!' + err)
     } finally {
       setTeacherViewLoading(false)
     }
@@ -197,7 +197,7 @@ const AssignTeacher = () => {
       setStudents(studentList)
 
     } catch (err) {
-      toast.error('Lỗi load sinh viên!')
+      toast.error('Lỗi load sinh viên!' + err)
     } finally {
       setStudentLoading(false)
     }

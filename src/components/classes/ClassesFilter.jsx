@@ -18,7 +18,7 @@ const ClassesFilter = ({
         <Input
           className="search-input"
           prefix={<FontAwesomeIcon icon={faSearch} />}
-          placeholder="Tìm kiếm lớp theo mã hoặc tên..."
+          placeholder="Tìm kiếm theo tên lớp"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           allowClear
