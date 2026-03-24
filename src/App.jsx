@@ -12,7 +12,8 @@ import PublicRoute from "./route/PublicRoute";
 import NotFound from "./pages/NotFound";
 import User from "./pages/admin/User";
 import Classes from "./pages/admin/Classes";
-
+import Thithat from "./pages/student/Thithat";
+import Thithu from "./pages/student/Thithu";
 import AssignTeacher from "./pages/admin/AssignTeacher";
 
 import StudentDashboard from "./pages/student/Dashboard";
@@ -59,6 +60,8 @@ const App = () => {
           <Route path="lich-su-thi" element={<LichSuThi />} />
           <Route path="de-thi-yeu-thich" element={<DeThiYeuThich />} />
           <Route path="bai-thi" element={<BaiThi />} />
+          <Route path="thi/:id" element={<Thithat />} />
+          <Route path="thithu/:id" element={<Thithu />} />
         </Route>
 
         {/* TEACHER */}

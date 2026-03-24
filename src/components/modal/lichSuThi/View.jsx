@@ -8,7 +8,7 @@ const View = ({ open, onClose, data }) => {
     <Modal
       open={open}
       onCancel={onClose}
-      width={900}
+      width={1000}
       centered
       maskClosable={false}
       footer={[
@@ -41,14 +41,14 @@ const View = ({ open, onClose, data }) => {
       <Row gutter={16}>
         <Col span={8}>
           <Card style={{ textAlign: "center", borderRadius: 12 }}>
-            <p>SCORE</p>
+            <p>Điểm</p>
             <h2>{data.score}/10</h2>
           </Card>
         </Col>
 
         <Col span={8}>
           <Card style={{ textAlign: "center", borderRadius: 12 }}>
-            <p>PERFORMANCE</p>
+            <p>Độ chính xác</p>
             <h3 style={{ color: "#52c41a", margin: 0 }}>
               {data.correct} Đúng
             </h3>
@@ -60,7 +60,7 @@ const View = ({ open, onClose, data }) => {
 
         <Col span={8}>
           <Card style={{ textAlign: "center", borderRadius: 12 }}>
-            <p>TIME</p>
+            <p>Thời gian</p>
             <h3>{data.timeDone}</h3>
           </Card>
         </Col>
