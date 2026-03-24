@@ -1,0 +1,65 @@
+/* Styles for student exam page - kept small and non-intrusive */
+.student-exam-page {
+  padding: 24px;
+}
+
+.exam-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+  gap: 16px;
+}
+
+.muted {
+  color: #666;
+}
+
+.small {
+  font-size: 0.9rem;
+}
+
+.exam-card {
+  border-radius: 12px;
+  position: relative;
+  text-align: center;
+  min-height: 170px;
+}
+
+.exam-card .fav {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font-size: 18px;
+  color: #ccc;
+  cursor: pointer;
+}
+
+.exam-card .fav.active {
+  color: hotpink;
+}
+
+.card-actions {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.edit-block {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.edit-actions {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.control-label {
+  margin-right: 8px;
+  color: #333;
+}

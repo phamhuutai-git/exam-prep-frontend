@@ -14,6 +14,7 @@ import User from "./pages/admin/User";
 import Classes from "./pages/admin/Classes";
 import Thithat from "./pages/student/Thithat";
 import Thithu from "./pages/student/Thithu";
+import ErrorBoundary from "./components/ErrorBoundary";
 import AssignTeacher from "./pages/admin/AssignTeacher";
 
 import StudentDashboard from "./pages/student/Dashboard";
@@ -62,6 +63,14 @@ const App = () => {
           <Route path="bai-thi" element={<BaiThi />} />
           <Route path="thi/:id" element={<Thithat />} />
           <Route path="thithu/:id" element={<Thithu />} />
+          <Route
+            path="bai-thi"
+            element={
+              <ErrorBoundary>
+                <BaiThi />
+              </ErrorBoundary>
+            }
+          />
         </Route>
 
         {/* TEACHER */}

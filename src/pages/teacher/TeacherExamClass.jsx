@@ -6,9 +6,12 @@ import StatsCards from "../../components/common/StatsCards";
 import AppPagination from "../../components/common/AppPagination";
 import EditClassExamModal from "../../components/modal/teacher/EditClassExamModal";
 import "../../assets/styles/User.css";
+import * as examsAPI from "../../services/teacher/examService.js";
 
 import { Input, Select } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
+import classExamService from "../../services/teacher/classExamService.js";
+import { toast } from "react-toastify";
 
 // MOCK DATA
 const MOCK_CLASS_EXAMS = [
@@ -109,7 +112,7 @@ const MOCK_EXAMS = [
 ];
 
 export default function TeacherExamsClass() {
-  const [classes, setClasses] = useState(MOCK_CLASS_EXAMS);
+  const [classes, setClasses] = useState([]);
   const [search, setSearch] = useState("");
 
   const [viewClass, setViewClass] = useState(null);
@@ -119,21 +122,59 @@ export default function TeacherExamsClass() {
   const [total, setTotal] = useState(0);
   const [selectedClass, setSelectedClass] = useState(null);
   const [openModal, setOpenModal] = useState(false);
+  const [allExams, setAllExams] = useState([]);
+  const [reloadEdit, setReloadEdit] = useState(false);
+
+  useEffect(() => {
+    async function fetchClasses() {
+      try {
+        const response = await examsAPI.getClassesByTeacher(page, size);
+        const result = response.data.data;
+
+        setClasses(result.content);
+        setTotal(result.totalElements);
+      } catch (error) {
+        console.error(error);
+        toast.error("Không tải được danh sách lớp học");
+      }
+    }
+    fetchClasses();
+  }, [page, size, reloadEdit]);
 
   const handleView = (record) => {
     setViewClass(record);
   };
 
-  const handleEdit = (record) => {
+  const handleEdit = async (record) => {
     setSelectedClass(record);
+
+    try {
+      const response = await examsAPI.getExamsByTeacher(0, 100);
+      const result = response.data.data;
+      setAllExams(result.content);
+    } catch (error) {
+      console.error(error);
+      toast.error("Không tải được danh sách đề thi");
+    }
+
     setOpenModal(true);
   };
-  const handleRemoveExam = (classId, examId) => {
-    console.log("remove");
-  };
-  const handleSave = ({ examId, duration, startTime, endTime }) => {
-    console.log("save");
-    setOpenModal(false);
+
+  const handleSave = async ({ classId, examIds }) => {
+    try {
+
+      // Call API to save changes
+      await classExamService.updateExam(classId, examIds);
+      toast.success("Lưu thay đổi thành công");
+
+      setReloadEdit(prev => !prev);
+      setOpenModal(false);
+    }
+    catch (error) {
+      console.error("Error saving class exams: ", error);
+      toast.error("Lỗi khi lưu thay đổi");
+    }
+
   };
 
   // FILTER
@@ -226,10 +267,9 @@ export default function TeacherExamsClass() {
       <EditClassExamModal
         open={openModal}
         data={selectedClass}
-        exams={MOCK_EXAMS}
+        exams={allExams}
         onCancel={() => setOpenModal(false)}
         onSave={handleSave}
-        onRemoveExam={handleRemoveExam}
       />
     </div>
   );
