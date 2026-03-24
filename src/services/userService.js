@@ -49,6 +49,33 @@ export const getTeachers = () => {
 export const getStudents = () => {
   return api.get("/users/students");
 }
+
+// Thêm user mới
+// POST /api/users
+// Body: { username, password, firstName, lastName, email, role }
+export const addUser = (userData) => {
+  return api.post("/users", userData);
+}
+
+// Cập nhật thông tin user
+// PUT /api/users/{id}
+// Body: { firstName, lastName, email, role }
+export const updateUser = (id, data) => {
+  return api.put(`/v1/admin/users/${id}`, data);
+};
+
+// Lấy thông tin user theo ID
+// GET /api/users/{id}
+export const getUserById = (id) => {
+  return api.get(`/users/${id}`);
+}
+
+// Xóa user
+// DELETE /api/users/{id}
+export const deleteUser = (id) => {
+  return api.delete(`/users/${id}`);
+}
+
 //users/teachers/class-id/1
 
 

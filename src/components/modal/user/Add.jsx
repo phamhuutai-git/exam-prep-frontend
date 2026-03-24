@@ -1,85 +1,117 @@
-import React from 'react'
-import { Modal, Form, Input, Select, Switch, Button } from 'antd'
+import React, { useEffect } from 'react'
+import { Modal, Form, Input, Select, Switch } from 'antd'
 
-const Add = ({ 
-  open, 
-  isEditMode, 
-  form, 
-  loading, 
-  onCancel, 
-  onSubmit 
+const Add = ({
+  open,
+  isEditMode,
+  form,
+  loading,
+  onCancel,
+  onSubmit
 }) => {
+
+  // ✅ đảm bảo khi mở modal luôn có status
+  useEffect(() => {
+    if (open) {
+      const currentStatus = form.getFieldValue('status')
+
+      if (!currentStatus) {
+        form.setFieldsValue({
+          status: 'ACTIVED'
+        })
+      }
+    }
+  }, [open, form])
 
   return (
     <Modal
       title={isEditMode ? 'Cập nhật người dùng' : 'Thêm người dùng'}
       open={open}
       onCancel={onCancel}
-      onOk={() => form.submit()} // 👈 bấm nút OK sẽ submit form
-      okText={isEditMode ? 'Cập nhật' : 'Thêm'}
-      cancelText="Hủy"
+      onOk={() => form.submit()}
       confirmLoading={loading}
-      okButtonProps={{ type: 'primary' }}
+      destroyOnClose
     >
       <Form
         form={form}
         layout="vertical"
         onFinish={onSubmit}
-        initialValues={{ role: 'student', isActive: true }}
       >
         {/* USERNAME */}
         <Form.Item
-          label="Tên đăng nhập"
           name="username"
-          rules={[{ required: true, message: 'Nhập tên đăng nhập' }]}
+          label="Tên đăng nhập"
+          rules={[{ required: true, message: 'Vui lòng nhập username' }]}
         >
           <Input disabled={isEditMode} />
         </Form.Item>
 
         {/* EMAIL */}
         <Form.Item
-          label="Email"
           name="email"
-          rules={[{ required: true, message: 'Nhập email' }]}
+          label="Email"
+          rules={[
+            { required: true, message: 'Vui lòng nhập email' },
+            { type: 'email', message: 'Email không hợp lệ' }
+          ]}
         >
           <Input />
         </Form.Item>
 
-        {/* FULLNAME */}
+        {/* FULL NAME */}
         <Form.Item
-          label="Họ và tên"
           name="fullName"
-          rules={[{ required: true, message: 'Nhập họ và tên' }]}
+          label="Họ và tên"
+          rules={[{ required: true, message: 'Vui lòng nhập họ tên' }]}
         >
           <Input />
         </Form.Item>
+
+        {/* PASSWORD chỉ khi thêm */}
+        {!isEditMode && (
+          <Form.Item
+            name="password"
+            label="Mật khẩu"
+            rules={[{ required: true, message: 'Vui lòng nhập mật khẩu' }]}
+          >
+            <Input.Password />
+          </Form.Item>
+        )}
 
         {/* ROLE */}
         <Form.Item
-          label="Vai trò"
           name="role"
-          rules={[{ required: true }]}
+          label="Vai trò"
+          rules={[{ required: true, message: 'Vui lòng chọn vai trò' }]}
         >
           <Select
             options={[
-              { value: 'admin', label: 'Quản trị viên' },
+              { value: 'admin', label: 'Admin' },
               { value: 'teacher', label: 'Giáo viên' },
               { value: 'student', label: 'Học sinh' }
             ]}
           />
         </Form.Item>
 
-        {/* STATUS */}
-        <Form.Item
-          label="Trạng thái"
-          name="isActive"
-          valuePropName="checked"
-        >
-          <Switch
-            checkedChildren="Hoạt động"
-            unCheckedChildren="Khóa"
-          />
-        </Form.Item>
+        {/* STATUS chỉ khi edit */}
+        {isEditMode && (
+          <Form.Item
+            name="status"
+            label="Trạng thái"
+            valuePropName="checked"
+            getValueFromEvent={(checked) =>
+              checked ? 'ACTIVED' : 'LOCKED'
+            }
+            getValueProps={(value) => ({
+              checked: value === 'ACTIVED'
+            })}
+          >
+            <Switch
+              checkedChildren="Hoạt động"
+              unCheckedChildren="Khóa"
+            />
+          </Form.Item>
+        )}
       </Form>
     </Modal>
   )

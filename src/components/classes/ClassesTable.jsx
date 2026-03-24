@@ -1,7 +1,7 @@
 import React from 'react'
 import { Table, Button, Space, Popconfirm, Pagination } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome' // 👈 THIẾU DÒNG NÀY
-import { faPencil, faTrash, faUserPlus, faEye } from '@fortawesome/free-solid-svg-icons'
+import { faPencil, faTrash, faUserPlus, faUserGraduate } from '@fortawesome/free-solid-svg-icons'
 const ClassesTable = ({ data, loading, onadd, onEdit, onDelete, onView, page, total, onPageChange }) => {
   const columns = [
     {
@@ -59,14 +59,13 @@ const ClassesTable = ({ data, loading, onadd, onEdit, onDelete, onView, page, to
           {/* Nút xem danh sách sinh viên */}
           <Button
             type="text"
-            icon={<FontAwesomeIcon icon={faEye} />}
+            icon={<FontAwesomeIcon icon={faUserGraduate} />}
             onClick={() => onView(record)}
           />
         </Space>
       )
     }
   ]
-
   return (
     <>
       <Table
@@ -87,5 +86,4 @@ const ClassesTable = ({ data, loading, onadd, onEdit, onDelete, onView, page, to
     </>
   )
 }
-
 export default ClassesTable

@@ -31,6 +31,5 @@ export const addUsersToClass = (classId, userIds) => {
 // thêm giao viên vào lớp
 // services/classes.js
 export const addTeachersToClass = (classId, userIds) => {
-  // ✅ gửi array trực tiếp
   return api.put(`/admin/classes/${classId}/teachers`, userIds);
 };

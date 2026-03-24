@@ -28,7 +28,7 @@ const View = ({ open, onCancel, students = [] }) => {
         columns={columns}
         dataSource={students}
         rowKey="id"
-        pagination={false}
+        pagination={{ pageSize: 5 }}
       />
     </Modal>
   )

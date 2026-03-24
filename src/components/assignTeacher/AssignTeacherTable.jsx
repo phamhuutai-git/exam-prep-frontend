@@ -3,7 +3,9 @@ import { Table, Button, Space, Pagination } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faUserPlus,
-  faEye
+  faEye,
+  faUserGraduate,
+  faChalkboardTeacher
 } from '@fortawesome/free-solid-svg-icons'
 
 const AssignTeacherTable = ({
@@ -35,7 +37,7 @@ const AssignTeacherTable = ({
     },
     {
       title: 'Số giáo viên',
-      dataIndex: 'teacherCount', // ✅ FIX CHÍNH
+      dataIndex: 'teacherCount',
       key: 'teacherCount'
     },
     {
@@ -44,21 +46,24 @@ const AssignTeacherTable = ({
       align: 'center',
       render: (_, record) => (
         <Space>
+          {/* Thêm giáo viên */}
           <Button
             type="text"
             icon={<FontAwesomeIcon icon={faUserPlus} />}
             onClick={() => onAddTeacher(record)}
           />
 
+          {/* Xem giáo viên */}
           <Button
             type="text"
-            icon={<FontAwesomeIcon icon={faEye} />}
+            icon={<FontAwesomeIcon icon={faChalkboardTeacher} />}
             onClick={() => onViewTeachers(record)}
           />
 
+          {/* Xem sinh viên */}
           <Button
             type="text"
-            icon={<FontAwesomeIcon icon={faEye} />}
+            icon={<FontAwesomeIcon icon={faUserGraduate} />}
             onClick={() => onViewStudents(record)}
           />
         </Space>

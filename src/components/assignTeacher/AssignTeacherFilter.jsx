@@ -15,7 +15,7 @@ const AssignTeacherFilter = ({
         <Input
           className="search-input"
           prefix={<FontAwesomeIcon icon={faSearch} />}
-          placeholder="Tìm kiếm lớp theo mã hoặc tên..."
+          placeholder="Tìm kiếm Theo Lớp"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           allowClear
