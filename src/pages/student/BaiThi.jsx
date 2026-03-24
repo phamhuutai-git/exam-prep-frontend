@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Card, Row, Col, Button, Input } from "antd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faClock, faBook, faHeart, faSearch } from "@fortawesome/free-solid-svg-icons";
+import { useNavigate } from "react-router-dom";
 import { faHeart, faSearch } from "@fortawesome/free-solid-svg-icons";
 const mockData = [
   {
@@ -31,6 +33,8 @@ const mockData = [
 
 const BaiThi = () => {
   const [liked, setLiked] = useState({});
+  const [searchTerm, setSearchTerm] = useState('');
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
@@ -101,8 +105,16 @@ const BaiThi = () => {
               <p>{exam.questions} câu</p>
 
               <div style={{ display: "flex", justifyContent: "center", gap: 10 }}>
-                <Button>Thi thử</Button>
-                <Button type="primary">Thi</Button>
+                <Button
+                type="primary"
+                onClick={() => navigate(`/student/thithu/${exam.id}`)}
+                >Thi thử</Button>
+               <Button
+                  type="primary"
+                  onClick={() => navigate(`/student/thi/${exam.id}`)}
+                >
+                  Thi
+                </Button>
               </div>
             </Card>
           </Col>
