@@ -12,22 +12,18 @@ import PublicRoute from "./route/PublicRoute";
 import NotFound from "./pages/NotFound";
 import User from "./pages/admin/User";
 import Classes from "./pages/admin/Classes";
-
+import ErrorBoundary from "./components/ErrorBoundary";
 import AssignTeacher from "./pages/admin/AssignTeacher";
 
 import StudentDashboard from "./pages/student/Dashboard";
 import LichSuThi from "./pages/student/LichSuThi";
 import DeThiYeuThich from "./pages/student/DeThiYeuThich";
 import BaiThi from "./pages/student/BaiThi";
-<<<<<<< HEAD
-import ErrorBoundary from "./components/ErrorBoundary";
-=======
 import TeacherExams from "./pages/teacher/TeacherExams";
 import TeacherQuestions from "./pages/teacher/TeacherQuestions";
 import TeacherStudents from "./pages/teacher/TeacherStudents";
 import TeacherDashboard from "./pages/teacher/TeacherDashboard";
 import TeacherExamsClass from "./pages/teacher/TeacherExamClass";
->>>>>>> a7abd600ff27425f8409b4545005591696aef189
 const App = () => {
   return (
     <>
