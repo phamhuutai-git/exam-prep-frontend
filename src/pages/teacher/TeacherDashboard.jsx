@@ -166,7 +166,6 @@ export default function TeacherDashboard() {
       {openExam && (
         <ExamFormModal
           exam={null}
-          
           questions={[]}
           onClose={() => setOpenExam(false)}
           onSave={(data) => {

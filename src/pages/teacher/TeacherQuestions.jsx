@@ -39,18 +39,35 @@ export default function TeacherQuestion() {
     countEasy: 0,
     countMedium: 0,
     countHard: 0,
+    loading: true,
   });
 
+  // const fetchQuestions = async () => {
+  //   try {
+  //     const res = await questionService.getAllQuestion({
+  //       content: search,
+  //       difficulty: diffFilter,
+  //       categoryId: catFilter,
+  //       page: page,
+  //       size: size,
+  //     });
+
+  //     setQuestions(res.data.data.content);
+  //     setTotal(res.data.data.totalElements);
+  //     // eslint-disable-next-line no-unused-vars
+  //   } catch (err) {
+  //     message.error("Load question failed");
+  //   }
+  // };
   const fetchQuestions = async () => {
     try {
-      const res = await questionService.getAllQuestion({
+      const res = await questionService.getQuestionsByTeacher({
         content: search,
         difficulty: diffFilter,
         categoryId: catFilter,
         page: page,
         size: size,
       });
-
       setQuestions(res.data.data.content);
       setTotal(res.data.data.totalElements);
       // eslint-disable-next-line no-unused-vars
@@ -74,9 +91,16 @@ export default function TeacherQuestion() {
   const fetchStats = async () => {
     try {
       const res = await questionService.countQuestion();
-      setStats(res.data.data);
+      setStats({
+        ...res.data.data,
+        loading: false,
+      });
     } catch (err) {
       message.error("Load stats failed");
+      setStats((prev) => ({
+        ...prev,
+        loading: false,
+      }));
     }
   };
 
@@ -100,7 +124,7 @@ export default function TeacherQuestion() {
       message.success("Question created");
 
       fetchQuestions();
-
+      fetchStats();
       setCreateOpen(false);
       // eslint-disable-next-line no-unused-vars
     } catch (err) {
@@ -115,6 +139,7 @@ export default function TeacherQuestion() {
       message.success("Question updated");
 
       fetchQuestions();
+      fetchStats();
 
       setEditingQuestion(null);
       // eslint-disable-next-line no-unused-vars
@@ -129,6 +154,7 @@ export default function TeacherQuestion() {
       message.success("Question deleted");
 
       fetchQuestions();
+      fetchStats();
     } catch (err) {
       message.error("Delete failed");
     }
@@ -173,6 +199,7 @@ export default function TeacherQuestion() {
       message.success("Import success");
 
       fetchQuestions();
+      fetchStats();
     } catch (err) {
       message.error("Import failed");
     }
@@ -228,6 +255,7 @@ export default function TeacherQuestion() {
 
       {/* STATS */}
       <StatsCards
+        loading={stats.loading}
         items={[
           { title: "Total", value: stats.countTotal },
           { title: "Easy", value: stats.countEasy },
