@@ -32,13 +32,13 @@ const adminMenuItems = [
   },
   {
     id: 4,
-    title: "Quản lý sinh viên",
+    title: "Quản lý điểm thi",
     path: "/teacher/students",
     icon: faUsers,
   },
   {
     id: 5,
-    title: "Quản lý lớp thi",
+    title: "Quản lý đề thi theo lớp",
     path: "/teacher/exam-classes",
     icon: faChalkboard,
   },
