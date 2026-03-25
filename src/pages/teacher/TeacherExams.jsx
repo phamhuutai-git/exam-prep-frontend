@@ -1,4 +1,3 @@
-// file
 import UserHeader from "../../components/user/UserHeader";
 import ExamTable from "../../components/teacher/ExamTable";
 import * as examsAPI from "../../services/teacher/examService.js";
@@ -11,13 +10,12 @@ import questionService from "../../services/teacher/questionService.js";
 
 //thu vien
 import React, { useState, useEffect } from "react";
-import { DatePicker, Input, Select } from "antd";
+import { DatePicker, Input, Select, message } from "antd";
 import { toast } from "react-toastify";
 import { SearchOutlined } from "@ant-design/icons";
 // css
 import "../../assets/styles/User.css";
 import "../../assets/styles/teacher/Question.css";
-
 
 const TeacherExams = () => {
   const [exams, setExams] = useState([]);
@@ -31,87 +29,74 @@ const TeacherExams = () => {
   const [allQuestions, setAllQuestions] = useState([]);
   const [editingExam, setEditingExam] = useState(null);
   const [reload, setReload] = useState(false);
+  const [search, setSearch] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+  const [catFilter, setCatFilter] = useState();
+  const [dateFilter, setDateFilter] = useState();
 
-  //filter states
-  const [titleInput, setSearchInput] = useState("");
-  const [titleFilter, setTitleFilter] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("");
-  const [minDate, setMinDate] = useState(null);
-  const [maxDate, setMaxDate] = useState(null);
-
-  //Debounce search input
   useEffect(() => {
     const timer = setTimeout(() => {
-      setTitleFilter(titleInput);
-      setPage(0); // reset page when filter changes
+      setSearch(searchInput);
+      setPage(0);
     }, 500);
-
     return () => clearTimeout(timer);
-  }, [titleInput]);
+  }, [searchInput]);
 
-  //Get all exams of teacher
+  const fetchExams = async () => {
+    try {
+      const response = await examsAPI.getExamsByTeacher({
+        title: search || undefined,
+        categoryName: catFilter || undefined,
+        minDate: dateFilter?.start || undefined,
+        maxDate: dateFilter?.end || undefined,
+        page,
+        size,
+      });
+      const result = response.data.data;
+      setExams(result.content);
+      setTotal(result.totalElements);
+    } catch (error) {
+      console.error(error);
+      toast.error("Không tải được đề thi");
+    }
+  };
+
   useEffect(() => {
-    async function fetchExams() {
-      try {
-        const response = await examsAPI.getExamsByTeacher(page, size, {
-          title: titleFilter,
-          categoryName: categoryFilter,
-          minDate,
-          maxDate,
-        });
-        const result = response.data.data;
+    fetchExams();
+  }, [search, catFilter, dateFilter, page, size, reload]);
 
-        setExams(result.content);
-        setTotal(result.totalElements);
-      } catch (error) {
-        console.error(error);
-        toast.error("Không tải được đề thi");
+  useEffect(() => {
+    async function fetchCategories() {
+      try {
+        const res = await questionService.getAllCategory();
+        setCategories(res.data.data.content);
+      } catch (err) {
+        message.error("Load category failed");
       }
     }
-
-    fetchExams();
-  }, [page, size, reload, titleFilter, categoryFilter, minDate, maxDate]);
+    fetchCategories();
+  }, []);
 
   useEffect(() => {
     async function fetchQuestion() {
       try {
-
-        const response = await questionService.getAllQuestion({ page: 0, size: 1000 });
-        console.log("All question: ", response.data.data.content);
+        const response = await questionService.getQuestionsByTeacher({
+          page: 0,
+          size: 1000,
+        });
         setAllQuestions(response.data.data.content);
-
       } catch (error) {
         console.error(error);
         toast.error("Không tải được danh sách câu hỏi");
       }
     }
-
     fetchQuestion();
-  }, [reload]);
-
-  //Get all category
-  useEffect(() => {
-    async function fetchCategory() {
-      try {
-        const response = await questionService.getAllCategory();
-        setCategories(response.data.data.content);
-      } catch (error) {
-        console.error(error);
-        toast.error("Không tải được danh sách thể loại");
-      }
-
-    } fetchCategory();
   }, []);
 
   const handlePreview = async (exam) => {
     try {
       const response = await examsAPI.getQuestionsByExamId(exam.id);
-
-      const examWithQuestions = {
-        ...exam,
-        questions: response.data.data,
-      };
-      setPreviewExam(examWithQuestions);
+      setPreviewExam({ ...exam, questions: response.data.data });
     } catch (error) {
       toast.error("Lỗi khi tải danh sách câu hỏi");
     }
@@ -121,44 +106,62 @@ const TeacherExams = () => {
     try {
       const response = await examsAPI.getQuestionsByExamId(exam.id);
       const questions = response.data.data || [];
-
-      const questionIds = questions.map((q) => q.id);
-      const examWithQuestions = {
-        ...exam,
-        questionIds,
-      };
-      setEditingExam(examWithQuestions);
+      setEditingExam({ ...exam, questionIds: questions.map((q) => q.id) });
       setIsModalOpen(true);
-
     } catch (error) {
       toast.error("Lỗi khi tải danh sách câu hỏi");
     }
   };
 
-  const handleClosePreview = () => {
-    setPreviewExam(null);
-  };
-
   const handleAdd = () => {
-    setIsModalOpen(true);
     setEditingExam(null);
+    setIsModalOpen(true);
   };
 
   const handleDelete = async (examId) => {
     try {
       await examService.deleteExam(examId);
-
       toast.success("Xóa đề thi thành công");
-      setReload(prev => !prev);
-
+      setReload((prev) => !prev);
     } catch (error) {
       toast.error("Có lỗi xảy ra khi xóa đề thi");
       console.error(error);
     }
-  }
+  };
+
+  const handleSaveExam = async (data) => {
+    try {
+      if (editingExam) {
+        await examService.updateExam(editingExam.id, data);
+        toast.success("Cập nhật đề thi thành công");
+      } else {
+        await examService.createExam(data);
+        toast.success("Tạo đề thi thành công");
+      }
+      setReload((prev) => !prev);
+      setIsModalOpen(false);
+      setEditingExam(null);
+    } catch (error) {
+      toast.error("Có lỗi xảy ra khi lưu đề thi");
+      console.error(error);
+    }
+  };
+  
+  const handleCreateQuestion = async (payload) => {
+    try {
+      const res = await questionService.createQuestion(payload);
+      const newQuestion = res.data.data;
+      setAllQuestions((prev) => [...prev, newQuestion]);
+      message.success("Tạo câu hỏi thành công");
+      return newQuestion;
+    } catch (err) {
+      message.error("Tạo câu hỏi thất bại");
+      console.error(err);
+      throw err;
+    }
+  };
 
   const totalCategories = new Set(exams.map((e) => e.category)).size;
-
 
   return (
     <div className="teacher-question-page">
@@ -171,12 +174,13 @@ const TeacherExams = () => {
 
       <StatsCards
         items={[
-          { title: "Total Exams", value: exams.length },
-          { title: "Total Questions", value: 0 },
+          { title: "Total Exams", value: total },
+          { title: "Total Questions", value: allQuestions.length },
           { title: "Avg Duration", value: 0 },
           { title: "Categories", value: totalCategories },
         ]}
       />
+
       {/* FILTER */}
       <div className="filter-bar">
         <div style={{ flex: 1, minWidth: 220 }}>
@@ -187,14 +191,13 @@ const TeacherExams = () => {
             onChange={(e) => setSearchInput(e.target.value)}
           />
         </div>
-        {/* Divider dọc */}
-        <div className="filter-divider" />{" "}
+        <div className="filter-divider" />
         <Select
           placeholder="Category"
           allowClear
           style={{ width: 150 }}
           onChange={(v) => {
-            setCategoryFilter(v ?? null);
+            setCatFilter(v);
             setPage(0);
           }}
         >
@@ -204,21 +207,17 @@ const TeacherExams = () => {
             </Select.Option>
           ))}
         </Select>
-        <DatePicker
-          placeholder="Từ ngày"
+        {/* Date range filter */}
+        <DatePicker.RangePicker
+          placeholder={["From", "To"]}
           allowClear
-          style={{ width: 155 }}
-          onChange={(_, dateString) => {
-            setMinDate(dateString || null);
-            setPage(0);
-          }}
-        />
-        <DatePicker
-          placeholder="Đến ngày"
-          allowClear
-          style={{ width: 155 }}
-          onChange={(_, dateString) => {
-            setMaxDate(dateString || null);
+          style={{ width: 280 }}
+          onChange={(_, dateStrings) => {
+            const [start, end] = dateStrings;
+            setDateFilter({
+              start: start || undefined,
+              end: end || undefined,
+            });
             setPage(0);
           }}
         />
@@ -226,43 +225,30 @@ const TeacherExams = () => {
       </div>
 
       <div className="question-table-wrapper">
-        <ExamTable data={exams} onPreview={handlePreview} onEdit={handleEdit} onDelete={handleDelete} />
+        <ExamTable
+          data={exams}
+          onPreview={handlePreview}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+        />
       </div>
 
-      <ExamPreviewModal exam={previewExam} onClose={handleClosePreview} />
+      <ExamPreviewModal
+        exam={previewExam}
+        onClose={() => setPreviewExam(null)}
+      />
 
       {isModalOpen && (
         <ExamFormModal
           exam={editingExam}
           questions={allQuestions}
+          categories={categories}
           onClose={() => {
             setIsModalOpen(false);
             setEditingExam(null);
           }}
-          onSave={async (data) => {
-            try {
-              if (editingExam) {
-                // Update exam
-                await examService.updateExam(editingExam.id, data);
-                toast.success("Cập nhật đề thi thành công");
-              } else {
-                // Create new exam
-                await examService.createExam(data);
-                toast.success("Tạo đề thi thành công");
-              }
-
-              // Refresh exam list
-              setReload(prev => !prev);
-
-              setIsModalOpen(false);
-              setEditingExam(null);
-
-            } catch (error) {
-              toast.error("Có lỗi xảy ra khi lưu đề thi");
-              console.error(error);
-
-            }
-          }}
+          onSave={handleSaveExam}
+          onCreateQuestion={handleCreateQuestion}
         />
       )}
 

@@ -3,6 +3,9 @@ import api from "../apiClient";
 const questionService = {
   getAllQuestion: (params) => api.get("/teacher/questions", { params }),
 
+  getQuestionsByTeacher: (params) =>
+    api.get("teacher/questions/my-questions", { params }),
+
   getAllCategory: () => api.get("/categories"),
 
   getDetailQuestion: (id) => api.get(`/teacher/questions/${id}`),
