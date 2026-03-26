@@ -1,9 +1,7 @@
 import React from "react";
 import { Modal, Tag, Row, Col, Card, Button } from "antd";
-
 const View = ({ open, onClose, data }) => {
   if (!data) return null;
-
   return (
     <Modal
       open={open}
