@@ -1,12 +1,15 @@
 import React, { useState, useRef } from "react";
-import { Card, Row, Col, Radio, Button } from "antd";
-
+import { Card, Row, Col, Radio, Button, Modal } from "antd";
+import { useNavigate } from "react-router-dom";
 const Thithat = () => {
   const questionRefs = useRef({});
-  const rightPanelRef = useRef(null); // ✅ FIX BUG
-
+  const rightPanelRef = useRef(null);
+  const navigate = useNavigate();
   const [activeQuestion, setActiveQuestion] = useState(null);
-
+  const [answers, setAnswers] = useState({});
+  const [submitted, setSubmitted] = useState(false);
+  const [result, setResult] = useState(0);
+  const [openModal, setOpenModal] = useState(false);
   const questions = [
     {
       id: 1,
@@ -190,9 +193,8 @@ const Thithat = () => {
     },
   ];
 
-  const [answers, setAnswers] = useState({});
-
   const handleChange = (qId, value) => {
+    if (submitted) return;
     setAnswers({
       ...answers,
       [qId]: value,
@@ -201,15 +203,23 @@ const Thithat = () => {
 
   const handleSubmit = () => {
     let score = 0;
+
     questions.forEach((q) => {
       if (answers[q.id] === q.correct) score++;
     });
-    alert(`Bạn đúng ${score}/${questions.length} câu`);
+
+    setSubmitted(true);
+    setResult(score);
+    setOpenModal(true);
+  };
+
+  // 👉 chỉ dùng khi đã nộp
+  const handleGoBack = () => {
+    navigate("/student/bai-thi");
   };
 
   const scrollToQuestion = (id) => {
     setActiveQuestion(id);
-
     questionRefs.current[id]?.scrollIntoView({
       behavior: "smooth",
       block: "center",
@@ -221,9 +231,7 @@ const Thithat = () => {
       <Row justify="space-between" style={{ marginBottom: "24px" }}>
         <Col>
           <h2>Toán lớp 12 - Chương 1</h2>
-          <p style={{ color: "#666" }}>
-            Đọc kỹ đề bài và chọn đáp án
-          </p>
+          <p style={{ color: "#666" }}>Đọc kỹ đề bài và chọn đáp án</p>
         </Col>
 
         <Col style={{ textAlign: "right" }}>
@@ -235,42 +243,66 @@ const Thithat = () => {
       <Row gutter={24}>
         {/* LEFT */}
         <Col span={16}>
-          {questions.map((q) => (
-            <div
-              key={q.id}
-              ref={(el) => (questionRefs.current[q.id] = el)}
-            >
-              <Card
-                title={`Câu ${q.id}`}
-                style={{
-                  marginBottom: "16px",
-                  borderRadius: "12px",
-                  border:
-                    activeQuestion === q.id
+          {questions.map((q) => {
+            const isCorrect =
+              submitted && answers[q.id] === q.correct;
+
+            return (
+              <div
+                key={q.id}
+                ref={(el) => (questionRefs.current[q.id] = el)}
+              >
+                <Card
+                  title={`Câu ${q.id}`}
+                  style={{
+                    marginBottom: "16px",
+                    borderRadius: "12px",
+                    border: submitted
+                      ? answers[q.id]
+                        ? isCorrect
+                          ? "2px solid #52c41a"
+                          : "2px solid #ff4d4f"
+                        : "1px solid #f0f0f0"
+                      : activeQuestion === q.id
                       ? "2px solid #1677ff"
                       : "1px solid #f0f0f0",
-                }}
-              >
-                <p>{q.question}</p>
-
-                <Radio.Group
-                  onChange={(e) =>
-                    handleChange(q.id, e.target.value)
-                  }
-                  value={answers[q.id]}
+                  }}
                 >
-                  {q.options.map((opt, index) => {
-                    const value = opt.charAt(0);
-                    return (
-                      <div key={index} style={{ marginBottom: "8px" }}>
-                        <Radio value={value}>{opt}</Radio>
-                      </div>
-                    );
-                  })}
-                </Radio.Group>
-              </Card>
-            </div>
-          ))}
+                  <p>{q.question}</p>
+
+                  <Radio.Group
+                    onChange={(e) =>
+                      handleChange(q.id, e.target.value)
+                    }
+                    value={answers[q.id]}
+                    disabled={submitted}
+                  >
+                    {q.options.map((opt, index) => {
+                      const value = opt.charAt(0);
+
+                      let color = "black";
+
+                      if (submitted) {
+                        if (value === q.correct) {
+                          color = "#52c41a";
+                        } else if (answers[q.id] === value) {
+                          color = "#ff4d4f";
+                        }
+                      }
+
+                      return (
+                        <div key={index} style={{ marginBottom: "8px" }}>
+                          <Radio value={value}>
+                            <span style={{ color }}>{opt}</span>
+                          </Radio>
+                        </div>
+                      );
+                    })}
+                  </Radio.Group>
+                </Card>
+              </div>
+            );
+          })}
         </Col>
 
         {/* RIGHT */}
@@ -289,10 +321,22 @@ const Thithat = () => {
               type="primary"
               block
               onClick={handleSubmit}
+              disabled={submitted}
               style={{ marginBottom: "20px" }}
             >
               Nộp bài
             </Button>
+
+            {/* ✅ CHỈ HIỆN SAU KHI NỘP */}
+            {submitted && (
+              <Button
+                block
+                onClick={handleGoBack}
+                style={{ marginBottom: "20px" }}
+              >
+                Quay lại danh sách thi
+              </Button>
+            )}
 
             <p>Xem lại nhanh</p>
 
@@ -303,19 +347,67 @@ const Thithat = () => {
                 gap: "10px",
               }}
             >
-              {questions.map((q) => (
-                <Button
-                  key={q.id}
-                  onClick={() => scrollToQuestion(q.id)}
-                  type={answers[q.id] ? "primary" : "default"}
-                >
-                  {q.id}
-                </Button>
-              ))}
+              {questions.map((q) => {
+                const isCorrect =
+                  submitted && answers[q.id] === q.correct;
+
+                return (
+                  <Button
+                    key={q.id}
+                    onClick={() => scrollToQuestion(q.id)}
+                    style={{
+                      background: submitted
+                        ? answers[q.id]
+                          ? isCorrect
+                            ? "#52c41a"
+                            : "#ff4d4f"
+                          : undefined
+                        : undefined,
+                      color:
+                        submitted && answers[q.id] ? "#fff" : undefined,
+                    }}
+                  >
+                    {q.id}
+                  </Button>
+                );
+              })}
             </div>
           </div>
         </Col>
       </Row>
+
+      {/* MODAL */}
+      <Modal
+        title="Kết quả bài thi"
+        open={openModal}
+        onCancel={() => setOpenModal(false)}
+        footer={[
+          <Button
+            key="review"
+            type="primary"
+            onClick={() => setOpenModal(false)}
+          >
+            Xem lại bài
+          </Button>,
+        ]}
+      >
+        <h2>
+          Bạn đúng {result}/{questions.length} câu
+        </h2>
+
+        <p>
+          Điểm: {((result / questions.length) * 10).toFixed(2)}
+        </p>
+
+        <p>
+          Xếp loại:{" "}
+          {result / questions.length >= 0.8
+            ? "Giỏi"
+            : result / questions.length >= 0.5
+            ? "Đạt"
+            : "Chưa đạt"}
+        </p>
+      </Modal>
     </div>
   );
 };
