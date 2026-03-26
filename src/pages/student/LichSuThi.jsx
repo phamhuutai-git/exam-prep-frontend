@@ -6,7 +6,7 @@ import {
   faClock,
   faCalendar,
 } from "@fortawesome/free-solid-svg-icons";
-import View from "../../components/modal/lichSuThi/View";
+import View from "../../components/student/LichSuThi/View";
 const mockHistoryData = [
   {
     id: "LS001",

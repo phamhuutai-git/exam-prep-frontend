@@ -108,7 +108,7 @@ const BaiThi = () => {
                 <Button
                 type="primary"
                 onClick={() => navigate(`/student/thithu/${exam.id}`)}
-                >Thi thử</Button>
+                >Luyện tập</Button>
                <Button
                   type="primary"
                   onClick={() => navigate(`/student/thi/${exam.id}`)}
@@ -123,5 +123,9 @@ const BaiThi = () => {
     </div>
   );
 };
+<<<<<<< HEAD
 
 export default BaiThi;
+=======
+export default BaiThi;
+>>>>>>> 24a97c5 (code api them)

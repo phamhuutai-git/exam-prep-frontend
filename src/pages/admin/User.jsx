@@ -6,8 +6,7 @@ import UserHeader from '../../components/user/UserHeader'
 import UserFilter from '../../components/user/UserFilter'
 import UserTable from '../../components/user/UserTable'
 import Add from '../../components/modal/user/Add'
-import { getUsers, unlockUser, lockUser ,updateUser} from '../../services/userService.js'
-
+import { getUsers, unlockUser, lockUser ,updateUser,addUser} from '../../services/userService.js'
 const User = () => {
   const [users, setUsers] = useState([])
   const [page, setPage] = useState(0)
@@ -93,11 +92,12 @@ const User = () => {
     setIsModalOpen(true)
   }
 
-  const handleSubmit = async (values) => {
+ const handleSubmit = async (values) => {
   setLoading(true)
 
   try {
     if (isEditMode) {
+      // ================= UPDATE =================
       const payload = {
         username: values.username,
         email: values.email,
@@ -108,14 +108,14 @@ const User = () => {
 
       await updateUser(selectedUser.id, payload)
 
-      // 🔥 UPDATE NGAY UI (QUAN TRỌNG)
+      // update UI ngay
       setUsers(prev =>
         prev.map(user =>
           user.id === selectedUser.id
             ? {
                 ...user,
-                ...values, // cập nhật name, email...
-                status: values.status // 👈 cập nhật trạng thái
+                ...values,
+                status: values.status
               }
             : user
         )
@@ -123,13 +123,31 @@ const User = () => {
 
       toast.success('Cập nhật thành công!')
     } else {
+      // ================= ADD =================
+      const payload = {
+        username: values.username,
+        email: values.email,
+        fullName: values.fullName,
+        role: values.role.toUpperCase()
+      }
+
+      await addUser(payload)
+
+      // 🔥 FIX QUAN TRỌNG: setPage trước
+      setPage(0)
+
+      // 🔥 gọi lại API để lấy data mới nhất
+      await fetchUsers(0)
+
       toast.success('Thêm thành công!')
     }
 
     setIsModalOpen(false)
     form.resetFields()
   } catch (error) {
-    toast.error('Lỗi cập nhật!')
+    toast.error(
+      error?.response?.data?.message || 'Lỗi xử lý!'
+    )
     console.error(error)
   } finally {
     setLoading(false)
