@@ -1,7 +1,7 @@
 import React from 'react'
 import { Card, Row, Col, Statistic } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faUser, faUsers, faUserGraduate, faChalkboardTeacher } from '@fortawesome/free-solid-svg-icons'
+import {  faUsers, faUserGraduate, faChalkboardTeacher } from '@fortawesome/free-solid-svg-icons'
 
 const Dashboard = () => {
   return (
@@ -12,17 +12,7 @@ const Dashboard = () => {
       </p>
 
       <Row gutter={[16, 16]}>
-        {/* Tổng user */}
-        <Col xs={24} sm={12} lg={6}>
-          <Card variant="borderless">
-            <Statistic
-              title="Tổng số người dùng"
-              value={0}
-              prefix={<FontAwesomeIcon icon={faUser} />}
-              styles={{ content: { color: '#1890ff' } }}
-            />
-          </Card>
-        </Col>
+      
 
         {/* Tổng lớp */}
         <Col xs={24} sm={12} lg={6}>
@@ -63,5 +53,4 @@ const Dashboard = () => {
     </div>
   )
 }
-
 export default Dashboard
