@@ -1,7 +1,7 @@
 import React from 'react'
 import { Card, Row, Col, Statistic } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faClipboardList, faHeart, faBook } from '@fortawesome/free-solid-svg-icons'
+import { faClipboardList, faHeart } from '@fortawesome/free-solid-svg-icons'
 
 const Dashboard = () => {
   return (
@@ -29,16 +29,7 @@ const Dashboard = () => {
             />
           </Card>
         </Col>
-        <Col xs={24} sm={12} lg={8}>
-          <Card variant="borderless">
-            <Statistic
-              title="Môn học đã học"
-              value={8}
-              prefix={<FontAwesomeIcon icon={faBook} />}
-              styles={{ content: { color: '#52c41a' } }}
-            />
-          </Card>
-        </Col>
+        
       </Row>
     </div>
   )

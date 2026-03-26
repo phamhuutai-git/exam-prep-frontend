@@ -12,7 +12,6 @@ const UserTable = ({
   total = 0,
   onPageChange
 }) => {
-
   const getRoleTag = (role) => {
     const colors = {
       admin: 'blue',

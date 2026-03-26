@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Form } from 'antd'
 import { toast } from 'react-toastify'
-
 import {
   getClasses,
   createClass,
