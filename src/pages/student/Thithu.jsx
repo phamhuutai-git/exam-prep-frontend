@@ -6,7 +6,8 @@ const Thithu = () => {
   const questionRefs = useRef({});
   const rightPanelRef = useRef(null);
   const navigate = useNavigate();
-
+  const [startTime] = useState(new Date()); // thời điểm bắt đầu
+const [submitDuration, setSubmitDuration] = useState("");
   const [activeQuestion, setActiveQuestion] = useState(null);
   const [answers, setAnswers] = useState({});
   const [submitted, setSubmitted] = useState(false);
@@ -237,17 +238,27 @@ const Thithu = () => {
     });
   };
 
-  const handleSubmit = () => {
-    let score = 0;
+const handleSubmit = () => {
+  let score = 0;
 
-    questions.forEach((q) => {
-      if (answers[q.id] === q.correct) score++;
-    });
+  questions.forEach((q) => {
+    if (answers[q.id] === q.correct) score++;
+  });
 
-    setSubmitted(true);
-    setResult(score);
-    setOpenModal(true);
-  };
+  setSubmitted(true);
+  setResult(score);
+
+  // 🔥 tính thời gian làm bài
+  const endTime = new Date();
+  const diffMs = endTime - startTime;
+
+  const minutes = Math.floor(diffMs / 60000);
+  const seconds = Math.floor((diffMs % 60000) / 1000);
+
+  setSubmitDuration(`${minutes} phút ${seconds} giây`);
+
+  setOpenModal(true);
+};
 
   const handleGoBack = () => {
     navigate("/student/bai-thi");
@@ -447,36 +458,45 @@ const Thithu = () => {
 
       {/* MODAL */}
       <Modal
-        title="Kết quả bài thi"
-        open={openModal}
-        onCancel={() => setOpenModal(false)}
-        footer={[
-          <Button
-            key="review"
-            type="primary"
-            onClick={() => setOpenModal(false)}
-          >
-            Xem lại bài
-          </Button>,
-        ]}
-      >
-        <h2>
-          Bạn đúng {result}/{questions.length} câu
-        </h2>
+  title="Kết quả bài thi"
+  open={openModal}
+  onCancel={() => setOpenModal(false)}
+  footer={[
+    <Button key="review" type="primary" onClick={() => setOpenModal(false)}>
+      Xem lại bài
+    </Button>,
+  ]}
+>
+  {/* Thông tin chung */}
+  <p><b>Ngày thi:</b> 14/05/2024</p>
+  <p><b>Thời gian:</b> 45 phút</p>
+  <p><b>Loại thi:</b> Luyện tập</p>
+<p><b>Thời gian nộp:</b> {submitDuration}</p>
 
-        <p>
-          Điểm: {((result / questions.length) * 10).toFixed(2)}
-        </p>
+  <p>
+    <b>Trạng thái:</b>{" "}
+    <span style={{ color: result / questions.length >= 0.5 ? "#52c41a" : "#ff4d4f" }}>
+      {result / questions.length >= 0.5 ? "ĐẠT" : "KHÔNG ĐẠT"}
+    </span>
+  </p>
 
-        <p>
-          Xếp loại:{" "}
-          {result / questions.length >= 0.8
-            ? "Giỏi"
-            : result / questions.length >= 0.5
-            ? "Đạt"
-            : "Chưa đạt"}
-        </p>
-      </Modal>
+  <hr />
+
+  {/* Kết quả */}
+  <h3>Kết quả</h3>
+
+  <p>
+    <b>Điểm số:</b> {((result / questions.length) * 10).toFixed(1)}/10
+  </p>
+
+  <p>
+    <b>Đúng:</b> {result}/{questions.length}
+  </p>
+
+  <p>
+    <b>Sai:</b> {questions.length - result}
+  </p>
+</Modal>
     </div>
   );
 };
