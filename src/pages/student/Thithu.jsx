@@ -317,12 +317,12 @@ const handleSubmit = () => {
                   <p>{q.question}</p>
 
                   <Radio.Group
-                    onChange={(e) =>
-                      handleChange(q.id, e.target.value)
-                    }
-                    value={answers[q.id]}
-                    disabled={submitted}
-                  >
+  onChange={(e) =>
+    handleChange(q.id, e.target.value)
+  }
+  value={answers[q.id]}
+  disabled={submitted || answers[q.id]} // 🔥 THÊM DÒNG NÀY
+>
                     {q.options.map((opt, index) => {
                       const value = opt.charAt(0);
 
