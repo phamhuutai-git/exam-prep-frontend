@@ -35,10 +35,17 @@ const TeacherExams = () => {
   const [dateFilter, setDateFilter] = useState();
 
   useEffect(() => {
+    if (searchInput === "") {
+      setSearch("");
+      setPage(0);
+      return;
+    }
+
     const timer = setTimeout(() => {
       setSearch(searchInput);
       setPage(0);
     }, 500);
+
     return () => clearTimeout(timer);
   }, [searchInput]);
 
@@ -136,7 +143,6 @@ const TeacherExams = () => {
         toast.success("Cập nhật đề thi thành công");
       } else {
         await examService.createExam(data);
-        console.log(data);
         toast.success("Tạo đề thi thành công");
       }
       setReload((prev) => !prev);
@@ -147,7 +153,7 @@ const TeacherExams = () => {
       console.error(error);
     }
   };
-  
+
   const handleCreateQuestion = async (payload) => {
     try {
       const res = await questionService.createQuestion(payload);
@@ -187,9 +193,16 @@ const TeacherExams = () => {
         <div style={{ flex: 1, minWidth: 220 }}>
           <Input
             prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
-            placeholder="Search Exam by title..."
+            placeholder="Search Exam..."
             allowClear
-            onChange={(e) => setSearchInput(e.target.value)}
+            onChange={(e) => {
+              const value = e.target.value;
+              setSearchInput(value);
+              if (!value) {
+                setSearch("");
+                setPage(0);
+              }
+            }}
           />
         </div>
         <div className="filter-divider" />
@@ -213,16 +226,19 @@ const TeacherExams = () => {
           placeholder={["From", "To"]}
           allowClear
           style={{ width: 280 }}
-          onChange={(_, dateStrings) => {
-            const [start, end] = dateStrings;
-            setDateFilter({
-              start: start || undefined,
-              end: end || undefined,
-            });
+          onChange={(dates, dateStrings) => {
+            if (!dates) {
+              setDateFilter(undefined);
+            } else {
+              const [start, end] = dateStrings;
+              setDateFilter({
+                start,
+                end,
+              });
+            }
             setPage(0);
           }}
         />
-
       </div>
 
       <div className="question-table-wrapper">

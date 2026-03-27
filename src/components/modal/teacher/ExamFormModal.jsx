@@ -83,7 +83,7 @@ export default function ExamFormModal({
     }
 
     if (qCat) {
-      d = d.filter((q) => String(q.categoryId) === String(qCat));
+      d = d.filter((q) => q.category === qCat);
     }
 
     return d;
@@ -182,7 +182,7 @@ export default function ExamFormModal({
           <Form.Item name="category" label="Danh mục">
             <Select placeholder="Chọn danh mục">
               {categories.map((c) => (
-                <Option key={c.id} value={c.id}>
+                <Option key={c.id} value={c.name}>
                   {c.name}
                 </Option>
               ))}
