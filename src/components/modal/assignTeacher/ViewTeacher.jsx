@@ -56,5 +56,4 @@ const ViewTeacher = ({
     </Modal>
   )
 }
-
 export default ViewTeacher

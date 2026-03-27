@@ -28,7 +28,7 @@ const Header = () => {
       await refreshUser();
     } catch (error) {
       const msg =
-        error.response?.data?.message || "Cập nhật thất bại";
+        error.response?.data?.message || "Email đã tồn tại!";
       toast.error(msg);
       throw new Error(msg);
     }

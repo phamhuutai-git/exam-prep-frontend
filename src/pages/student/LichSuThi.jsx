@@ -6,7 +6,7 @@ import {
   faClock,
   faCalendar,
 } from "@fortawesome/free-solid-svg-icons";
-import View from "../../components/modal/lichSuThi/View";
+import View from "../../components/student/LichSuThi/View";
 const mockHistoryData = [
   {
     id: "LS001",
@@ -276,7 +276,7 @@ const [selectedExam, setSelectedExam] = useState(null);
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <Badge status="processing" text={exam.timeDone} />
-                  Thời gian
+                  Thời gian nộp
                 </div>
               </div>
 

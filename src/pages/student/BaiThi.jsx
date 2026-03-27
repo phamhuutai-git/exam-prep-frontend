@@ -127,7 +127,7 @@ const BaiThi = () => {
                 <Button
                 type="primary"
                 onClick={() => navigate(`/student/thithu/${exam.id}`)}
-                >Thi thử</Button>
+                >Luyện tập</Button>
                <Button
                   type="primary"
                   onClick={() => navigate(`/student/thi/${exam.id}`)}
@@ -142,5 +142,4 @@ const BaiThi = () => {
     </div>
   );
 };
-
 export default BaiThi;

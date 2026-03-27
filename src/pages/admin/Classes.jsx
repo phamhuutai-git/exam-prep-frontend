@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Form } from 'antd'
 import { toast } from 'react-toastify'
-
 import {
   getClasses,
   createClass,
@@ -128,7 +127,6 @@ const handleDelete = async (id) => {
     await deleteClass(id)
     toast.success('Xóa thành công!')
 
-    // 👉 Nếu xóa item cuối của page hiện tại
     if (classesData.length === 1 && page > 0) {
       setPage(page - 1) // quay về trang trước
     } else {
@@ -202,24 +200,29 @@ const handleDelete = async (id) => {
   
 
   // ================= SUBMIT =================
-  const handleSubmit = async (values) => {
-    try {
-      if (isEditMode) {
-        await updateClass(selectedClass.id, values)
-        toast.success('Cập nhật thành công!')
-      } else {
-        await createClass(values)
-        toast.success('Tạo thành công!')
-      }
-
-      setIsModalOpen(false)
-      form.resetFields()
-      fetchClasses(page)
-
-    } catch {
-      toast.error('Lỗi lưu!')
+const handleSubmit = async (values) => {
+  try {
+    if (isEditMode) {
+      await updateClass(selectedClass.id, values)
+      toast.success('Cập nhật thành công!')
+    } else {
+      await createClass(values)
+      toast.success('Tạo thành công!')
     }
+
+    setIsModalOpen(false)
+    form.resetFields()
+    fetchClasses(page)
+
+  } catch (error) {
+    const message =
+      error?.response?.data?.message === 'Class name existed'
+        ? 'Tên lớp đã tồn tại!'
+        : error?.response?.data?.message || 'Lỗi hệ thống!'
+
+    toast.error(message)
   }
+}
 
   // ================= VIEW =================
   const handleView = async (record) => {
