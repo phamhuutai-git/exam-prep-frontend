@@ -162,7 +162,7 @@ export default function TeacherStudent() {
         <StudentTable
           data={filteredData}
           loading={loading}
-          onView={(record) => setDetail(record)}
+          onView={(record) => setDetail(record.raw)}
         />
       </div>
 

@@ -136,6 +136,7 @@ const TeacherExams = () => {
         toast.success("Cập nhật đề thi thành công");
       } else {
         await examService.createExam(data);
+        console.log(data);
         toast.success("Tạo đề thi thành công");
       }
       setReload((prev) => !prev);

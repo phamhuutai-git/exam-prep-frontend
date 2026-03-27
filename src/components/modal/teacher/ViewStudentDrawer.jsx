@@ -1,114 +1,60 @@
-import { Drawer, Tag, Typography, Divider, List, Card, Space } from "antd";
-import {
-  UserOutlined,
-  CalendarOutlined,
-  BookOutlined,
-} from "@ant-design/icons";
+import { Drawer, Tag, Typography, Divider, Card } from "antd";
+import dayjs from "dayjs";
 
 const { Title, Text } = Typography;
 
-const getAvgScore = (attempts) => {
-  if (!attempts.length) return null;
-  return attempts.reduce((s, a) => s + a.score, 0) / attempts.length;
-};
-
-const getStatusTag = (status) => {
-  return status === "ACTIVED" ? (
-    <Tag color="green">Actived</Tag>
-  ) : (
-    <Tag color="red">Lock</Tag>
-  );
-};
-
-const getScoreTag = (score) => {
-  if (score === null) return <Tag>—</Tag>;
-  if (score >= 8) return <Tag color="green">{score.toFixed(1)}</Tag>;
-  if (score >= 6) return <Tag color="orange">{score.toFixed(1)}</Tag>;
-  return <Tag color="red">{score.toFixed(1)}</Tag>;
-};
-
 export default function ViewStudentDrawer({ student, onClose }) {
-  const avg = student ? getAvgScore(student.attempts) : null;
-
   return (
     <Drawer
-      title="Student Detail"
+      title="Chi tiết bài thi"
       open={!!student}
       onClose={onClose}
-      size="large"
+      style={{ width: 850 }}
     >
       {student && (
-        <>
-          <Card
-            style={{
-              marginBottom: 16,
-              borderRadius: 10,
-              background: "#fafafa",
-            }}
-          >
-            <Title level={5}>
-              {student.firstName} {student.lastName}
-            </Title>
+        <Card style={{ borderRadius: 10 }}>
+          <Title level={5}>{student.exam?.title}</Title>
 
-            <Space wrap>
-              {getStatusTag(student.status)}
-              <Tag color="blue">@{student.username}</Tag>
-            </Space>
+          <Divider />
 
-            <Divider style={{ margin: "12px 0" }} />
+          <Text>
+            <b>Mã đề:</b> {student.exam?.code}
+          </Text>
+          <br />
 
-            <Space direction="vertical" size={4}>
-              <Text type="secondary">
-                <UserOutlined /> Email: {student.email}
-              </Text>
+          <Text>
+            <b>Học sinh:</b>{" "}
+            {student.student?.firstName} {student.student?.lastName}
+          </Text>
+          <br />
 
-              <Text type="secondary">
-                <CalendarOutlined /> Created: {student.createDate}
-              </Text>
+          <Text>
+            <b>Thời gian bắt đầu:</b> {dayjs(student.startTime).format("DD/MM/YYYY HH:mm")}
+          </Text>
+          <br />
 
-              <Text type="secondary">
-                <BookOutlined /> Avg Score: {getScoreTag(avg)}
-              </Text>
-            </Space>
-          </Card>
+          <Text>
+            <b>Thời gian kết thúc:</b> {dayjs(student.endTime).format("DD/MM/YYYY HH:mm")}
+          </Text>
+          <br />
 
-          {/* Attempts */}
-          <Divider orientation="left">
-            Lịch sử thi ({student.attempts.length})
-          </Divider>
+          <Divider />
 
-          {student.attempts.length === 0 ? (
-            <Text type="secondary">Chưa thi lần nào</Text>
-          ) : (
-            <List
-              dataSource={student.attempts}
-              rowKey={(item, index) => index}
-              renderItem={(a) => (
-                <Card
-                  size="small"
-                  style={{
-                    marginBottom: 10,
-                    borderRadius: 8,
-                  }}
-                >
-                  <Space
-                    style={{ width: "100%", justifyContent: "space-between" }}
-                  >
-                    <div>
-                      <Text strong>{a.exam}</Text>
-                      <br />
-                      <Text type="secondary" style={{ fontSize: 12 }}>
-                        {a.date}
-                      </Text>
-                    </div>
-
-                    {getScoreTag(a.score)}
-                  </Space>
-                </Card>
-              )}
-            />
-          )}
-        </>
+          <Text>
+            <b>Điểm:</b>{" "}
+            <Tag
+              color={
+                student.score >= 8
+                  ? "green"
+                  : student.score >= 6
+                  ? "orange"
+                  : "red"
+              }
+            >
+              {student.score?.toFixed(1)}
+            </Tag>
+          </Text>
+        </Card>
       )}
     </Drawer>
   );
