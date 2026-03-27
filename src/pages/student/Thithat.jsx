@@ -1,196 +1,49 @@
 import React, { useState, useRef } from "react";
 import { Card, Row, Col, Radio, Button, Modal } from "antd";
 import { useNavigate } from "react-router-dom";
+
 const Thithat = () => {
   const questionRefs = useRef({});
   const rightPanelRef = useRef(null);
   const navigate = useNavigate();
+
   const [activeQuestion, setActiveQuestion] = useState(null);
   const [answers, setAnswers] = useState({});
   const [submitted, setSubmitted] = useState(false);
   const [result, setResult] = useState(0);
   const [openModal, setOpenModal] = useState(false);
+
   const questions = [
-    {
-      id: 1,
-      question: "Nguyên hàm của x là gì?",
-      options: ["A. x²", "B. x²/2 + C", "C. 2x", "D. ln x"],
-      correct: "B",
-    },
-    {
-      id: 2,
-      question: "Đạo hàm của x² là gì?",
-      options: ["A. x", "B. 2x", "C. x²", "D. 2"],
-      correct: "B",
-    },
-    {
-      id: 3,
-      question: "1 + 1 = ?",
-      options: ["A. 1", "B. 2", "C. 3", "D. 4"],
-      correct: "B",
-    },
-    {
-      id: 4,
-      question: "2 + 3 = ?",
-      options: ["A. 4", "B. 5", "C. 6", "D. 3"],
-      correct: "B",
-    },
-    {
-      id: 5,
-      question: "5 - 2 = ?",
-      options: ["A. 2", "B. 3", "C. 4", "D. 1"],
-      correct: "B",
-    },
-    {
-      id: 6,
-      question: "3 + 4 = ?",
-      options: ["A. 6", "B. 7", "C. 8", "D. 5"],
-      correct: "B",
-    },
-    {
-      id: 7,
-      question: "6 - 1 = ?",
-      options: ["A. 4", "B. 5", "C. 6", "D. 3"],
-      correct: "B",
-    },
-    {
-      id: 8,
-      question: "2 + 2 = ?",
-      options: ["A. 3", "B. 4", "C. 5", "D. 6"],
-      correct: "B",
-    },
-    {
-      id: 9,
-      question: "7 - 3 = ?",
-      options: ["A. 3", "B. 4", "C. 5", "D. 6"],
-      correct: "B",
-    },
-    {
-      id: 10,
-      question: "4 + 5 = ?",
-      options: ["A. 8", "B. 9", "C. 7", "D. 6"],
-      correct: "B",
-    },
-    {
-      id: 11,
-      question: "9 - 4 = ?",
-      options: ["A. 4", "B. 5", "C. 6", "D. 3"],
-      correct: "B",
-    },
-    {
-      id: 12,
-      question: "3 + 3 = ?",
-      options: ["A. 5", "B. 6", "C. 7", "D. 4"],
-      correct: "B",
-    },
-    {
-      id: 13,
-      question: "8 - 2 = ?",
-      options: ["A. 5", "B. 6", "C. 7", "D. 4"],
-      correct: "B",
-    },
-    {
-      id: 14,
-      question: "1 + 5 = ?",
-      options: ["A. 5", "B. 6", "C. 7", "D. 4"],
-      correct: "B",
-    },
-    {
-      id: 15,
-      question: "6 - 3 = ?",
-      options: ["A. 2", "B. 3", "C. 4", "D. 5"],
-      correct: "B",
-    },
-    {
-      id: 16,
-      question: "2 + 6 = ?",
-      options: ["A. 7", "B. 8", "C. 6", "D. 5"],
-      correct: "B",
-    },
-    {
-      id: 17,
-      question: "10 - 5 = ?",
-      options: ["A. 4", "B. 5", "C. 6", "D. 3"],
-      correct: "B",
-    },
-    {
-      id: 18,
-      question: "4 + 4 = ?",
-      options: ["A. 6", "B. 8", "C. 7", "D. 5"],
-      correct: "B",
-    },
-    {
-      id: 19,
-      question: "7 - 2 = ?",
-      options: ["A. 4", "B. 5", "C. 6", "D. 3"],
-      correct: "B",
-    },
-    {
-      id: 20,
-      question: "5 + 3 = ?",
-      options: ["A. 7", "B. 8", "C. 6", "D. 5"],
-      correct: "B",
-    },
-    {
-      id: 21,
-      question: "9 - 3 = ?",
-      options: ["A. 5", "B. 6", "C. 7", "D. 4"],
-      correct: "B",
-    },
-    {
-      id: 22,
-      question: "2 + 7 = ?",
-      options: ["A. 8", "B. 9", "C. 7", "D. 6"],
-      correct: "B",
-    },
-    {
-      id: 23,
-      question: "8 - 4 = ?",
-      options: ["A. 3", "B. 4", "C. 5", "D. 6"],
-      correct: "B",
-    },
-    {
-      id: 24,
-      question: "3 + 5 = ?",
-      options: ["A. 7", "B. 8", "C. 6", "D. 5"],
-      correct: "B",
-    },
-    {
-      id: 25,
-      question: "6 - 2 = ?",
-      options: ["A. 3", "B. 4", "C. 5", "D. 6"],
-      correct: "B",
-    },
-    {
-      id: 26,
-      question: "1 + 8 = ?",
-      options: ["A. 8", "B. 9", "C. 7", "D. 6"],
-      correct: "B",
-    },
-    {
-      id: 27,
-      question: "10 - 3 = ?",
-      options: ["A. 6", "B. 7", "C. 8", "D. 5"],
-      correct: "B",
-    },
-    {
-      id: 28,
-      question: "4 + 6 = ?",
-      options: ["A. 9", "B. 10", "C. 8", "D. 7"],
-      correct: "B",
-    },
-    {
-      id: 29,
-      question: "7 - 1 = ?",
-      options: ["A. 5", "B. 6", "C. 7", "D. 4"],
-      correct: "B",
-    },
-    {
-      id: 30,
-      question: "5 + 5 = ?",
-      options: ["A. 9", "B. 10", "C. 8", "D. 7"],
-      correct: "B",
-    },
+    { id: 1, question: "Nguyên hàm của x là gì?", options: ["A. x²", "B. x²/2 + C", "C. 2x", "D. ln x"], correct: "B" },
+    { id: 2, question: "Đạo hàm của x² là gì?", options: ["A. x", "B. 2x", "C. x²", "D. 2"], correct: "B" },
+    { id: 3, question: "1 + 1 = ?", options: ["A. 1", "B. 2", "C. 3", "D. 4"], correct: "B" },
+    { id: 4, question: "2 + 3 = ?", options: ["A. 4", "B. 5", "C. 6", "D. 3"], correct: "B" },
+    { id: 5, question: "5 - 2 = ?", options: ["A. 2", "B. 3", "C. 4", "D. 1"], correct: "B" },
+    { id: 6, question: "3 + 4 = ?", options: ["A. 6", "B. 7", "C. 8", "D. 5"], correct: "B" },
+    { id: 7, question: "6 - 1 = ?", options: ["A. 4", "B. 5", "C. 6", "D. 3"], correct: "B" },
+    { id: 8, question: "2 + 2 = ?", options: ["A. 3", "B. 4", "C. 5", "D. 6"], correct: "B" },
+    { id: 9, question: "7 - 3 = ?", options: ["A. 3", "B. 4", "C. 5", "D. 6"], correct: "B" },
+    { id: 10, question: "4 + 5 = ?", options: ["A. 8", "B. 9", "C. 7", "D. 6"], correct: "B" },
+    { id: 11, question: "9 - 4 = ?", options: ["A. 4", "B. 5", "C. 6", "D. 3"], correct: "B" },
+    { id: 12, question: "3 + 3 = ?", options: ["A. 5", "B. 6", "C. 7", "D. 4"], correct: "B" },
+    { id: 13, question: "8 - 2 = ?", options: ["A. 5", "B. 6", "C. 7", "D. 4"], correct: "B" },
+    { id: 14, question: "1 + 5 = ?", options: ["A. 5", "B. 6", "C. 7", "D. 4"], correct: "B" },
+    { id: 15, question: "6 - 3 = ?", options: ["A. 2", "B. 3", "C. 4", "D. 5"], correct: "B" },
+    { id: 16, question: "2 + 6 = ?", options: ["A. 7", "B. 8", "C. 6", "D. 5"], correct: "B" },
+    { id: 17, question: "10 - 5 = ?", options: ["A. 4", "B. 5", "C. 6", "D. 3"], correct: "B" },
+    { id: 18, question: "4 + 4 = ?", options: ["A. 6", "B. 8", "C. 7", "D. 5"], correct: "B" },
+    { id: 19, question: "7 - 2 = ?", options: ["A. 4", "B. 5", "C. 6", "D. 3"], correct: "B" },
+    { id: 20, question: "5 + 3 = ?", options: ["A. 7", "B. 8", "C. 6", "D. 5"], correct: "B" },
+    { id: 21, question: "9 - 3 = ?", options: ["A. 5", "B. 6", "C. 7", "D. 4"], correct: "B" },
+    { id: 22, question: "2 + 7 = ?", options: ["A. 8", "B. 9", "C. 7", "D. 6"], correct: "B" },
+    { id: 23, question: "8 - 4 = ?", options: ["A. 3", "B. 4", "C. 5", "D. 6"], correct: "B" },
+    { id: 24, question: "3 + 5 = ?", options: ["A. 7", "B. 8", "C. 6", "D. 5"], correct: "B" },
+    { id: 25, question: "6 - 2 = ?", options: ["A. 3", "B. 4", "C. 5", "D. 6"], correct: "B" },
+    { id: 26, question: "1 + 8 = ?", options: ["A. 8", "B. 9", "C. 7", "D. 6"], correct: "B" },
+    { id: 27, question: "10 - 3 = ?", options: ["A. 6", "B. 7", "C. 8", "D. 5"], correct: "B" },
+    { id: 28, question: "4 + 6 = ?", options: ["A. 9", "B. 10", "C. 8", "D. 7"], correct: "B" },
+    { id: 29, question: "7 - 1 = ?", options: ["A. 5", "B. 6", "C. 7", "D. 4"], correct: "B" },
+    { id: 30, question: "5 + 5 = ?", options: ["A. 9", "B. 10", "C. 8", "D. 7"], correct: "B" },
   ];
 
   const handleChange = (qId, value) => {
@@ -213,7 +66,6 @@ const Thithat = () => {
     setOpenModal(true);
   };
 
-  // 👉 chỉ dùng khi đã nộp
   const handleGoBack = () => {
     navigate("/student/bai-thi");
   };
@@ -248,10 +100,7 @@ const Thithat = () => {
               submitted && answers[q.id] === q.correct;
 
             return (
-              <div
-                key={q.id}
-                ref={(el) => (questionRefs.current[q.id] = el)}
-              >
+              <div key={q.id} ref={(el) => (questionRefs.current[q.id] = el)}>
                 <Card
                   title={`Câu ${q.id}`}
                   style={{
@@ -271,9 +120,7 @@ const Thithat = () => {
                   <p>{q.question}</p>
 
                   <Radio.Group
-                    onChange={(e) =>
-                      handleChange(q.id, e.target.value)
-                    }
+                    onChange={(e) => handleChange(q.id, e.target.value)}
                     value={answers[q.id]}
                     disabled={submitted}
                   >
@@ -327,7 +174,6 @@ const Thithat = () => {
               Nộp bài
             </Button>
 
-            {/* ✅ CHỈ HIỆN SAU KHI NỘP */}
             {submitted && (
               <Button
                 block
@@ -362,9 +208,17 @@ const Thithat = () => {
                             ? "#52c41a"
                             : "#ff4d4f"
                           : undefined
+                        : answers[q.id]
+                        ? "#1677ff" // 🔥 đã chọn → xanh dương
                         : undefined,
                       color:
-                        submitted && answers[q.id] ? "#fff" : undefined,
+                        submitted
+                          ? answers[q.id]
+                            ? "#fff"
+                            : undefined
+                          : answers[q.id]
+                          ? "#fff"
+                          : undefined,
                     }}
                   >
                     {q.id}
@@ -382,11 +236,7 @@ const Thithat = () => {
         open={openModal}
         onCancel={() => setOpenModal(false)}
         footer={[
-          <Button
-            key="review"
-            type="primary"
-            onClick={() => setOpenModal(false)}
-          >
+          <Button key="review" type="primary" onClick={() => setOpenModal(false)}>
             Xem lại bài
           </Button>,
         ]}
