@@ -276,7 +276,7 @@ const [selectedExam, setSelectedExam] = useState(null);
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <Badge status="processing" text={exam.timeDone} />
-                  Thời gian
+                  Thời gian nộp
                 </div>
               </div>
 
