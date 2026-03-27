@@ -415,17 +415,26 @@ const Thithu = () => {
                   <Button
                     key={q.id}
                     onClick={() => scrollToQuestion(q.id)}
-                    style={{
-                      background: submitted
-                        ? answers[q.id]
-                          ? isCorrect
-                            ? "#52c41a"
-                            : "#ff4d4f"
-                          : undefined
-                        : undefined,
-                      color:
-                        submitted && answers[q.id] ? "#fff" : undefined,
-                    }}
+                   style={{
+  background: submitted
+    ? answers[q.id]
+      ? isCorrect
+        ? "#52c41a" // 🟢 đúng
+        : "#ff4d4f" // 🔴 sai
+      : undefined
+    : answers[q.id]
+    ? "#1677ff" // 🔵 đã chọn
+    : undefined, // ⚪ chưa chọn
+
+  color:
+    submitted
+      ? answers[q.id]
+        ? "#fff"
+        : undefined
+      : answers[q.id]
+      ? "#fff"
+      : undefined,
+}}
                   >
                     {q.id}
                   </Button>
