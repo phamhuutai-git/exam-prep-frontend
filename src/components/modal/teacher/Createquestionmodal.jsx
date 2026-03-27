@@ -99,7 +99,7 @@ export default function CreateQuestionModal({
 
         {/* 4 đáp án */}
         <Form.Item label="Answers">
-          <Space direction="vertical" style={{ width: "100%" }}>
+          <Space orientation="vertical" style={{ width: "100%" }}>
             {ANSWER_LABELS.map((label) => (
               <Row key={label} gutter={8} align="middle">
                 {/* Checkbox đáp án đúng */}

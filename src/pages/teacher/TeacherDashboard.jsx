@@ -9,7 +9,7 @@ import ScoreChart from "../../components/teacher/dashboard/ScoreChart";
 import RecentExams from "../../components/teacher/dashboard/RecentExams";
 import RecentAttempts from "../../components/teacher/dashboard/RecentAttempts";
 import QuickActions from "../../components/teacher/dashboard/QuickActions";
-
+import questionService from "../../services/teacher/questionService";
 export default function TeacherDashboard() {
   const [stats, setStats] = useState([]);
   const [scoreDist, setScoreDist] = useState([]);
@@ -17,7 +17,20 @@ export default function TeacherDashboard() {
   const [recentAttempts, setRecentAttempts] = useState([]);
   const [openQuestion, setOpenQuestion] = useState(false);
   const [openExam, setOpenExam] = useState(false);
+  const [categories, setCategories] = useState([]);
 
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await questionService.getAllCategory();
+        setCategories(res.data.data.content);
+      } catch (err) {
+        console.error("Lỗi load categories:", err);
+      }
+    };
+
+    fetchCategories();
+  }, []);
   useEffect(() => {
     // MOCK DATA
     const mockData = {
@@ -154,11 +167,7 @@ export default function TeacherDashboard() {
           console.log("Question:", data);
           setOpenQuestion(false);
         }}
-        categories={[
-          { id: 1, name: "Java" },
-          { id: 2, name: "Spring" },
-          { id: 3, name: "SQL" },
-        ]}
+        categories={categories}
       />
 
       {/* CREATE EXAM */}
@@ -167,6 +176,7 @@ export default function TeacherDashboard() {
         <ExamFormModal
           exam={null}
           questions={[]}
+          categories={categories}
           onClose={() => setOpenExam(false)}
           onSave={(data) => {
             console.log("Exam:", data);

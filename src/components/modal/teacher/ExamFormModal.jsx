@@ -181,7 +181,7 @@ export default function ExamFormModal({
 
           <Form.Item name="category" label="Danh mục">
             <Select placeholder="Chọn danh mục">
-              {categories.map((c) => (
+              {(categories || []).map((c) => (
                 <Option key={c.id} value={c.name}>
                   {c.name}
                 </Option>
