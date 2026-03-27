@@ -127,7 +127,6 @@ const handleDelete = async (id) => {
     await deleteClass(id)
     toast.success('Xóa thành công!')
 
-    // 👉 Nếu xóa item cuối của page hiện tại
     if (classesData.length === 1 && page > 0) {
       setPage(page - 1) // quay về trang trước
     } else {

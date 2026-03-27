@@ -347,7 +347,7 @@ const Thithu = () => {
                       )}
 
                       <p style={{ fontStyle: "italic", color: "#555" }}>
-                        👉 Giải thích: {q.explanation}
+                        <b>Giải thích:</b> {q.explanation}
                       </p>
                     </div>
                   )}
@@ -356,7 +356,7 @@ const Thithu = () => {
                   {submitted && (
                     <div style={{ marginTop: "10px" }}>
                       <p style={{ fontStyle: "italic", color: "#555" }}>
-                        👉 Giải thích: {q.explanation}
+                        <b>Giải thích:</b> {q.explanation}
                       </p>
                     </div>
                   )}
