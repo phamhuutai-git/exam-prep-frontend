@@ -13,7 +13,7 @@ const mockHistoryData = [
     title: "Toán 12 - Chương 1",
     date: "14/05/2024",
     duration: "45 phút",
-    type: "Thi thật",
+    type: "Luyện tập",
     score: 8.5,
     correct: 42,
     total: 50,
@@ -29,7 +29,7 @@ const mockHistoryData = [
     title: "Toán 12 - Chương 2",
     date: "15/05/2024",
     duration: "45 phút",
-    type: "Thi thật",
+    type: "Luyện tập",
     score: 7.5,
     correct: 38,
     total: 50,
@@ -37,7 +37,7 @@ const mockHistoryData = [
     timeDone: "30m",
     status: "ĐẠT",
 
-  
+    
   },
 
   {
@@ -45,7 +45,7 @@ const mockHistoryData = [
     title: "Toán 12 - Chương 3",
     date: "16/05/2024",
     duration: "60 phút",
-    type: "Thi thật",
+    type: "Luyện tập",
     score: 6.0,
     correct: 30,
     total: 50,
@@ -53,7 +53,8 @@ const mockHistoryData = [
     timeDone: "50m",
     status: "CHƯA ĐẠT",
 
-   
+    
+     
   },
 
   {
@@ -61,8 +62,7 @@ const mockHistoryData = [
     title: "Toán 12 - Chương 4",
     date: "17/05/2024",
     duration: "45 phút",
-    type: "Thi thật",
-
+    type: "Luyện tập",
     score: 9.0,
     correct: 45,
     total: 50,
@@ -70,11 +70,11 @@ const mockHistoryData = [
     timeDone: "28m",
     status: "ĐẠT",
 
-    
+   
   },
 ];
 
-const LichSuThi = () => {
+const LichSuluyentap = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [openModal, setOpenModal] = useState(false);
 const [selectedExam, setSelectedExam] = useState(null);
@@ -271,4 +271,4 @@ const styleSheet = document.createElement("style");
 styleSheet.textContent = styles;
 document.head.appendChild(styleSheet);
 
-export default LichSuThi;
+export default LichSuluyentap;
