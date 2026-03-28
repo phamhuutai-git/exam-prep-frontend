@@ -77,19 +77,34 @@ const Thithat = () => {
   };
 
   // 👉 thêm confirm
-  const handleSubmit = () => {
-    const unanswered = questions.filter((q) => !answers[q.id]).length;
+   const handleSubmit = () => {
+  const unanswered = questions.filter((q) => !answers[q.id]).length;
 
+  // 👉 Trường hợp làm hết
+  if (unanswered === 0) {
     confirm({
       title: "Xác nhận nộp bài",
-      content: `Hiện còn ${unanswered} câu hỏi chưa được làm, bạn có muốn nộp bài không?`,
+      content: "Bạn đã làm hết tất cả câu hỏi. Bạn có chắc chắn muốn nộp bài không?",
       okText: "Nộp bài",
       cancelText: "Hủy",
       onOk() {
         handleConfirmSubmit();
       },
     });
-  };
+    return;
+  }
+
+  // 👉 Trường hợp chưa làm hết (giữ nguyên của bạn)
+  confirm({
+    title: "Xác nhận nộp bài",
+    content: `Hiện còn ${unanswered} câu hỏi chưa được làm, bạn có muốn nộp bài không?`,
+    okText: "Nộp bài",
+    cancelText: "Hủy",
+    onOk() {
+      handleConfirmSubmit();
+    },
+  });
+};
 
   const handleGoBack = () => {
     navigate("/student/bai-thi");
