@@ -28,7 +28,7 @@ const mockData = [
   },
 ];
 
-const BaiThi = () => {
+const Bailuyentap = () => {
   const [liked, setLiked] = useState({});
   const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
@@ -74,7 +74,7 @@ const BaiThi = () => {
     <div style={{ padding: "24px" }}>
       <h1>Danh sách bài thi</h1>
       <p style={{ marginBottom: "32px", color: "#666" }}>
-        Chọn bài thi để bắt đầu thi
+        Chọn bài thi để bắt đầu luyện tập
       </p>
       <div style={{ marginBottom: '24px' }}>
         <Input
@@ -124,12 +124,10 @@ const BaiThi = () => {
               </p>
 
               <div style={{ display: "flex", justifyContent: "center", gap: 10 }}>
-               <Button
-                  type="primary"
-                  onClick={() => navigate(`/student/thi/${exam.id}`)}
-                >
-                  Thi
-                </Button>
+                <Button
+                type="primary"
+                onClick={() => navigate(`/student/thithu/${exam.id}`)}
+                >Luyện tập</Button>
               </div>
             </Card>
           </Col>
@@ -138,4 +136,4 @@ const BaiThi = () => {
     </div>
   );
 };
-export default BaiThi;
+export default Bailuyentap;

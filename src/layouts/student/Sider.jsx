@@ -18,18 +18,31 @@ const studentMenuItems = [
   },
   { 
     id: 2, 
-    title: 'Danh sách bài thi', 
-    path: '/student/bai-thi',
+    title: 'Thi thử',
+    path: '/student/bai-thi-luyen-tap',
     icon: faClipboardList 
   },
   { 
     id: 3, 
-    title: 'Lịch sử thi', 
-    path: '/student/lich-su-thi',
+    title: 'Thi thật',
+    path: '/student/bai-thi',
     icon: faClipboardList 
   },
   { 
-    id: 4, 
+    id:4, 
+    title: 'Lịch sử thi thử',
+    path: '/student/lich-su-luyen-tap',
+    icon: faClipboardList 
+  },
+  { 
+    id:5, 
+    title: 'Lịch sử thi thật', 
+    path: '/student/lich-su-thi',
+    icon: faClipboardList 
+  },
+
+  { 
+    id: 5, 
     title: 'Đề thi yêu thích', 
     path: '/student/de-thi-yeu-thich',
     icon: faHeart 

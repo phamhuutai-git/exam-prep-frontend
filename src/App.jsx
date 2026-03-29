@@ -25,6 +25,8 @@ import TeacherQuestions from "./pages/teacher/TeacherQuestions";
 import TeacherStudents from "./pages/teacher/TeacherStudents";
 import TeacherDashboard from "./pages/teacher/TeacherDashboard";
 import TeacherExamsClass from "./pages/teacher/TeacherExamClass";
+import Bailuyentap from "./pages/student/Bailuyentap";
+import LichSuluyentap from "./pages/student/LichSuluyentap";
 const App = () => {
   return (
     <>
@@ -60,7 +62,10 @@ const App = () => {
           <Route path="lich-su-thi" element={<LichSuThi />} />
           <Route path="de-thi-yeu-thich" element={<DeThiYeuThich />} />
           <Route path="bai-thi" element={<BaiThi />} />
+          <Route path="bai-thi-luyen-tap" element={<Bailuyentap />} />
+          <Route path="lich-su-luyen-tap" element={<LichSuluyentap />} />
           <Route path="thi/:id" element={<Thithat />} />
+      
           <Route path="thithu/:id" element={<Thithu />} />
           <Route
             path="bai-thi"

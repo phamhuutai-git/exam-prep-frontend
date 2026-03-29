@@ -2,12 +2,15 @@ import React, { useState, useRef } from "react";
 import { Card, Row, Col, Radio, Button, Modal } from "antd";
 import { useNavigate } from "react-router-dom";
 
+const { confirm } = Modal;
+
 const Thithat = () => {
   const questionRefs = useRef({});
   const rightPanelRef = useRef(null);
   const navigate = useNavigate();
-  const [startTime] = useState(new Date()); // thời điểm bắt đầu
-const [submitDuration, setSubmitDuration] = useState("");
+
+  const [startTime] = useState(new Date());
+  const [submitDuration, setSubmitDuration] = useState("");
   const [activeQuestion, setActiveQuestion] = useState(null);
   const [answers, setAnswers] = useState({});
   const [submitted, setSubmitted] = useState(false);
@@ -49,32 +52,58 @@ const [submitDuration, setSubmitDuration] = useState("");
 
   const handleChange = (qId, value) => {
     if (submitted) return;
-    setAnswers({
-      ...answers,
-      [qId]: value,
-    });
+    setAnswers({ ...answers, [qId]: value });
   };
 
- const handleSubmit = () => {
-  let score = 0;
+  // 👉 submit thật
+  const handleConfirmSubmit = () => {
+    let score = 0;
 
-  questions.forEach((q) => {
-    if (answers[q.id] === q.correct) score++;
+    questions.forEach((q) => {
+      if (answers[q.id] === q.correct) score++;
+    });
+
+    setSubmitted(true);
+    setResult(score);
+
+    const endTime = new Date();
+    const diffMs = endTime - startTime;
+
+    const minutes = Math.floor(diffMs / 60000);
+    const seconds = Math.floor((diffMs % 60000) / 1000);
+
+    setSubmitDuration(`${minutes} phút ${seconds} giây`);
+    setOpenModal(true);
+  };
+
+  // 👉 thêm confirm
+   const handleSubmit = () => {
+  const unanswered = questions.filter((q) => !answers[q.id]).length;
+
+  // 👉 Trường hợp làm hết
+  if (unanswered === 0) {
+    confirm({
+      title: "Xác nhận nộp bài",
+      content: "Bạn đã làm hết tất cả câu hỏi. Bạn có chắc chắn muốn nộp bài không?",
+      okText: "Nộp bài",
+      cancelText: "Hủy",
+      onOk() {
+        handleConfirmSubmit();
+      },
+    });
+    return;
+  }
+
+  // 👉 Trường hợp chưa làm hết (giữ nguyên của bạn)
+  confirm({
+    title: "Xác nhận nộp bài",
+    content: `Hiện còn ${unanswered} câu hỏi chưa được làm, bạn có muốn nộp bài không?`,
+    okText: "Nộp bài",
+    cancelText: "Hủy",
+    onOk() {
+      handleConfirmSubmit();
+    },
   });
-
-  setSubmitted(true);
-  setResult(score);
-
-  // 🔥 tính thời gian làm bài
-  const endTime = new Date();
-  const diffMs = endTime - startTime;
-
-  const minutes = Math.floor(diffMs / 60000);
-  const seconds = Math.floor((diffMs % 60000) / 1000);
-
-  setSubmitDuration(`${minutes} phút ${seconds} giây`);
-
-  setOpenModal(true);
 };
 
   const handleGoBack = () => {
@@ -107,8 +136,7 @@ const [submitDuration, setSubmitDuration] = useState("");
         {/* LEFT */}
         <Col span={16}>
           {questions.map((q) => {
-            const isCorrect =
-              submitted && answers[q.id] === q.correct;
+            const isCorrect = submitted && answers[q.id] === q.correct;
 
             return (
               <div key={q.id} ref={(el) => (questionRefs.current[q.id] = el)}>
@@ -137,15 +165,11 @@ const [submitDuration, setSubmitDuration] = useState("");
                   >
                     {q.options.map((opt, index) => {
                       const value = opt.charAt(0);
-
                       let color = "black";
 
                       if (submitted) {
-                        if (value === q.correct) {
-                          color = "#52c41a";
-                        } else if (answers[q.id] === value) {
-                          color = "#ff4d4f";
-                        }
+                        if (value === q.correct) color = "#52c41a";
+                        else if (answers[q.id] === value) color = "#ff4d4f";
                       }
 
                       return (
@@ -175,38 +199,18 @@ const [submitDuration, setSubmitDuration] = useState("");
               top: "20px",
             }}
           >
-            <Button
-              type="primary"
-              block
-              onClick={handleSubmit}
-              disabled={submitted}
-              style={{ marginBottom: "20px" }}
-            >
-              Nộp bài
-            </Button>
-
-            {submitted && (
-              <Button
-                block
-                onClick={handleGoBack}
-                style={{ marginBottom: "20px" }}
-              >
-                Quay lại danh sách thi
-              </Button>
-            )}
-
-            <p>Xem lại nhanh</p>
+            <p style={{ marginBottom: "10px" }}>Xem lại nhanh</p>
 
             <div
               style={{
                 display: "grid",
                 gridTemplateColumns: "repeat(5, 1fr)",
                 gap: "10px",
+                marginBottom: "20px",
               }}
             >
               {questions.map((q) => {
-                const isCorrect =
-                  submitted && answers[q.id] === q.correct;
+                const isCorrect = submitted && answers[q.id] === q.correct;
 
                 return (
                   <Button
@@ -220,16 +224,9 @@ const [submitDuration, setSubmitDuration] = useState("");
                             : "#ff4d4f"
                           : undefined
                         : answers[q.id]
-                        ? "#1677ff" // 🔥 đã chọn → xanh dương
+                        ? "#1677ff"
                         : undefined,
-                      color:
-                        submitted
-                          ? answers[q.id]
-                            ? "#fff"
-                            : undefined
-                          : answers[q.id]
-                          ? "#fff"
-                          : undefined,
+                      color: answers[q.id] ? "#fff" : undefined,
                     }}
                   >
                     {q.id}
@@ -237,42 +234,55 @@ const [submitDuration, setSubmitDuration] = useState("");
                 );
               })}
             </div>
+
+            <Button
+              type="primary"
+              block
+              onClick={handleSubmit}
+              disabled={submitted}
+              style={{ marginBottom: "10px" }}
+            >
+              Nộp bài
+            </Button>
+
+            {submitted && (
+              <Button block onClick={handleGoBack}>
+                Quay lại danh sách thi
+              </Button>
+            )}
           </div>
         </Col>
       </Row>
 
-      {/* MODAL */}
-     <Modal
-  title="Kết quả bài thi"
-  open={openModal}
-  onCancel={() => setOpenModal(false)}
-  footer={[
-    <Button key="review" type="primary" onClick={() => setOpenModal(false)}>
-      Xem lại bài
-    </Button>,
-  ]}
->
-  <p><b>Ngày thi:</b> 14/05/2024</p>
-  <p><b>Thời gian:</b> 45 phút</p>
-  <p><b>Loại thi:</b> Thi thật</p>
+      <Modal
+        title="Kết quả bài thi"
+        open={openModal}
+        onCancel={() => setOpenModal(false)}
+        footer={[
+          <Button key="review" type="primary" onClick={() => setOpenModal(false)}>
+            Xem lại bài
+          </Button>,
+        ]}
+      >
+        <p><b>Ngày thi:</b> 14/05/2024</p>
+        <p><b>Thời gian:</b> 45 phút</p>
+        <p><b>Loại thi:</b> Thi thật</p>
+        <p><b>Thời gian nộp:</b> {submitDuration}</p>
 
-  {/* 🔥 thêm dòng này */}
-<p><b>Thời gian nộp:</b> {submitDuration}</p>
-  <p>
-    <b>Trạng thái:</b>{" "}
-    <span style={{ color: result / questions.length >= 0.5 ? "#52c41a" : "#ff4d4f" }}>
-      {result / questions.length >= 0.5 ? "ĐẠT" : "KHÔNG ĐẠT"}
-    </span>
-  </p>
+        <p>
+          <b>Trạng thái:</b>{" "}
+          <span style={{ color: result / questions.length >= 0.5 ? "#52c41a" : "#ff4d4f" }}>
+            {result / questions.length >= 0.5 ? "ĐẠT" : "KHÔNG ĐẠT"}
+          </span>
+        </p>
 
-  <hr />
+        <hr />
 
-  <h3>Kết quả</h3>
-
-  <p><b>Điểm số:</b> {((result / questions.length) * 10).toFixed(1)}/10</p>
-  <p><b>Đúng:</b> {result}/{questions.length}</p>
-  <p><b>Sai:</b> {questions.length - result}</p>
-</Modal>
+        <h3>Kết quả</h3>
+        <p><b>Điểm số:</b> {((result / questions.length) * 10).toFixed(1)}/10</p>
+        <p><b>Đúng:</b> {result}/{questions.length}</p>
+        <p><b>Sai:</b> {questions.length - result}</p>
+      </Modal>
     </div>
   );
 };
