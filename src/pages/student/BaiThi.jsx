@@ -11,9 +11,7 @@ const BaiThi = () => {
   const [exams, setExams] = useState([]); // 🔥 thêm state
   const [loading, setLoading] = useState(false);
   const { user } = useAuth(); // 🔥 lấy user từ context
-
   const navigate = useNavigate();
-
   // format thời gian giống bài trước
   const formatDuration = (time) => {
     if (!time) return "N/A";
