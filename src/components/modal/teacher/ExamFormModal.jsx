@@ -13,6 +13,7 @@ import {
   Checkbox,
   Button,
   Tooltip,
+  Switch,
 } from "antd";
 import { SearchOutlined, PlusOutlined } from "@ant-design/icons";
 import CreateQuestionModal from "./Createquestionmodal";
@@ -52,6 +53,9 @@ export default function ExamFormModal({
         title: exam.title,
         duration: exam.duration ? convertToMinutes(exam.duration) : undefined,
         category: exam.category,
+        examType: exam.examType,
+        reviewAllowed: exam.reviewAllowed,
+        passScore: exam.passScore,
       });
       if (exam.questionIds) setSelectedIds(exam.questionIds);
     } else {
@@ -83,7 +87,7 @@ export default function ExamFormModal({
     }
 
     if (qCat) {
-      d = d.filter((q) => String(q.categoryId) === String(qCat));
+      d = d.filter((q) => q.category === qCat);
     }
 
     return d;
@@ -145,6 +149,15 @@ export default function ExamFormModal({
             duration: convertToMinutes(exam?.duration),
             category: exam?.category,
           }}
+          onValuesChange={(changedValues) => {
+            if (changedValues.examType) {
+              if (changedValues.examType === "PRACTICE") {
+                form.setFieldsValue({ reviewAllowed: true });
+              } else if (changedValues.examType === "OFFICIAL") {
+                form.setFieldsValue({ reviewAllowed: false });
+              }
+            }
+          }}
         >
           <Row gutter={12}>
             <Col span={12}>
@@ -179,16 +192,74 @@ export default function ExamFormModal({
             <Input placeholder="VD: Java Advanced Test" />
           </Form.Item>
 
-          <Form.Item name="category" label="Danh mục">
+          <Form.Item
+            name="category"
+            label="Danh mục"
+            rules={[{ required: true, message: "Bắt buộc" }]}>
             <Select placeholder="Chọn danh mục">
-              {categories.map((c) => (
-                <Option key={c.id} value={c.id}>
+              {(categories || []).map((c) => (
+                <Option key={c.id} value={c.name}>
                   {c.name}
                 </Option>
               ))}
             </Select>
           </Form.Item>
+
+          <div style={{ borderTop: "1px solid #f0f0f0", paddingTop: 16 }}>
+            {/* Label Cài đặt */}
+            <Text strong style={{ fontSize: 16 }}>
+              ⚙️ Cài đặt đề thi
+            </Text>
+
+            <Row gutter={12} style={{ marginTop: 12, alignItems: "center" }}>
+              {/* Loại đề thi */}
+              <Col span={8}>
+                <Form.Item
+                  name="examType"
+                  label="Loại đề thi"
+                  rules={[{ required: true, message: "Bắt buộc" }]}
+                >
+                  <Select placeholder="Chọn loại đề">
+                    <Option value="PRACTICE">Luyện tập</Option>
+                    <Option value="OFFICIAL">Thi thật</Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+
+              {/* Allow review - căn giữa + spacing */}
+              <Col span={7} style={{ textAlign: "center", marginLeft: 20 }}>
+                <Form.Item
+                  name="reviewAllowed"
+                  label="Cho phép xem lại"
+                  valuePropName="checked"
+                  initialValue={false}
+                >
+                  <Switch
+                    style={{ marginTop: 1 }}
+                    disabled={form.getFieldValue("examType") === "OFFICIAL"}
+                  />
+                </Form.Item>
+              </Col>
+
+              {/* Pass score */}
+              <Col span={8}>
+                <Form.Item
+                  name="passScore"
+                  label="Điểm để pass"
+                  rules={[{ required: true, message: "Bắt buộc" }]}
+                >
+                  <InputNumber
+                    min={0}
+                    max={100}
+                    style={{ width: "100%" }}
+                    placeholder="VD: 50"
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+          </div>
         </Form>
+
 
         {/* ── Phần chọn câu hỏi ── */}
         <div style={{ borderTop: "1px solid #f0f0f0", paddingTop: 16 }}>

@@ -1,46 +1,30 @@
-import React from "react";
-import { Tag } from "antd";
-import dayjs from "dayjs";
 import TableActions from "../common/TableActions";
 import BaseTable from "../common/BaseTable";
 const StudentTable = ({ data, loading, onView }) => {
   const columns = [
     {
-      title: "Student",
-      dataIndex: "student",
+      title: "Mã đề thi",
+      dataIndex: "code",
     },
     {
-      title: "Class",
-      dataIndex: "class",
+      title: "Đề thi",
+      dataIndex: "exam",
+    },
+    {
+      title: "Học sinh",
+      dataIndex: "student",
     },
 
     {
-      title: "Email",
-      dataIndex: "email",
+      title: "Lớp",
+      dataIndex: "class",
     },
     {
-      title: "Attempt",
-      dataIndex: "attempt",
+      title: "Điểm thi",
+      dataIndex: "score",
     },
     {
-      title: "Avg",
-      dataIndex: "avg",
-    },
-    {
-      title: "Status",
-      dataIndex: "status",
-      render: (status) => {
-        const color = status === "ACTIVED" ? "green" : "red";
-        return <Tag color={color}>{status}</Tag>;
-      },
-    },
-    {
-      title: "Create Date",
-      dataIndex: "createDate",
-      render: (date) => dayjs(date).format("DD/MM/YYYY"),
-    },
-    {
-      title: "Action",
+      title: "Hành động",
       align: "center",
       render: (_, record) => (
         <TableActions
