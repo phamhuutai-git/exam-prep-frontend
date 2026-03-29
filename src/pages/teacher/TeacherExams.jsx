@@ -146,7 +146,7 @@ const TeacherExams = () => {
       console.error(error);
     }
   };
-  
+
   const handleCreateQuestion = async (payload) => {
     try {
       const res = await questionService.createQuestion(payload);
@@ -208,19 +208,35 @@ const TeacherExams = () => {
           ))}
         </Select>
         {/* Date range filter */}
-        <DatePicker.RangePicker
-          placeholder={["From", "To"]}
-          allowClear
-          style={{ width: 280 }}
-          onChange={(_, dateStrings) => {
-            const [start, end] = dateStrings;
-            setDateFilter({
-              start: start || undefined,
-              end: end || undefined,
-            });
-            setPage(0);
-          }}
-        />
+        <div style={{ display: "flex", gap: 8 }}>
+          {/* From date */}
+          <DatePicker
+            placeholder="From"
+            allowClear
+            style={{ width: 130 }}
+            onChange={(date, dateString) => {
+              setDateFilter((prev) => ({
+                ...prev,
+                start: dateString || undefined,
+              }));
+              setPage(0);
+            }}
+          />
+
+          {/* To date */}
+          <DatePicker
+            placeholder="To"
+            allowClear
+            style={{ width: 130 }}
+            onChange={(date, dateString) => {
+              setDateFilter((prev) => ({
+                ...prev,
+                end: dateString || undefined,
+              }));
+              setPage(0);
+            }}
+          />
+        </div>
 
       </div>
 

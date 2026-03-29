@@ -6,33 +6,56 @@ import TableActions from "../common/TableActions";
 const ExamTable = ({ data, loading, onPreview, onEdit, onDelete }) => {
   const columns = [
     {
-      title: "Code",
+      title: "Mã đề thi",
       dataIndex: "code",
     },
     {
-      title: "Title",
+      title: "Tên đề thi",
       dataIndex: "title",
     },
     {
-      title: "Category",
+      title: "Loại đề thi",
+      dataIndex: "examType",
+      render: (type) => {
+        let color = "default";
+        let text = "";
+        switch (type) {
+          case "PRACTICE":
+            color = "success";
+            text = "Luyện tập";
+            break;
+          case "OFFICIAL":
+            color = "error";
+            text = "Thi thật";
+            break;
+          default:
+            color = "default";
+            text = type;
+        }
+        return <Tag color={color}>{text}</Tag>;
+      },
+
+    },
+    {
+      title: "Danh mục",
       dataIndex: "category",
     },
     {
-      title: "Duration",
+      title: "Thời gian",
       dataIndex: "duration",
       render: (d) => <Tag color="blue">{d} phút</Tag>,
     },
     {
-      title: "Questions",
+      title: "Số câu hỏi",
       dataIndex: "questions",
     },
     {
-      title: "Created",
+      title: "Ngày tạo",
       dataIndex: "createDate",
       render: (date) => dayjs(date).format("DD/MM/YYYY"),
     },
     {
-      title: "Action",
+      title: "Hành động",
       align: "center",
       render: (_, record) => (
         <TableActions

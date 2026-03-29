@@ -57,3 +57,15 @@ export async function getClassesByTeacher(page, size) {
       throw error;
     });
 }
+
+export async function getExamAttemptsByTeacher(page, size) {
+  return api
+    .get(`/teacher/exams/teacher-name/attempts?page=${page}&size=${size}`)
+    .then((response) => {
+      return response;
+    })
+    .catch((error) => {
+      throw error;
+    });
+}
+
