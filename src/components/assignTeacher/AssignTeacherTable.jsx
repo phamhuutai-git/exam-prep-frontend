@@ -3,7 +3,6 @@ import { Table, Button, Space, Pagination } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faUserPlus,
-  faEye,
   faUserGraduate,
   faChalkboardTeacher
 } from '@fortawesome/free-solid-svg-icons'

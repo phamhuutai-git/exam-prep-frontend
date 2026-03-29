@@ -12,21 +12,16 @@ const User = () => {
   const [page, setPage] = useState(0)
   const [loading, setLoading] = useState(false)
   const [total, setTotal] = useState(0)
-
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isEditMode, setIsEditMode] = useState(false)
   const [selectedUser, setSelectedUser] = useState(null)
-
   const [form] = Form.useForm()
-
   const [searchTerm, setSearchTerm] = useState('')
   const [roleFilter, setRoleFilter] = useState('')
-
   // ================= FETCH =================
   useEffect(() => {
     fetchUsers(page)
   }, [page])
-
   const fetchUsers = async (pageParam = page) => {
     setLoading(true)
     try {
@@ -34,9 +29,7 @@ const User = () => {
         page: pageParam,
         size: 5
       })
-
       const rawData = res.data?.data?.content || []
-
       const mappedData = rawData.map(user => ({
         id: user.id,
         username: user.username,
@@ -55,7 +48,6 @@ const User = () => {
       setLoading(false)
     }
   }
-
   // ================= FILTER =================
   const filteredUsers = useMemo(() => {
     return users.filter(user => {
@@ -64,7 +56,6 @@ const User = () => {
         user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.fullName.toLowerCase().includes(searchTerm.toLowerCase())
-
       const matchesRole =
         !roleFilter || user.role === roleFilter
 
@@ -88,13 +79,10 @@ const User = () => {
       ...record,
       status: record.status
     })
-
     setIsModalOpen(true)
   }
-
  const handleSubmit = async (values) => {
   setLoading(true)
-
   try {
     if (isEditMode) {
       // ================= UPDATE =================
@@ -105,9 +93,7 @@ const User = () => {
         role: values.role.toUpperCase(),
         active: values.status === 'ACTIVED'
       }
-
       await updateUser(selectedUser.id, payload)
-
       // update UI ngay
       setUsers(prev =>
         prev.map(user =>

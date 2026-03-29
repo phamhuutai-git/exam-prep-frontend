@@ -3,59 +3,84 @@ import { Card, Row, Col, Tag, Button, Input } from "antd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faClock, faBook, faHeart, faSearch } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
-
-const mockData = [
-  {
-    id: "BT001",
-    title: "Toán lớp 12 - Chương 1",
-    subject: "Toán",
-    duration: "60 phút",
-    questions: 30,
-  },
-  {
-    id: "BT002",
-    title: "Văn lớp 12 - Nghị luận xã hội",
-    subject: "Ngữ văn",
-    duration: "90 phút",
-    questions: 40,
-  },
-  {
-    id: "BT003",
-    title: "Lý lớp 11 - Dao động cơ",
-    subject: "Vật lý",
-    duration: "45 phút",
-    questions: 25,
-  },
-];
-
+import { getExamsByClassOfficial } from "../../services/student/studentServices";
+import { useAuth } from "../../context/AuthContext"; // 🔥 thêm
 const BaiThi = () => {
   const [liked, setLiked] = useState({});
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [exams, setExams] = useState([]); // 🔥 thêm state
+  const [loading, setLoading] = useState(false);
+  const { user } = useAuth(); // 🔥 lấy user từ context
+
   const navigate = useNavigate();
 
+  // format thời gian giống bài trước
+  const formatDuration = (time) => {
+    if (!time) return "N/A";
+    const [h, m] = time.split(":");
+    return parseInt(h) > 0
+      ? `${parseInt(h)} giờ ${parseInt(m)} phút`
+      : `${parseInt(m)} phút`;
+  };
+
   useEffect(() => {
-    const loadData = () => {
-      const saved = JSON.parse(localStorage.getItem("favoriteExams")) || {};
-      setLiked(saved);
-    };
+  const loadLiked = () => {
+    const saved = JSON.parse(localStorage.getItem("favoriteExams")) || {};
+    setLiked(saved);
+  };
 
-    loadData();
+  const fetchData = async () => {
+    try {
+      const classId = user?.classId;
 
-    // lắng nghe thay đổi từ component khác
-    window.addEventListener("storage", loadData);
+      // 🔥 chặn khi chưa có user
+      if (!classId) {
+        console.log("Chưa có classId");
+        return;
+      }
 
-    return () => {
-      window.removeEventListener("storage", loadData);
-    };
-  }, []);
+      setLoading(true);
+
+      const res = await getExamsByClassOfficial(classId); // 🔥 truyền classId
+
+      const rawData = res.data?.data?.content || [];
+
+      const mapped = rawData.map((item) => ({
+        id: item.id,
+        title: item.title,
+        subject: item.category,
+        duration: formatDuration(item.duration),
+        questions: item.questions,
+      }));
+
+      setExams(mapped);
+    } catch (err) {
+      console.error("Lỗi API:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  loadLiked();
+
+  if (user) {
+    fetchData(); // 🔥 chỉ gọi khi có user
+  }
+
+  window.addEventListener("storage", loadLiked);
+  return () => {
+    window.removeEventListener("storage", loadLiked);
+  };
+}, [user]); // 🔥 thêm user vào dependency
 
   const filteredData = useMemo(() => {
-    return mockData.filter((exam) =>
-      !searchTerm ||
-      exam.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      exam.subject.toLowerCase().includes(searchTerm.toLowerCase())
+    return exams.filter(
+      (exam) =>
+        !searchTerm ||
+        exam.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        exam.subject.toLowerCase().includes(searchTerm.toLowerCase())
     );
-  }, [searchTerm]);
+  }, [searchTerm, exams]);
 
   const toggleLike = (exam) => {
     const newLiked = {
@@ -65,8 +90,6 @@ const BaiThi = () => {
 
     setLiked(newLiked);
     localStorage.setItem("favoriteExams", JSON.stringify(newLiked));
-
-    // phát sự kiện để component khác update
     window.dispatchEvent(new Event("storage"));
   };
 
@@ -76,9 +99,9 @@ const BaiThi = () => {
       <p style={{ marginBottom: "32px", color: "#666" }}>
         Chọn bài thi để bắt đầu thi
       </p>
-      <div style={{ marginBottom: '24px' }}>
+
+      <div style={{ marginBottom: "24px" }}>
         <Input
-          className="search-input"
           prefix={<FontAwesomeIcon icon={faSearch} />}
           placeholder="Tìm kiếm bài thi theo tiêu đề, môn học..."
           value={searchTerm}
@@ -86,56 +109,62 @@ const BaiThi = () => {
           style={{ maxWidth: 400 }}
         />
       </div>
-      <Row gutter={[24, 24]}>
-        {filteredData.map((exam) => (
-          <Col xs={24} sm={12} md={8} lg={6} key={exam.id}>
-            <Card
-              hoverable
-              style={{
-                borderRadius: 12,
-                position: "relative",
-                textAlign: "center",
-              }}
-            >
-              {/* ❤️ Icon */}
-              <FontAwesomeIcon
-                icon={faHeart}
-                onClick={() => toggleLike(exam)}
+
+      {/* 🔥 loading */}
+      {loading ? (
+        <p style={{ textAlign: "center" }}>Đang tải...</p>
+      ) : filteredData.length === 0 ? (
+        <p style={{ textAlign: "center" }}>Không có bài thi</p>
+      ) : (
+        <Row gutter={[24, 24]}>
+          {filteredData.map((exam) => (
+            <Col xs={24} sm={12} md={8} lg={6} key={exam.id}>
+              <Card
+                hoverable
                 style={{
-                  position: "absolute",
-                  top: 16,
-                  right: 16,
-                  fontSize: 20,
-                  cursor: "pointer",
-                  color: liked[exam.id] ? "hotpink" : "#ccc",
+                  borderRadius: 12,
+                  position: "relative",
+                  textAlign: "center",
                 }}
-              />
+              >
+                <FontAwesomeIcon
+                  icon={faHeart}
+                  onClick={() => toggleLike(exam)}
+                  style={{
+                    position: "absolute",
+                    top: 16,
+                    right: 16,
+                    fontSize: 20,
+                    cursor: "pointer",
+                    color: liked[exam.id] ? "hotpink" : "#ccc",
+                  }}
+                />
 
-              <h3>{exam.title}</h3>
+                <h3>{exam.title}</h3>
 
-              <p style={{ color: "#888" }}>
-                <FontAwesomeIcon icon={faBook} /> {exam.questions} câu hỏi
-              </p>
+                <p style={{ color: "#888" }}>
+                  <FontAwesomeIcon icon={faBook} /> {exam.questions} câu hỏi
+                </p>
 
-              <Tag color="blue">{exam.subject}</Tag>
+                <Tag color="blue">{exam.subject}</Tag>
 
-              <p>
-                <FontAwesomeIcon icon={faClock} /> {exam.duration}
-              </p>
+                <p>
+                  <FontAwesomeIcon icon={faClock} /> {exam.duration}
+                </p>
 
-              <div style={{ display: "flex", justifyContent: "center", gap: 10 }}>
-               <Button
+                <Button
                   type="primary"
                   onClick={() => navigate(`/student/thi/${exam.id}`)}
                 >
                   Thi
                 </Button>
-              </div>
-            </Card>
-          </Col>
-        ))}
-      </Row>
+              </Card>
+            </Col>
+          ))}
+        </Row>
+      )}
     </div>
   );
 };
+
 export default BaiThi;

@@ -3,35 +3,27 @@ import { Card, Row, Col, Tag, Button, Input } from "antd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faClock, faBook, faHeart, faSearch } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
+import { getExamsByClass } from "../../services/student/studentServices";
+import { useAuth } from "../../context/AuthContext"; // 🔥 thêm
 
-const mockData = [
-  {
-    id: "BT001",
-    title: "Toán lớp 12 - Chương 1",
-    subject: "Toán",
-    duration: "60 phút",
-    questions: 30,
-  },
-  {
-    id: "BT002",
-    title: "Văn lớp 12 - Nghị luận xã hội",
-    subject: "Ngữ văn",
-    duration: "90 phút",
-    questions: 40,
-  },
-  {
-    id: "BT003",
-    title: "Lý lớp 11 - Dao động cơ",
-    subject: "Vật lý",
-    duration: "45 phút",
-    questions: 25,
-  },
-];
+
 
 const Bailuyentap = () => {
   const [liked, setLiked] = useState({});
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [exams, setExams] = useState([]);
   const navigate = useNavigate();
+
+  const { user } = useAuth(); // 🔥 lấy user từ context
+
+  // format duration
+  const formatDuration = (time) => {
+    if (!time) return "N/A";
+    const [h, m] = time.split(":");
+    return parseInt(h) > 0
+      ? `${parseInt(h)} giờ ${parseInt(m)} phút`
+      : `${parseInt(m)} phút`;
+  };
 
   useEffect(() => {
     const loadData = () => {
@@ -39,23 +31,54 @@ const Bailuyentap = () => {
       setLiked(saved);
     };
 
+    const fetchData = async () => {
+      try {
+        const classId = user?.classId;
+
+        // 🔥 tránh gọi khi chưa có user
+        if (!classId) {
+          console.log("Chưa có classId");
+          return;
+        }
+
+        const res = await getExamsByClass(classId);
+
+        const rawData = res.data?.data?.content || [];
+
+        const mappedData = rawData.map((item) => ({
+          id: item.id,
+          title: item.title,
+          subject: item.category,
+          duration: formatDuration(item.duration),
+          questions: item.questions,
+        }));
+
+        setExams(mappedData);
+      } catch (err) {
+        console.error("Lỗi API:", err);
+      }
+    };
+
     loadData();
 
-    // lắng nghe thay đổi từ component khác
-    window.addEventListener("storage", loadData);
+    if (user) {
+      fetchData(); // 🔥 chỉ gọi khi có user
+    }
 
+    window.addEventListener("storage", loadData);
     return () => {
       window.removeEventListener("storage", loadData);
     };
-  }, []);
+  }, [user]); // 🔥 thêm user
 
   const filteredData = useMemo(() => {
-    return mockData.filter((exam) =>
+  return exams.filter(
+    (exam) =>
       !searchTerm ||
       exam.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       exam.subject.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [searchTerm]);
+  );
+}, [searchTerm, exams]);
 
   const toggleLike = (exam) => {
     const newLiked = {
@@ -65,8 +88,6 @@ const Bailuyentap = () => {
 
     setLiked(newLiked);
     localStorage.setItem("favoriteExams", JSON.stringify(newLiked));
-
-    // phát sự kiện để component khác update
     window.dispatchEvent(new Event("storage"));
   };
 
@@ -76,16 +97,18 @@ const Bailuyentap = () => {
       <p style={{ marginBottom: "32px", color: "#666" }}>
         Chọn bài thi để bắt đầu luyện tập
       </p>
+
       <div style={{ marginBottom: '24px' }}>
-        <Input
-          className="search-input"
-          prefix={<FontAwesomeIcon icon={faSearch} />}
-          placeholder="Tìm kiếm bài thi theo tiêu đề, môn học..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          style={{ maxWidth: 400 }}
-        />
-      </div>
+             <Input
+               className="search-input"
+               prefix={<FontAwesomeIcon icon={faSearch} />}
+               placeholder="Tìm kiếm bài thi theo tiêu đề, môn học..."
+               value={searchTerm}
+               onChange={(e) => setSearchTerm(e.target.value)}
+               style={{ maxWidth: 400 }}
+             />
+           </div>
+
       <Row gutter={[24, 24]}>
         {filteredData.map((exam) => (
           <Col xs={24} sm={12} md={8} lg={6} key={exam.id}>
@@ -97,7 +120,6 @@ const Bailuyentap = () => {
                 textAlign: "center",
               }}
             >
-              {/* ❤️ Icon */}
               <FontAwesomeIcon
                 icon={faHeart}
                 onClick={() => toggleLike(exam)}
@@ -125,9 +147,11 @@ const Bailuyentap = () => {
 
               <div style={{ display: "flex", justifyContent: "center", gap: 10 }}>
                 <Button
-                type="primary"
-                onClick={() => navigate(`/student/thithu/${exam.id}`)}
-                >Luyện tập</Button>
+                  type="primary"
+                  onClick={() => navigate(`/student/thithu/${exam.id}`)}
+                >
+                  Luyện tập
+                </Button>
               </div>
             </Card>
           </Col>
@@ -136,4 +160,5 @@ const Bailuyentap = () => {
     </div>
   );
 };
+
 export default Bailuyentap;
