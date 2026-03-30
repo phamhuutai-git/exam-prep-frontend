@@ -3,16 +3,37 @@ import { Card, Row, Col, Tag, Button, Input } from "antd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faClock, faBook, faHeart, faSearch } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
-import { getExamsByClassOfficial } from "../../services/student/studentServices";
-import { useAuth } from "../../context/AuthContext"; // 🔥 thêm
+import { getExamsByClassOfficial, startExam } from "../../services/student/studentServices"; // ✅ thêm startExam
+import { useAuth } from "../../context/AuthContext";
+
 const BaiThi = () => {
   const [liked, setLiked] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
-  const [exams, setExams] = useState([]); // 🔥 thêm state
+  const [exams, setExams] = useState([]);
   const [loading, setLoading] = useState(false);
-  const { user } = useAuth(); // 🔥 lấy user từ context
+  const { user } = useAuth();
   const navigate = useNavigate();
-  // format thời gian giống bài trước
+
+  // ✅ THÊM FUNCTION NÀY
+  const handleStartExam = async (examId) => {
+    try {
+      const res = await startExam(examId);
+      const data = res.data?.data;
+
+      navigate(`/student/thi/${examId}`, {
+        state: data,
+      });
+    } catch (err) {
+      const msg = err.response?.data?.message;
+
+      if (msg?.includes("ongoing attempt")) {
+        alert("Bạn đang có bài thi chưa nộp!");
+      } else {
+        alert(msg || "Không thể bắt đầu bài thi");
+      }
+    }
+  };
+
   const formatDuration = (time) => {
     if (!time) return "N/A";
     const [h, m] = time.split(":");
@@ -22,54 +43,52 @@ const BaiThi = () => {
   };
 
   useEffect(() => {
-  const loadLiked = () => {
-    const saved = JSON.parse(localStorage.getItem("favoriteExams")) || {};
-    setLiked(saved);
-  };
+    const loadLiked = () => {
+      const saved = JSON.parse(localStorage.getItem("favoriteExams")) || {};
+      setLiked(saved);
+    };
 
-  const fetchData = async () => {
-    try {
-      const classId = user?.classId;
+    const fetchData = async () => {
+      try {
+        const classId = user?.classId;
 
-      // 🔥 chặn khi chưa có user
-      if (!classId) {
-        console.log("Chưa có classId");
-        return;
+        if (!classId) {
+          console.log("Chưa có classId");
+          return;
+        }
+
+        setLoading(true);
+
+        const res = await getExamsByClassOfficial(classId);
+        const rawData = res.data?.data?.content || [];
+
+        const mapped = rawData.map((item) => ({
+          id: item.id,
+          title: item.title,
+          subject: item.category,
+          duration: formatDuration(item.duration),
+          questions: item.questions,
+        }));
+
+        setExams(mapped);
+      } catch (err) {
+        console.error("Lỗi API:", err);
+      } finally {
+        setLoading(false);
       }
+    };
 
-      setLoading(true);
+    loadLiked();
 
-      const res = await getExamsByClassOfficial(classId); // 🔥 truyền classId
-
-      const rawData = res.data?.data?.content || [];
-
-      const mapped = rawData.map((item) => ({
-        id: item.id,
-        title: item.title,
-        subject: item.category,
-        duration: formatDuration(item.duration),
-        questions: item.questions,
-      }));
-
-      setExams(mapped);
-    } catch (err) {
-      console.error("Lỗi API:", err);
-    } finally {
-      setLoading(false);
+    if (user) {
+      fetchData();
     }
-  };
 
-  loadLiked();
-
-  if (user) {
-    fetchData(); // 🔥 chỉ gọi khi có user
-  }
-
-  window.addEventListener("storage", loadLiked);
-  return () => {
-    window.removeEventListener("storage", loadLiked);
-  };
-}, [user]); // 🔥 thêm user vào dependency
+    window.addEventListener("storage", loadLiked);
+    return () => {
+      window.removeEventListener("storage", loadLiked);
+    };
+  }, [user]);
 
   const filteredData = useMemo(() => {
     return exams.filter(
@@ -100,6 +119,7 @@ const BaiThi = () => {
 
       <div style={{ marginBottom: "24px" }}>
         <Input
+          className="search-input"
           prefix={<FontAwesomeIcon icon={faSearch} />}
           placeholder="Tìm kiếm bài thi theo tiêu đề, môn học..."
           value={searchTerm}
@@ -108,7 +128,6 @@ const BaiThi = () => {
         />
       </div>
 
-      {/* 🔥 loading */}
       {loading ? (
         <p style={{ textAlign: "center" }}>Đang tải...</p>
       ) : filteredData.length === 0 ? (
@@ -150,9 +169,10 @@ const BaiThi = () => {
                   <FontAwesomeIcon icon={faClock} /> {exam.duration}
                 </p>
 
+                {/* ✅ CHỈ SỬA CHỖ NÀY */}
                 <Button
                   type="primary"
-                  onClick={() => navigate(`/student/thi/${exam.id}`)}
+                  onClick={() => handleStartExam(exam.id)}
                 >
                   Thi
                 </Button>
