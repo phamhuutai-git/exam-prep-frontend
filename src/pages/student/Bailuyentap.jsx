@@ -1,20 +1,21 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Card, Row, Col, Tag, Button, Input } from "antd";
+import { Card, Row, Col, Tag, Button, Input, Spin, Empty } from "antd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faClock, faBook, faHeart, faSearch } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
-import { getExamsByClass } from "../../services/student/studentServices";
-import { useAuth } from "../../context/AuthContext"; // 🔥 thêm
-
-
+import { getExamsByClass ,startExam} from "../../services/student/studentServices";
+import { useAuth } from "../../context/AuthContext";
 
 const Bailuyentap = () => {
   const [liked, setLiked] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
   const [exams, setExams] = useState([]);
-  const navigate = useNavigate();
 
-  const { user } = useAuth(); // 🔥 lấy user từ context
+  const [loading, setLoading] = useState(false); // 🔥 loading
+  const [error, setError] = useState(null); // 🔥 error
+
+  const navigate = useNavigate();
+  const { user } = useAuth();
 
   // format duration
   const formatDuration = (time) => {
@@ -33,9 +34,11 @@ const Bailuyentap = () => {
 
     const fetchData = async () => {
       try {
+        setLoading(true);
+        setError(null);
+
         const classId = user?.classId;
 
-        // 🔥 tránh gọi khi chưa có user
         if (!classId) {
           console.log("Chưa có classId");
           return;
@@ -56,29 +59,32 @@ const Bailuyentap = () => {
         setExams(mappedData);
       } catch (err) {
         console.error("Lỗi API:", err);
+        setError("Không thể tải dữ liệu");
+      } finally {
+        setLoading(false);
       }
     };
 
     loadData();
 
     if (user) {
-      fetchData(); // 🔥 chỉ gọi khi có user
+      fetchData();
     }
 
     window.addEventListener("storage", loadData);
     return () => {
       window.removeEventListener("storage", loadData);
     };
-  }, [user]); // 🔥 thêm user
+  }, [user]);
 
   const filteredData = useMemo(() => {
-  return exams.filter(
-    (exam) =>
-      !searchTerm ||
-      exam.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      exam.subject.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-}, [searchTerm, exams]);
+    return exams.filter(
+      (exam) =>
+        !searchTerm ||
+        exam.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        exam.subject.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [searchTerm, exams]);
 
   const toggleLike = (exam) => {
     const newLiked = {
@@ -90,7 +96,45 @@ const Bailuyentap = () => {
     localStorage.setItem("favoriteExams", JSON.stringify(newLiked));
     window.dispatchEvent(new Event("storage"));
   };
+const handleStartExam = async (examId) => {
+  try {
+    setLoading(true);
 
+    const res = await startExam(examId);
+
+    const data = res.data?.data;
+
+    if (!data) {
+      throw new Error("Không có dữ liệu bài thi");
+    }
+
+    // 👉 Map dữ liệu giống Thithat đang dùng
+    const examData = {
+      examTitle: data.examTitle,
+      duration: data.duration,
+      questions: data.questions,
+    };
+
+    // 👉 Navigate to practice exam page
+    navigate(`/student/thithu/${examId}`, {
+      state: examData,
+    });
+
+  } catch (err) {
+    console.error("Lỗi start exam:", err);
+
+    // 🔥 xử lý case đã thi dở
+    if (
+      err.response?.data?.message?.includes("ongoing attempt")
+    ) {
+      alert("Bạn đang có bài thi chưa nộp!");
+    } else {
+      alert("Không thể bắt đầu bài thi");
+    }
+  } finally {
+    setLoading(false);
+  }
+};
   return (
     <div style={{ padding: "24px" }}>
       <h1>Danh sách bài thi</h1>
@@ -98,65 +142,90 @@ const Bailuyentap = () => {
         Chọn bài thi để bắt đầu luyện tập
       </p>
 
-      <div style={{ marginBottom: '24px' }}>
-             <Input
-               className="search-input"
-               prefix={<FontAwesomeIcon icon={faSearch} />}
-               placeholder="Tìm kiếm bài thi theo tiêu đề, môn học..."
-               value={searchTerm}
-               onChange={(e) => setSearchTerm(e.target.value)}
-               style={{ maxWidth: 400 }}
-             />
-           </div>
+      {/* SEARCH */}
+        <div style={{ marginBottom: '24px' }}>
+                 <Input
+                   className="search-input"
+                   prefix={<FontAwesomeIcon icon={faSearch} />}
+                   placeholder="Tìm kiếm bài thi theo tiêu đề, môn học..."
+                   value={searchTerm}
+                   onChange={(e) => setSearchTerm(e.target.value)}
+                   style={{ maxWidth: 400 }}
+                 />
+               </div>
 
-      <Row gutter={[24, 24]}>
-        {filteredData.map((exam) => (
-          <Col xs={24} sm={12} md={8} lg={6} key={exam.id}>
-            <Card
-              hoverable
-              style={{
-                borderRadius: 12,
-                position: "relative",
-                textAlign: "center",
-              }}
-            >
-              <FontAwesomeIcon
-                icon={faHeart}
-                onClick={() => toggleLike(exam)}
+      {/* LOADING */}
+      {loading ? (
+        <div style={{ textAlign: "center", marginTop: 50 }}>
+          <Spin size="large" />
+        </div>
+      ) : error ? (
+        /* ERROR */
+        <div style={{ textAlign: "center", color: "red", marginTop: 50 }}>
+          {error}
+        </div>
+      ) : filteredData.length === 0 ? (
+        /* EMPTY */
+        <div style={{ marginTop: 50 }}>
+          <Empty description="Không có bài thi" />
+        </div>
+      ) : (
+        /* DATA */
+        <Row gutter={[24, 24]}>
+          {filteredData.map((exam) => (
+            <Col xs={24} sm={12} md={8} lg={6} key={exam.id}>
+              <Card
+                hoverable
                 style={{
-                  position: "absolute",
-                  top: 16,
-                  right: 16,
-                  fontSize: 20,
-                  cursor: "pointer",
-                  color: liked[exam.id] ? "hotpink" : "#ccc",
+                  borderRadius: 12,
+                  position: "relative",
+                  textAlign: "center",
                 }}
-              />
+              >
+                <FontAwesomeIcon
+                  icon={faHeart}
+                  onClick={() => toggleLike(exam)}
+                  style={{
+                    position: "absolute",
+                    top: 16,
+                    right: 16,
+                    fontSize: 20,
+                    cursor: "pointer",
+                    color: liked[exam.id] ? "hotpink" : "#ccc",
+                  }}
+                />
 
-              <h3>{exam.title}</h3>
+                <h3>{exam.title}</h3>
 
-              <p style={{ color: "#888" }}>
-                <FontAwesomeIcon icon={faBook} /> {exam.questions} câu hỏi
-              </p>
+                <p style={{ color: "#888" }}>
+                  <FontAwesomeIcon icon={faBook} /> {exam.questions} câu hỏi
+                </p>
 
-              <Tag color="blue">{exam.subject}</Tag>
+                <Tag color="blue">{exam.subject}</Tag>
 
-              <p>
-                <FontAwesomeIcon icon={faClock} /> {exam.duration}
-              </p>
+                <p>
+                  <FontAwesomeIcon icon={faClock} /> {exam.duration}
+                </p>
 
-              <div style={{ display: "flex", justifyContent: "center", gap: 10 }}>
-                <Button
-                  type="primary"
-                  onClick={() => navigate(`/student/thithu/${exam.id}`)}
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    gap: 10,
+                  }}
                 >
-                  Luyện tập
-                </Button>
-              </div>
-            </Card>
-          </Col>
-        ))}
-      </Row>
+                  <Button
+  type="primary"
+  onClick={() => handleStartExam(exam.id)}
+>
+  Luyện tập
+</Button>
+                </div>
+              </Card>
+            </Col>
+          ))}
+        </Row>
+      )}
     </div>
   );
 };
