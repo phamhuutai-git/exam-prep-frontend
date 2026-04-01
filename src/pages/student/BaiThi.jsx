@@ -20,6 +20,7 @@ const BaiThi = () => {
       navigate(`/student/thi/${examId}`, {
         state: data,
       });
+      console.log(data);
     } catch (err) {
       const msg = err.response?.data?.message;
 

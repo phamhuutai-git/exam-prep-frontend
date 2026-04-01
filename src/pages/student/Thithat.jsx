@@ -1,9 +1,23 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef} from "react";
+import { useEffect } from "react";
+
 import { Card, Row, Col, Radio, Button, Modal } from "antd";
 import { useNavigate, useLocation } from "react-router-dom";
 import { submitExam } from "../../services/student/studentServices";
 
 const { confirm } = Modal;
+
+const parseDurationToSeconds = (duration) => {
+  if (!duration) return 0;
+  const parts = duration.split(':');
+  if (parts.length === 3) {
+    const hours = parseInt(parts[0]) || 0;
+    const minutes = parseInt(parts[1]) || 0;
+    const seconds = parseInt(parts[2]) || 0;
+    return hours * 3600 + minutes * 60 + seconds;
+  }
+  return 0;
+};
 
 const Thithat = () => {
   const questionRefs = useRef({});
@@ -11,7 +25,7 @@ const Thithat = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const examData = location.state;
-const [timeLeft, setTimeLeft] = useState(examData.duration * 60);
+  const [timeLeft, setTimeLeft] = useState(examData ? parseDurationToSeconds(examData.duration) : 0); // giây
   const [startTime] = useState(new Date());
   const [submitDuration, setSubmitDuration] = useState("");
   const [activeQuestion, setActiveQuestion] = useState(null);
@@ -19,7 +33,29 @@ const [timeLeft, setTimeLeft] = useState(examData.duration * 60);
   const [submitted, setSubmitted] = useState(false);
   const [result, setResult] = useState(null);
   const [openModal, setOpenModal] = useState(false);
+useEffect(() => {
+  if (submitted) return; // nếu đã nộp thì dừng
 
+  if (timeLeft <= 0) {
+    handleConfirmSubmit(); // ⏰ auto submit
+    return;
+  }
+
+  const timer = setInterval(() => {
+    setTimeLeft((prev) => prev - 1);
+  }, 1000);
+
+  return () => clearInterval(timer);
+}, [timeLeft, submitted]);
+
+const formatTime = (seconds) => {
+  if (seconds <= 0 || isNaN(seconds)) {
+    return "00:00";
+  }
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+};
   // ❌ nếu reload mất data
   if (!examData) {
     return <div style={{ padding: 24 }}>Không có dữ liệu bài thi</div>;
@@ -103,29 +139,8 @@ const [timeLeft, setTimeLeft] = useState(examData.duration * 60);
 const formatDate = (date) => {
   return new Date(date).toLocaleString("vi-VN");
 };
-const formatTime = (seconds) => {
-  const m = Math.floor(seconds / 60);
-  const s = seconds % 60;
-  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
-};
-useEffect(() => {
-  if (submitted) return;
 
-  const timer = setInterval(() => {
-    setTimeLeft((prev) => {
-      if (prev <= 1) {
-        clearInterval(timer);
 
-        // ⏰ hết giờ → tự nộp
-        handleConfirmSubmit();
-        return 0;
-      }
-      return prev - 1;
-    });
-  }, 1000);
-
-  return () => clearInterval(timer);
-}, [submitted]);
   return (
     <div style={{ padding: "24px", background: "#f5f5f5", minHeight: "100vh" }}>
       <Row justify="space-between" style={{ marginBottom: "24px" }}>
@@ -136,18 +151,20 @@ useEffect(() => {
 
         <Col style={{ textAlign: "right" }}>
           <p>Thời gian làm bài</p>
-          <h3>{examData.duration}</h3>
+          <h3 style={{ color: timeLeft <= 60 ? "red" : "black" }}>
+  {formatTime(timeLeft)}
+</h3>
         </Col>
       </Row>
 
       <Row gutter={24}>
         {/* LEFT */}
         <Col span={16}>
-          {questions.map((q, index) => (
-            <div
-              key={q.id}
-              ref={(el) => (questionRefs.current[index] = el)}
-            >
+  {questions.map((q, index) => (
+    <div
+      key={`${q.id}-${index}`}
+      ref={(el) => (questionRefs.current[index] = el)}
+    >
               <Card
                 title={`Câu ${index + 1}`}
                 style={{
@@ -168,8 +185,8 @@ useEffect(() => {
                   value={answers[q.id]}
                   disabled={submitted}
                 >
-                  {q.options.map((opt, i) => (
-                    <div key={i} style={{ marginBottom: "8px" }}>
+                  {q.options.map((opt) => (
+                    <div key={opt.value} style={{ marginBottom: "8px" }}>
                       <Radio value={opt.value}>
                         {opt.label}. {opt.text}
                       </Radio>
@@ -205,7 +222,7 @@ useEffect(() => {
             >
               {questions.map((q, index) => (
                 <Button
-                  key={q.id}
+                  key={`question-${q.id}-${index}`}
                   onClick={() => scrollToQuestion(index)}
                   style={{
                     background: answers[q.id] ? "#1677ff" : undefined,

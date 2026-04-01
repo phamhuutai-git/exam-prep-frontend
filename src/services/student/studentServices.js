@@ -13,7 +13,7 @@ export const getExamsByClassOfficial = (classId) => {
 // vao thi 
 ///exam-attempt/exam-id/1/start
 export const startExam = (examId) => {
-  return api.post(`/exam-attempt/exam-id/${examId}/start`);
+  return api.post(`/exams-attempt/exam-id/${examId}/start`);
 };
 
 ///exams-attempt/attempts/1/submit
