@@ -1,16 +1,11 @@
 import React, { useState, useRef } from "react";
 import { Card, Row, Col, Radio, Button, Modal } from "antd";
-import { useNavigate, useLocation } from "react-router-dom";
-
+import { useNavigate } from "react-router-dom";
 const { confirm } = Modal;
-
 const Thithu = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const examData = location.state;
-
   const questionRefs = useRef({});
   const rightPanelRef = useRef(null);
+  const navigate = useNavigate();
 
   const [startTime] = useState(new Date());
   const [submitDuration, setSubmitDuration] = useState("");
@@ -20,30 +15,38 @@ const Thithu = () => {
   const [result, setResult] = useState(0);
   const [openModal, setOpenModal] = useState(false);
 
-  // ✅ Nếu reload bị mất state
-  if (!examData) {
-    return (
-      <div style={{ padding: "24px" }}>
-        <h3>Không có dữ liệu bài thi</h3>
-        <Button onClick={() => navigate("/student/bai-thi")}>
-          Quay lại
-        </Button>
-      </div>
-    );
-  }
-
-  // ✅ Map API → UI
- const questions = examData.questions.map((q) => ({
-    id: q.id,
-    question: q.content,
-    correct: q.correctAnswerId, // Add correct answer ID
-    explanation: q.explanation || '', // Add explanation
-    options: q.answers.map((a, i) => ({
-      key: a.id,
-      label: String.fromCharCode(65 + i),
-      content: a.content,
-    })),
-  }));
+  const questions = [
+    { id: 1, question: "Nguyên hàm của x là gì?", options: ["A. x²", "B. x²/2 + C", "C. 2x", "D. ln x"], correct: "B", explanation: "Áp dụng công thức ∫x dx = x²/2 + C" },
+    { id: 2, question: "Đạo hàm của x² là gì?", options: ["A. x", "B. 2x", "C. x²", "D. 2"], correct: "B", explanation: "Áp dụng (x^n)' = n*x^(n-1) → (x²)' = 2x" },
+    { id: 3, question: "1 + 1 = ?", options: ["A. 1", "B. 2", "C. 3", "D. 4"], correct: "B", explanation: "1 + 1 = 2" },
+    { id: 4, question: "2 + 3 = ?", options: ["A. 4", "B. 5", "C. 6", "D. 3"], correct: "B", explanation: "2 + 3 = 5" },
+    { id: 5, question: "5 - 2 = ?", options: ["A. 2", "B. 3", "C. 4", "D. 1"], correct: "B", explanation: "5 - 2 = 3" },
+    { id: 6, question: "3 + 4 = ?", options: ["A. 6", "B. 7", "C. 8", "D. 5"], correct: "B", explanation: "3 + 4 = 7" },
+    { id: 7, question: "6 - 1 = ?", options: ["A. 4", "B. 5", "C. 6", "D. 3"], correct: "B", explanation: "6 - 1 = 5" },
+    { id: 8, question: "2 + 2 = ?", options: ["A. 3", "B. 4", "C. 5", "D. 6"], correct: "B", explanation: "2 + 2 = 4" },
+    { id: 9, question: "7 - 3 = ?", options: ["A. 3", "B. 4", "C. 5", "D. 6"], correct: "B", explanation: "7 - 3 = 4" },
+    { id: 10, question: "4 + 5 = ?", options: ["A. 8", "B. 9", "C. 7", "D. 6"], correct: "B", explanation: "4 + 5 = 9" },
+    { id: 11, question: "9 - 4 = ?", options: ["A. 4", "B. 5", "C. 6", "D. 3"], correct: "B", explanation: "9 - 4 = 5" },
+    { id: 12, question: "3 + 3 = ?", options: ["A. 5", "B. 6", "C. 7", "D. 4"], correct: "B", explanation: "3 + 3 = 6" },
+    { id: 13, question: "8 - 2 = ?", options: ["A. 5", "B. 6", "C. 7", "D. 4"], correct: "B", explanation: "8 - 2 = 6" },
+    { id: 14, question: "1 + 5 = ?", options: ["A. 5", "B. 6", "C. 7", "D. 4"], correct: "B", explanation: "1 + 5 = 6" },
+    { id: 15, question: "6 - 3 = ?", options: ["A. 2", "B. 3", "C. 4", "D. 5"], correct: "B", explanation: "6 - 3 = 3" },
+    { id: 16, question: "2 + 6 = ?", options: ["A. 7", "B. 8", "C. 6", "D. 5"], correct: "B", explanation: "2 + 6 = 8" },
+    { id: 17, question: "10 - 5 = ?", options: ["A. 4", "B. 5", "C. 6", "D. 3"], correct: "B", explanation: "10 - 5 = 5" },
+    { id: 18, question: "4 + 4 = ?", options: ["A. 6", "B. 8", "C. 7", "D. 5"], correct: "B", explanation: "4 + 4 = 8" },
+    { id: 19, question: "7 - 2 = ?", options: ["A. 4", "B. 5", "C. 6", "D. 3"], correct: "B", explanation: "7 - 2 = 5" },
+    { id: 20, question: "5 + 3 = ?", options: ["A. 7", "B. 8", "C. 6", "D. 5"], correct: "B", explanation: "5 + 3 = 8" },
+    { id: 21, question: "9 - 3 = ?", options: ["A. 5", "B. 6", "C. 7", "D. 4"], correct: "B", explanation: "9 - 3 = 6" },
+    { id: 22, question: "2 + 7 = ?", options: ["A. 8", "B. 9", "C. 7", "D. 6"], correct: "B", explanation: "2 + 7 = 9" },
+    { id: 23, question: "8 - 4 = ?", options: ["A. 3", "B. 4", "C. 5", "D. 6"], correct: "B", explanation: "8 - 4 = 4" },
+    { id: 24, question: "3 + 5 = ?", options: ["A. 7", "B. 8", "C. 6", "D. 5"], correct: "B", explanation: "3 + 5 = 8" },
+    { id: 25, question: "6 - 2 = ?", options: ["A. 3", "B. 4", "C. 5", "D. 6"], correct: "B", explanation: "6 - 2 = 4" },
+    { id: 26, question: "1 + 8 = ?", options: ["A. 8", "B. 9", "C. 7", "D. 6"], correct: "B", explanation: "1 + 8 = 9" },
+    { id: 27, question: "10 - 3 = ?", options: ["A. 6", "B. 7", "C. 8", "D. 5"], correct: "B", explanation: "10 - 3 = 7" },
+    { id: 28, question: "4 + 6 = ?", options: ["A. 9", "B. 10", "C. 8", "D. 7"], correct: "B", explanation: "4 + 6 = 10" },
+    { id: 29, question: "7 - 1 = ?", options: ["A. 5", "B. 6", "C. 7", "D. 4"], correct: "B", explanation: "7 - 1 = 6" },
+    { id: 30, question: "5 + 5 = ?", options: ["A. 9", "B. 10", "C. 8", "D. 7"], correct: "B", explanation: "5 + 5 = 10" },
+  ];
 
   const handleChange = (qId, value) => {
     if (submitted) return;
@@ -70,35 +73,36 @@ const Thithu = () => {
     setOpenModal(true);
   };
 
-  const handleSubmit = () => {
-    const unanswered = questions.filter((q) => !answers[q.id]).length;
+ const handleSubmit = () => {
+  const unanswered = questions.filter((q) => !answers[q.id]).length;
 
-    if (unanswered === 0) {
-      confirm({
-        title: "Xác nhận nộp bài",
-        content:
-          "Bạn đã làm hết tất cả câu hỏi. Bạn có chắc chắn muốn nộp bài không?",
-        okText: "Nộp bài",
-        cancelText: "Hủy",
-        onOk() {
-          handleConfirmSubmit();
-        },
-      });
-      return;
-    }
-
+  // 👉 Trường hợp làm hết
+  if (unanswered === 0) {
     confirm({
       title: "Xác nhận nộp bài",
-      content: `Hiện còn ${unanswered} câu chưa làm, bạn có muốn nộp bài không?`,
+      content: "Bạn đã làm hết tất cả câu hỏi. Bạn có chắc chắn muốn nộp bài không?",
       okText: "Nộp bài",
       cancelText: "Hủy",
       onOk() {
         handleConfirmSubmit();
       },
     });
-  };
+    return;
+  }
 
-  const handleGoBacks = () => {
+  // 👉 Trường hợp chưa làm hết (giữ nguyên của bạn)
+  confirm({
+    title: "Xác nhận nộp bài",
+    content: `Hiện còn ${unanswered} câu hỏi chưa được làm, bạn có muốn nộp bài không?`,
+    okText: "Nộp bài",
+    cancelText: "Hủy",
+    onOk() {
+      handleConfirmSubmit();
+    },
+  });
+};
+
+  const handleGoBack = () => {
     navigate("/student/bai-thi-luyen-tap");
   };
 
@@ -114,13 +118,13 @@ const Thithu = () => {
     <div style={{ padding: "24px", background: "#f5f5f5", minHeight: "100vh" }}>
       <Row justify="space-between" style={{ marginBottom: "24px" }}>
         <Col>
-          <h2>{examData.examTitle}</h2>
+          <h2>Toán lớp 12 - Chương 1</h2>
           <p style={{ color: "#666" }}>Đọc kỹ đề bài và chọn đáp án</p>
         </Col>
 
         <Col style={{ textAlign: "right" }}>
           <p>Thời gian làm bài</p>
-          <h3>{examData.duration || "N/A"}</h3>
+          <h3>01:28:30</h3>
         </Col>
       </Row>
 
@@ -152,10 +156,10 @@ const Thithu = () => {
                   <Radio.Group
                     onChange={(e) => handleChange(q.id, e.target.value)}
                     value={answers[q.id]}
-                    disabled={submitted}
+                    disabled={submitted || answers[q.id]}
                   >
-                    {q.options.map((opt) => {
-                      const value = opt.label;
+                    {q.options.map((opt, index) => {
+                      const value = opt.charAt(0);
                       let color = "black";
 
                       if (submitted) {
@@ -164,17 +168,32 @@ const Thithu = () => {
                       }
 
                       return (
-                        <div key={opt.key} style={{ marginBottom: "8px" }}>
+                        <div key={index} style={{ marginBottom: "8px" }}>
                           <Radio value={value}>
-                            <span style={{ color }}>{opt.label}. {opt.content}</span>
+                            <span style={{ color }}>{opt}</span>
                           </Radio>
                         </div>
                       );
                     })}
                   </Radio.Group>
 
+                  {answers[q.id] && !submitted && (
+                    <div style={{ marginTop: "10px" }}>
+                      {answers[q.id] === q.correct ? (
+                        <p style={{ color: "#52c41a" }}>✔ Đúng</p>
+                      ) : (
+                        <p style={{ color: "#ff4d4f" }}>
+                          ✘ Sai - Đáp án đúng: {q.correct}
+                        </p>
+                      )}
+                      <p style={{ fontStyle: "italic", color: "#555" }}>
+                        <b>Giải thích:</b> {q.explanation}
+                      </p>
+                    </div>
+                  )}
+
                   {submitted && (
-                    <p style={{ marginTop: "10px", color: "#555" }}>
+                    <p style={{ fontStyle: "italic", color: "#555", marginTop: "10px" }}>
                       <b>Giải thích:</b> {q.explanation}
                     </p>
                   )}
@@ -195,7 +214,9 @@ const Thithu = () => {
               top: "20px",
             }}
           >
-            <p>Xem nhanh</p>
+            <p style={{ marginBottom: "10px" }}>Xem lại nhanh</p>
+
+            
 
             <div
               style={{
@@ -242,7 +263,7 @@ const Thithu = () => {
             </Button>
 
             {submitted && (
-              <Button block onClick={handleGoBacks}>
+              <Button block onClick={handleGoBack}>
                 Quay lại danh sách thi
               </Button>
             )}
@@ -260,18 +281,14 @@ const Thithu = () => {
           </Button>,
         ]}
       >
-        <p><b>Tên bài thi:</b> {examData.examTitle}</p>
-        <p><b>Thời gian:</b> {examData.duration}</p>
+        <p><b>Ngày thi:</b> 14/05/2024</p>
+        <p><b>Thời gian:</b> 45 phút</p>
+        <p><b>Loại thi:</b> Luyện tập</p>
         <p><b>Thời gian nộp:</b> {submitDuration}</p>
 
         <p>
           <b>Trạng thái:</b>{" "}
-          <span
-            style={{
-              color:
-                result / questions.length >= 0.5 ? "#52c41a" : "#ff4d4f",
-            }}
-          >
+          <span style={{ color: result / questions.length >= 0.5 ? "#52c41a" : "#ff4d4f" }}>
             {result / questions.length >= 0.5 ? "ĐẠT" : "KHÔNG ĐẠT"}
           </span>
         </p>
@@ -279,16 +296,9 @@ const Thithu = () => {
         <hr />
 
         <h3>Kết quả</h3>
-        <p>
-          <b>Điểm:</b>{" "}
-          {((result / questions.length) * 10).toFixed(1)}/10
-        </p>
-        <p>
-          <b>Đúng:</b> {result}/{questions.length}
-        </p>
-        <p>
-          <b>Sai:</b> {questions.length - result}
-        </p>
+        <p><b>Điểm số:</b> {((result / questions.length) * 10).toFixed(1)}/10</p>
+        <p><b>Đúng:</b> {result}/{questions.length}</p>
+        <p><b>Sai:</b> {questions.length - result}</p>
       </Modal>
     </div>
   );

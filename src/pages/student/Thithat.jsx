@@ -1,39 +1,38 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Card, Row, Col, Radio, Button, Modal } from "antd";
 import { useNavigate, useLocation } from "react-router-dom";
+import { submitExam } from "../../services/student/studentServices";
 
 const { confirm } = Modal;
 
 const Thithat = () => {
+  const questionRefs = useRef({});
+  const rightPanelRef = useRef(null);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const examData = location.state;
+const [timeLeft, setTimeLeft] = useState(examData.duration * 60);
   const [startTime] = useState(new Date());
   const [submitDuration, setSubmitDuration] = useState("");
   const [activeQuestion, setActiveQuestion] = useState(null);
   const [answers, setAnswers] = useState({});
   const [submitted, setSubmitted] = useState(false);
-  const [, setResult] = useState(0); // ✅ fix unused var
+  const [result, setResult] = useState(null);
   const [openModal, setOpenModal] = useState(false);
 
-  const questionRefs = useRef({});
-  const rightPanelRef = useRef(null);
-
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  const examData = location.state;
-
-  // ✅ tránh crash khi F5
+  // ❌ nếu reload mất data
   if (!examData) {
-    return <p>Không có dữ liệu bài thi</p>;
+    return <div style={{ padding: 24 }}>Không có dữ liệu bài thi</div>;
   }
 
-  // ✅ convert API → UI
+  // ✅ map API → UI (giữ gần giống code cũ)
   const questions = examData.questions.map((q) => ({
     id: q.id,
     question: q.content,
     options: q.answers.map((a, i) => ({
-      key: a.id,
-      label: String.fromCharCode(65 + i),
-      content: a.content,
+      label: String.fromCharCode(65 + i), // A B C D
+      value: a.id, // 👉 QUAN TRỌNG
+      text: a.content,
     })),
   }));
 
@@ -42,41 +41,46 @@ const Thithat = () => {
     setAnswers({ ...answers, [qId]: value });
   };
 
-  const handleConfirmSubmit = () => {
-    let score = 0;
+  // ✅ submit thật
+  const handleConfirmSubmit = async () => {
+  if (submitted) return; // ❗ cực quan trọng
 
-    setSubmitted(true);
-    setResult(score);
+  setSubmitted(true);
 
-    const endTime = new Date();
-    const diffMs = endTime - startTime;
+  const endTime = new Date();
+  const diffMs = endTime - startTime;
+  const minutes = Math.floor(diffMs / 60000);
+  const seconds = Math.floor((diffMs % 60000) / 1000);
+  setSubmitDuration(`${minutes} phút ${seconds} giây`);
 
-    const minutes = Math.floor(diffMs / 60000);
-    const seconds = Math.floor((diffMs % 60000) / 1000);
+  try {
+    const answerList = Object.entries(answers).map(
+      ([questionId, answerId]) => ({
+        questionId: Number(questionId),
+        selectedOptionId: answerId,
+      })
+    );
 
-    setSubmitDuration(`${minutes} phút ${seconds} giây`);
+    const res = await submitExam(examData.attemptId, answerList);
+    console.log(res);
+
+    setResult(res.data); // ✅ đúng
     setOpenModal(true);
-  };
+  } catch (err) {
+    console.error(err);
+    setSubmitted(false);
+  }
+};
 
   const handleSubmit = () => {
     const unanswered = questions.filter((q) => !answers[q.id]).length;
 
-    if (unanswered === 0) {
-      confirm({
-        title: "Xác nhận nộp bài",
-        content: "Bạn đã làm hết tất cả câu hỏi. Bạn có chắc chắn muốn nộp bài không?",
-        okText: "Nộp bài",
-        cancelText: "Hủy",
-        onOk() {
-          handleConfirmSubmit();
-        },
-      });
-      return;
-    }
-
     confirm({
       title: "Xác nhận nộp bài",
-      content: `Hiện còn ${unanswered} câu hỏi chưa được làm, bạn có muốn nộp bài không?`,
+      content:
+        unanswered === 0
+          ? "Bạn đã làm hết. Bạn có chắc muốn nộp?"
+          : `Còn ${unanswered} câu chưa làm, vẫn nộp?`,
       okText: "Nộp bài",
       cancelText: "Hủy",
       onOk() {
@@ -96,15 +100,38 @@ const Thithat = () => {
       block: "center",
     });
   };
+const formatDate = (date) => {
+  return new Date(date).toLocaleString("vi-VN");
+};
+const formatTime = (seconds) => {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+};
+useEffect(() => {
+  if (submitted) return;
 
+  const timer = setInterval(() => {
+    setTimeLeft((prev) => {
+      if (prev <= 1) {
+        clearInterval(timer);
+
+        // ⏰ hết giờ → tự nộp
+        handleConfirmSubmit();
+        return 0;
+      }
+      return prev - 1;
+    });
+  }, 1000);
+
+  return () => clearInterval(timer);
+}, [submitted]);
   return (
     <div style={{ padding: "24px", background: "#f5f5f5", minHeight: "100vh" }}>
       <Row justify="space-between" style={{ marginBottom: "24px" }}>
         <Col>
           <h2>{examData.examTitle}</h2>
-          <p style={{ color: "#666" }}>
-            Đọc kỹ đề bài và chọn đáp án
-          </p>
+          <p style={{ color: "#666" }}>Đọc kỹ đề bài và chọn đáp án</p>
         </Col>
 
         <Col style={{ textAlign: "right" }}>
@@ -116,44 +143,42 @@ const Thithat = () => {
       <Row gutter={24}>
         {/* LEFT */}
         <Col span={16}>
-          {questions.map((q, index) => {
-            return (
-              <div
-                key={q.id}
-                ref={(el) => (questionRefs.current[index] = el)}
+          {questions.map((q, index) => (
+            <div
+              key={q.id}
+              ref={(el) => (questionRefs.current[index] = el)}
+            >
+              <Card
+                title={`Câu ${index + 1}`}
+                style={{
+                  marginBottom: "16px",
+                  borderRadius: "12px",
+                  border:
+                    activeQuestion === index
+                      ? "2px solid #1677ff"
+                      : "1px solid #f0f0f0",
+                }}
               >
-                <Card
-                  title={`Câu ${index + 1}`}
-                  style={{
-                    marginBottom: "16px",
-                    borderRadius: "12px",
-                    border:
-                      activeQuestion === index
-                        ? "2px solid #1677ff"
-                        : "1px solid #f0f0f0",
-                  }}
-                >
-                  <p>{q.question}</p>
+                <p>{q.question}</p>
 
-                  <Radio.Group
-                    onChange={(e) =>
-                      handleChange(q.id, e.target.value)
-                    }
-                    value={answers[q.id]}
-                    disabled={submitted}
-                  >
-                    {q.options.map((opt, i) => (
-                      <div key={i} style={{ marginBottom: "8px" }}>
-                        <Radio value={opt.key}>
-                          {opt.label}. {opt.content}
-                        </Radio>
-                      </div>
-                    ))}
-                  </Radio.Group>
-                </Card>
-              </div>
-            );
-          })}
+                <Radio.Group
+                  onChange={(e) =>
+                    handleChange(q.id, e.target.value)
+                  }
+                  value={answers[q.id]}
+                  disabled={submitted}
+                >
+                  {q.options.map((opt, i) => (
+                    <div key={i} style={{ marginBottom: "8px" }}>
+                      <Radio value={opt.value}>
+                        {opt.label}. {opt.text}
+                      </Radio>
+                    </div>
+                  ))}
+                </Radio.Group>
+              </Card>
+            </div>
+          ))}
         </Col>
 
         {/* RIGHT */}
@@ -168,7 +193,7 @@ const Thithat = () => {
               top: "20px",
             }}
           >
-            <p style={{ marginBottom: "10px" }}>Xem lại nhanh</p>
+            <p>Xem lại nhanh</p>
 
             <div
               style={{
@@ -197,53 +222,60 @@ const Thithat = () => {
               block
               onClick={handleSubmit}
               disabled={submitted}
-              style={{ marginBottom: "10px" }}
             >
               Nộp bài
             </Button>
 
             {submitted && (
               <Button block onClick={handleGoBack}>
-                Quay lại danh sách thi
+                Quay lại
               </Button>
             )}
           </div>
         </Col>
       </Row>
 
-      <Modal
-        title="Kết quả bài thi"
-        open={openModal}
-        onCancel={() => setOpenModal(false)}
-        footer={[
-          <Button
-            key="review"
-            type="primary"
-            onClick={() => setOpenModal(false)}
+      {/* MODAL */}
+    <Modal
+            title="Kết quả bài thi"
+            open={openModal}
+            onCancel={() => setOpenModal(false)}
+            footer={[
+              <Button key="review" type="primary" onClick={() => setOpenModal(false)}>
+                Xem lại bài
+              </Button>,
+            ]}
           >
-            Xem lại bài
-          </Button>,
-        ]}
-      >
-        <p><b>Ngày thi:</b> 14/05/2024</p>
-        <p><b>Thời gian:</b> {examData.duration}</p>
-        <p><b>Loại thi:</b> Thi thật</p>
-        <p><b>Thời gian nộp:</b> {submitDuration}</p>
+            <p><b>Ngày thi:</b> {formatDate(startTime)}</p>
 
-        <p>
-          <b>Trạng thái:</b>{" "}
-          <span style={{ color: "#52c41a" }}>
-            ĐÃ NỘP
-          </span>
-        </p>
+            <p><b>Thời gian:</b> {examData.duration} phút</p>
 
-        <hr />
+            <p><b>Loại thi:</b> {examData.examType}</p>
+            <p><b>Thời gian nộp:</b> {submitDuration}</p>
+    
+            <p>
+  <b>Trạng thái:</b>{" "}
+ <span style={{ color: result?.resultStatus === "PASSED" ? "#52c41a" : "#ff4d4f" }}>
+  {result?.resultStatus === "PASSED" ? "ĐẠT" : "KHÔNG ĐẠT"}
+</span>
+</p>
 
-        <h3>Kết quả</h3>
-        <p><b>Điểm số:</b> --/10</p>
-        <p><b>Đúng:</b> --</p>
-        <p><b>Sai:</b> --</p>
-      </Modal>
+<hr />
+
+<h3>Kết quả</h3>
+
+<p>
+  <b>Điểm số:</b>{" "}
+  {result
+    ? ((result.score / result.totalQuestions) * 10).toFixed(1)
+    : 0}/10
+</p>
+
+<p><b>Đúng:</b> {result?.correctCount}/{result?.totalQuestions}</p>
+
+<p><b>Sai:</b> {result?.wrongCount}</p>
+<p><b>Chưa làm:</b> {result?.blankCount}</p>
+          </Modal>
     </div>
   );
 };

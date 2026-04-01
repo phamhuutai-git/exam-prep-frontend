@@ -5,7 +5,6 @@ import { faClock, faBook, faHeart, faSearch } from "@fortawesome/free-solid-svg-
 import { useNavigate } from "react-router-dom";
 import { getExamsByClassOfficial, startExam } from "../../services/student/studentServices"; // ✅ thêm startExam
 import { useAuth } from "../../context/AuthContext";
-
 const BaiThi = () => {
   const [liked, setLiked] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
@@ -13,13 +12,11 @@ const BaiThi = () => {
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
-
   // ✅ THÊM FUNCTION NÀY
   const handleStartExam = async (examId) => {
     try {
       const res = await startExam(examId);
       const data = res.data?.data;
-
       navigate(`/student/thi/${examId}`, {
         state: data,
       });
