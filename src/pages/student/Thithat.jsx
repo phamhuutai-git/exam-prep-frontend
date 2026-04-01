@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Card, Row, Col, Radio, Button, Modal } from "antd";
 import { useNavigate, useLocation } from "react-router-dom";
 import { submitExam } from "../../services/student/studentServices";
@@ -10,9 +10,8 @@ const Thithat = () => {
   const rightPanelRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
-
   const examData = location.state;
-
+const [timeLeft, setTimeLeft] = useState(examData.duration * 60);
   const [startTime] = useState(new Date());
   const [submitDuration, setSubmitDuration] = useState("");
   const [activeQuestion, setActiveQuestion] = useState(null);
@@ -44,6 +43,8 @@ const Thithat = () => {
 
   // ✅ submit thật
   const handleConfirmSubmit = async () => {
+  if (submitted) return; // ❗ cực quan trọng
+
   setSubmitted(true);
 
   const endTime = new Date();
@@ -53,7 +54,6 @@ const Thithat = () => {
   setSubmitDuration(`${minutes} phút ${seconds} giây`);
 
   try {
-    // 👉 convert answers
     const answerList = Object.entries(answers).map(
       ([questionId, answerId]) => ({
         questionId: Number(questionId),
@@ -61,15 +61,11 @@ const Thithat = () => {
       })
     );
 
-    // 👉 gọi API
     const res = await submitExam(examData.attemptId, answerList);
+    console.log(res);
 
-    // ✅ CHỖ QUAN TRỌNG (ĐẶT Ở ĐÂY)
-    setResult(res.data.data);
-
-    // 👉 mở modal
+    setResult(res.data); // ✅ đúng
     setOpenModal(true);
-
   } catch (err) {
     console.error(err);
     setSubmitted(false);
@@ -104,7 +100,32 @@ const Thithat = () => {
       block: "center",
     });
   };
+const formatDate = (date) => {
+  return new Date(date).toLocaleString("vi-VN");
+};
+const formatTime = (seconds) => {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+};
+useEffect(() => {
+  if (submitted) return;
 
+  const timer = setInterval(() => {
+    setTimeLeft((prev) => {
+      if (prev <= 1) {
+        clearInterval(timer);
+
+        // ⏰ hết giờ → tự nộp
+        handleConfirmSubmit();
+        return 0;
+      }
+      return prev - 1;
+    });
+  }, 1000);
+
+  return () => clearInterval(timer);
+}, [submitted]);
   return (
     <div style={{ padding: "24px", background: "#f5f5f5", minHeight: "100vh" }}>
       <Row justify="space-between" style={{ marginBottom: "24px" }}>
@@ -225,16 +246,18 @@ const Thithat = () => {
               </Button>,
             ]}
           >
-            <p><b>Ngày thi:</b> 14/05/2024</p>
-            <p><b>Thời gian:</b> 45 phút</p>
-            <p><b>Loại thi:</b> Luyện tập</p>
+            <p><b>Ngày thi:</b> {formatDate(startTime)}</p>
+
+            <p><b>Thời gian:</b> {examData.duration} phút</p>
+
+            <p><b>Loại thi:</b> {examData.examType}</p>
             <p><b>Thời gian nộp:</b> {submitDuration}</p>
     
             <p>
   <b>Trạng thái:</b>{" "}
-  <span style={{ color: result?.passed ? "#52c41a" : "#ff4d4f" }}>
-    {result?.passed ? "ĐẠT" : "KHÔNG ĐẠT"}
-  </span>
+ <span style={{ color: result?.resultStatus === "PASSED" ? "#52c41a" : "#ff4d4f" }}>
+  {result?.resultStatus === "PASSED" ? "ĐẠT" : "KHÔNG ĐẠT"}
+</span>
 </p>
 
 <hr />
@@ -243,12 +266,15 @@ const Thithat = () => {
 
 <p>
   <b>Điểm số:</b>{" "}
-  {((result?.score / result?.totalQuestions) * 10).toFixed(1)}/10
+  {result
+    ? ((result.score / result.totalQuestions) * 10).toFixed(1)
+    : 0}/10
 </p>
 
 <p><b>Đúng:</b> {result?.correctCount}/{result?.totalQuestions}</p>
 
 <p><b>Sai:</b> {result?.wrongCount}</p>
+<p><b>Chưa làm:</b> {result?.blankCount}</p>
           </Modal>
     </div>
   );

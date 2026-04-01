@@ -1,9 +1,7 @@
 import React, { useState, useRef } from "react";
 import { Card, Row, Col, Radio, Button, Modal } from "antd";
 import { useNavigate } from "react-router-dom";
-
 const { confirm } = Modal;
-
 const Thithu = () => {
   const questionRefs = useRef({});
   const rightPanelRef = useRef(null);
