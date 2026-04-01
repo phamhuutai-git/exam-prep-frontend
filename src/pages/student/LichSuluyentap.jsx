@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { Card, Tag, Input, Typography, Row, Col, Progress, Badge } from "antd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -7,84 +7,69 @@ import {
   faCalendar,
 } from "@fortawesome/free-solid-svg-icons";
 import View from "../../components/student/LichSuThi/View";
-const mockHistoryData = [
-  {
-    id: "LS001",
-    title: "Toán 12 - Chương 1",
-    date: "14/05/2024",
-    duration: "45 phút",
-    type: "Luyện tập",
-    score: 8.5,
-    correct: 42,
-    total: 50,
-    wrong: 8,
-    timeDone: "32m",
-    status: "ĐẠT",
-
-    
-  },
-
-  {
-    id: "LS002",
-    title: "Toán 12 - Chương 2",
-    date: "15/05/2024",
-    duration: "45 phút",
-    type: "Luyện tập",
-    score: 7.5,
-    correct: 38,
-    total: 50,
-    wrong: 12,
-    timeDone: "30m",
-    status: "ĐẠT",
-
-    
-  },
-
-  {
-    id: "LS003",
-    title: "Toán 12 - Chương 3",
-    date: "16/05/2024",
-    duration: "60 phút",
-    type: "Luyện tập",
-    score: 6.0,
-    correct: 30,
-    total: 50,
-    wrong: 20,
-    timeDone: "50m",
-    status: "CHƯA ĐẠT",
-
-    
-     
-  },
-
-  {
-    id: "LS004",
-    title: "Toán 12 - Chương 4",
-    date: "17/05/2024",
-    duration: "45 phút",
-    type: "Luyện tập",
-    score: 9.0,
-    correct: 45,
-    total: 50,
-    wrong: 5,
-    timeDone: "28m",
-    status: "ĐẠT",
-
-   
-  },
-];
+import { getAttemptsByExamType } from "../../services/student/studentServices";
 
 const LichSuluyentap = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [openModal, setOpenModal] = useState(false);
-const [selectedExam, setSelectedExam] = useState(null);
+  const [selectedExam, setSelectedExam] = useState(null);
+  const [historyData, setHistoryData] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await getAttemptsByExamType("PRACTICE", {
+          page: 0,
+          size: 10,
+          sort: ["id,desc"],
+        });
+        const raw = res?.data?.data?.content || res?.data?.content || [];
+
+        const mapped = raw.map((item) => {
+          const total =
+            (item.correctCount ?? 0) +
+            (item.wrongCount ?? 0) +
+            (item.blankCount ?? 0);
+
+          const isSubmitted = item.status === "SUBMITTED";
+          const isPass = (item.score ?? 0) >= 5;
+
+          return {
+            id: item.id,
+            title: item.exam?.title || "Không có tiêu đề",
+            date: item.startTime
+              ? new Date(item.startTime).toLocaleDateString("vi-VN")
+              : "N/A",
+            duration: item.exam?.duration || "0",
+            type: item.exam?.examType === "OFFICIAL" ? "Thi thật" : "Luyện tập",
+            score: item.score ?? 0,
+            correct: item.correctCount ?? 0,
+            wrong: item.wrongCount ?? 0,
+            total,
+            timeDone: `${item.timeSpentSeconds ?? 0}s`,
+            status: isPass ? "ĐẠT" : "KHÔNG ĐẠT",
+            isSubmitted,
+            isPass,
+            rawData: item,
+          };
+        });
+
+        setHistoryData(mapped);
+      } catch (err) {
+        console.error("Lỗi API:", err);
+        setHistoryData([]);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const filteredHistory = useMemo(() => {
-    return mockHistoryData.filter((item) =>
+    return historyData.filter((item) =>
       !searchTerm ||
       item.title.toLowerCase().includes(searchTerm.toLowerCase())
     );
-  }, [searchTerm]);
+  }, [searchTerm, historyData]);
 
   return (
     <div style={{ padding: "24px" }}>
