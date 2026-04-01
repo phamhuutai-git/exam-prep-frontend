@@ -257,10 +257,10 @@ export default function TeacherQuestion() {
       <StatsCards
         loading={stats.loading}
         items={[
-          { title: "Total", value: stats.countTotal },
-          { title: "Easy", value: stats.countEasy },
-          { title: "Medium", value: stats.countMedium },
-          { title: "Hard", value: stats.countHard },
+          { title: "Tổng số câu hỏi", value: stats.countTotal },
+          { title: "Số câu dễ", value: stats.countEasy },
+          { title: "Số câu trung bình", value: stats.countMedium },
+          { title: "Số câu khó", value: stats.countHard },
         ]}
       />
 

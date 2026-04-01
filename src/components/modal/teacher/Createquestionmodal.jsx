@@ -44,7 +44,7 @@ export default function CreateQuestionModal({
 
   return (
     <Modal
-      title="Create Question"
+      title="Tạo câu hỏi"
       open={open}
       onCancel={handleCancel}
       onOk={handleOk}
