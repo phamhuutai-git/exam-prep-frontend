@@ -174,10 +174,9 @@ const TeacherExams = () => {
 
       <StatsCards
         items={[
-          { title: "Total Exams", value: total },
-          { title: "Total Questions", value: allQuestions.length },
-          { title: "Avg Duration", value: 0 },
-          { title: "Categories", value: totalCategories },
+          { title: "Tổng số đề thi", value: total },
+          { title: "Tổng số câu hỏi", value: allQuestions.length },
+          { title: "Danh mục", value: totalCategories },
         ]}
       />
 
@@ -186,14 +185,14 @@ const TeacherExams = () => {
         <div style={{ flex: 1, minWidth: 220 }}>
           <Input
             prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
-            placeholder="Search Exam by title..."
+            placeholder="Tìm kiếm tên đề thi..."
             allowClear
             onChange={(e) => setSearchInput(e.target.value)}
           />
         </div>
         <div className="filter-divider" />
         <Select
-          placeholder="Category"
+          placeholder="Danh mục"
           allowClear
           style={{ width: 150 }}
           onChange={(v) => {
@@ -211,7 +210,7 @@ const TeacherExams = () => {
         <div style={{ display: "flex", gap: 8 }}>
           {/* From date */}
           <DatePicker
-            placeholder="From"
+            placeholder="Từ"
             allowClear
             style={{ width: 130 }}
             onChange={(date, dateString) => {
@@ -225,7 +224,7 @@ const TeacherExams = () => {
 
           {/* To date */}
           <DatePicker
-            placeholder="To"
+            placeholder="Đến"
             allowClear
             style={{ width: 130 }}
             onChange={(date, dateString) => {
@@ -237,7 +236,6 @@ const TeacherExams = () => {
             }}
           />
         </div>
-
       </div>
 
       <div className="question-table-wrapper">
