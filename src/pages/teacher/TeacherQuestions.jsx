@@ -269,7 +269,7 @@ export default function TeacherQuestion() {
         <div style={{ flex: 1, minWidth: 220 }}>
           <Input
             prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
-            placeholder="Search Question..."
+            placeholder="Tìm kiếm câu hỏi..."
             allowClear
             onChange={(e) => setSearchInput(e.target.value)}
           />
@@ -280,7 +280,7 @@ export default function TeacherQuestion() {
 
         {/* Difficulty */}
         <Select
-          placeholder="Difficulty"
+          placeholder="Chế độ"
           allowClear
           style={{ width: 150 }}
           onChange={(v) => setDiffFilter(v)}
@@ -292,7 +292,7 @@ export default function TeacherQuestion() {
           ))}
         </Select>
         <Select
-          placeholder="Category"
+          placeholder="Chủ đề"
           allowClear
           style={{ width: 150 }}
           onChange={(v) => setCatFilter(v)}
