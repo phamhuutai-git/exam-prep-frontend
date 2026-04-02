@@ -454,17 +454,12 @@ const formatDate = (date) => {
   {result?.resultStatus === "PASSED" ? "ĐẠT" : "KHÔNG ĐẠT"}
 </span>
 </p>
-
         <hr />
-
         <h3>Kết quả</h3>
-        <p>
-          <b>Điểm số:</b>{" "}
-          {result
-            ? ((result.score / result.totalQuestions) * 10).toFixed(1)
-            : 0}
-          /10
-        </p>
+<p>
+ <b>Điểm số:</b>{" "}
+{result ? result.score : 0}
+</p>
         <p>
           <b>Đúng:</b> {result?.correctCount}/{result?.totalQuestions}
         </p>

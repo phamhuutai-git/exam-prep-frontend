@@ -292,10 +292,8 @@ const formatDate = (date) => {
 <h3>Kết quả</h3>
 
 <p>
-  <b>Điểm số:</b>{" "}
-  {result
-    ? ((result.score / result.totalQuestions) * 10).toFixed(1)
-    : 0}/10
+ <b>Điểm số:</b>{" "}
+{result ? result.score : 0}
 </p>
 
 <p><b>Đúng:</b> {result?.correctCount}/{result?.totalQuestions}</p>
