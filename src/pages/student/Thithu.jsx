@@ -30,10 +30,10 @@ const normalizeReviewPayload = (axiosRes) => {
   const list = Array.isArray(root)
     ? root
     : root.questions ??
-      root.questionDetails ??
-      root.details ??
-      root.content ??
-      [];
+    root.questionDetails ??
+    root.details ??
+    root.content ??
+    [];
 
   const map = {};
   for (const item of list) {
@@ -109,16 +109,16 @@ const Thithu = () => {
 
   useEffect(() => {
     if (submitted) return; // nếu đã nộp thì dừng
-  
+
     if (timeLeft <= 0) {
       handleConfirmSubmit(); // ⏰ auto submit
       return;
     }
-  
+
     const timer = setInterval(() => {
       setTimeLeft((prev) => prev - 1);
     }, 1000);
-  
+
     return () => clearInterval(timer);
   }, [timeLeft, submitted]);
   const formatTime = (seconds) => {
@@ -129,97 +129,97 @@ const Thithu = () => {
     const s = seconds % 60;
     return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
   };
-    // ❌ nếu reload mất data
-    if (!examData) {
-      return <div style={{ padding: 24 }}>Không có dữ liệu bài thi</div>;
-    }
-    const questions = examData.questions.map((q) => ({
-      id: q.id,
-      question: q.content,
-      questionExplanation: (
-        q.explanation ??
-        q.explain ??
-        q.questionExplanation ??
-        q.hint ??
-        ""
-      ).trim(),
-      options: q.answers.map((a, i) => ({
-        label: String.fromCharCode(65 + i),
-        value: a.id,
-        text: a.content ?? a.text ?? "",
-        explanation: explanationFromRawAnswer(a),
-        isCorrect: Boolean(
-          a.correct ?? a.isCorrect ?? a.isRight ?? a.answerCorrect
-        ),
-      })),
-    }));
-    const handleChange = (qId, value) => {
-      if (submitted) return;
-      setAnswers((prev) => ({ ...prev, [qId]: value }));
-    };
-  
+  // ❌ nếu reload mất data
+  if (!examData) {
+    return <div style={{ padding: 24 }}>Không có dữ liệu bài thi</div>;
+  }
+  const questions = examData.questions.map((q) => ({
+    id: q.id,
+    question: q.content,
+    questionExplanation: (
+      q.explanation ??
+      q.explain ??
+      q.questionExplanation ??
+      q.hint ??
+      ""
+    ).trim(),
+    options: q.answers.map((a, i) => ({
+      label: String.fromCharCode(65 + i),
+      value: a.id,
+      text: a.content ?? a.text ?? "",
+      explanation: explanationFromRawAnswer(a),
+      isCorrect: Boolean(
+        a.correct ?? a.isCorrect ?? a.isRight ?? a.answerCorrect
+      ),
+    })),
+  }));
+  const handleChange = (qId, value) => {
+    if (submitted) return;
+    setAnswers((prev) => ({ ...prev, [qId]: value }));
+  };
 
-    const handleConfirmSubmit = async () => {
-      if (submitted) return; // ❗ cực quan trọng
-    
-      setSubmitted(true);
-    
-      const endTime = new Date();
-      const diffMs = endTime - startTime;
-      const minutes = Math.floor(diffMs / 60000);
-      const seconds = Math.floor((diffMs % 60000) / 1000);
-      setSubmitDuration(`${minutes} phút ${seconds} giây`);
-    
-      try {
-        const answerList = Object.entries(answers).map(
-          ([questionId, answerId]) => ({
-            questionId: Number(questionId),
-            selectedOptionId: answerId,
-          })
-        );
-    
-        const attemptId = resolveAttemptId(examData);
-        if (attemptId == null) {
-          alert("Thiếu mã lượt thi. Vui lòng vào lại từ danh sách bài luyện tập.");
-          setSubmitted(false);
-          return;
-        }
 
-        const res = await submitExam(attemptId, answerList, examData.examType);
-        const resultPayload = res.data?.data ?? res.data;
-        setResult(resultPayload);
+  const handleConfirmSubmit = async () => {
+    if (submitted) return; // ❗ cực quan trọng
 
-        try {
-          const reviewRes = await getReviewExam(attemptId);
-          setReviewByQuestionId(normalizeReviewPayload(reviewRes));
-        } catch (reviewErr) {
-          console.error("getReviewExam:", reviewErr);
-          setReviewByQuestionId({});
-        }
+    setSubmitted(true);
 
-        setOpenModal(true);
-      } catch (err) {
-        console.error(err);
+    const endTime = new Date();
+    const diffMs = endTime - startTime;
+    const minutes = Math.floor(diffMs / 60000);
+    const seconds = Math.floor((diffMs % 60000) / 1000);
+    setSubmitDuration(`${minutes} phút ${seconds} giây`);
+
+    try {
+      const answerList = Object.entries(answers).map(
+        ([questionId, answerId]) => ({
+          questionId: Number(questionId),
+          selectedOptionId: answerId,
+        })
+      );
+
+      const attemptId = resolveAttemptId(examData);
+      if (attemptId == null) {
+        alert("Thiếu mã lượt thi. Vui lòng vào lại từ danh sách bài luyện tập.");
         setSubmitted(false);
+        return;
       }
-    };
 
-    const handleSubmit = () => {
-      const unanswered = questions.filter((q) => !answers[q.id]).length;
-  
-      confirm({
-        title: "Xác nhận nộp bài",
-        content:
-          unanswered === 0
-            ? "Bạn đã làm hết. Bạn có chắc muốn nộp?"
-            : `Còn ${unanswered} câu chưa làm, vẫn nộp?`,
-        okText: "Nộp bài",
-        cancelText: "Hủy",
-        onOk() {
-          handleConfirmSubmit();
-        },
-      });
-    };
+      const res = await submitExam(attemptId, answerList, examData.examType);
+      const resultPayload = res.data?.data ?? res.data;
+      setResult(resultPayload);
+
+      try {
+        const reviewRes = await getReviewExam(attemptId);
+        setReviewByQuestionId(normalizeReviewPayload(reviewRes));
+      } catch (reviewErr) {
+        console.error("getReviewExam:", reviewErr);
+        setReviewByQuestionId({});
+      }
+
+      setOpenModal(true);
+    } catch (err) {
+      console.error(err);
+      setSubmitted(false);
+    }
+  };
+
+  const handleSubmit = () => {
+    const unanswered = questions.filter((q) => !answers[q.id]).length;
+
+    confirm({
+      title: "Xác nhận nộp bài",
+      content:
+        unanswered === 0
+          ? "Bạn đã làm hết. Bạn có chắc muốn nộp?"
+          : `Còn ${unanswered} câu chưa làm, vẫn nộp?`,
+      okText: "Nộp bài",
+      cancelText: "Hủy",
+      onOk() {
+        handleConfirmSubmit();
+      },
+    });
+  };
 
   const handleGoBack = () => {
     navigate("/student/bai-thi-luyen-tap");
@@ -232,9 +232,9 @@ const Thithu = () => {
       block: "center",
     });
   };
-const formatDate = (date) => {
-  return new Date(date).toLocaleString("vi-VN");
-};
+  const formatDate = (date) => {
+    return new Date(date).toLocaleString("vi-VN");
+  };
 
   return (
     <div style={{ padding: "24px", background: "#f5f5f5", minHeight: "100vh" }}>
@@ -364,7 +364,7 @@ const formatDate = (date) => {
           >
             <p style={{ marginBottom: "10px" }}>Xem lại nhanh</p>
 
-            
+
 
             <div
               style={{
@@ -437,6 +437,9 @@ const formatDate = (date) => {
           <Button key="review" type="primary" onClick={() => setOpenModal(false)}>
             Xem lại bài
           </Button>,
+          // <Button key="finish" type="primary" onClick={handleGoBack}>
+          //   Kết thúc
+          // </Button>
         ]}
       >
         <p><b>Ngày thi:</b> {formatDate(startTime)}</p>
@@ -445,21 +448,21 @@ const formatDate = (date) => {
           <b>Thời gian:</b> {examData.duration}
         </p>
 
-<p><b>Loại thi:</b> {examData.examType}</p>
-<p><b>Thời gian nộp:</b> {submitDuration}</p>
+        <p><b>Loại thi:</b> {examData.examType}</p>
+        <p><b>Thời gian nộp:</b> {submitDuration}</p>
 
-<p>
-  <b>Trạng thái:</b>{" "}
- <span style={{ color: result?.resultStatus === "PASSED" ? "#52c41a" : "#ff4d4f" }}>
-  {result?.resultStatus === "PASSED" ? "ĐẠT" : "KHÔNG ĐẠT"}
-</span>
-</p>
+        <p>
+          <b>Trạng thái:</b>{" "}
+          <span style={{ color: result?.resultStatus === "PASSED" ? "#52c41a" : "#ff4d4f" }}>
+            {result?.resultStatus === "PASSED" ? "ĐẠT" : "KHÔNG ĐẠT"}
+          </span>
+        </p>
         <hr />
         <h3>Kết quả</h3>
-<p>
- <b>Điểm số:</b>{" "}
-{result ? result.score : 0}
-</p>
+        <p>
+          <b>Điểm số:</b>{" "}
+          {result ? (result.score).toFixed(1) : 0}
+        </p>
         <p>
           <b>Đúng:</b> {result?.correctCount}/{result?.totalQuestions}
         </p>

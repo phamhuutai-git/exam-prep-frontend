@@ -16,6 +16,11 @@ export const startExam = (examId) => {
   return api.post(`/exams-attempt/exam-id/${examId}/start`);
 };
 
+//restart thi
+export const restartExam = (examId) => {
+  return api.post(`/exams-attempt/exam-id/${examId}/restart`);
+};
+
 ///exams-attempt/attempts/1/submit
 // ✅ SUBMIT BÀI THI
 /** Lấy id lượt thi từ body trả về của POST /start hoặc state navigate */
