@@ -44,7 +44,7 @@ export default function CreateQuestionModal({
 
   return (
     <Modal
-      title="Create Question"
+      title="Tạo câu hỏi"
       open={open}
       onCancel={handleCancel}
       onOk={handleOk}
@@ -55,7 +55,7 @@ export default function CreateQuestionModal({
       <Form form={form} layout="vertical" onFinish={handleFinish}>
         {/* Nội dung câu hỏi */}
         <Form.Item
-          label="Question"
+          label="Câu hỏi"
           name="content"
           rules={[{ required: true, message: "Please enter question content" }]}
         >
@@ -66,7 +66,7 @@ export default function CreateQuestionModal({
         <Row gutter={12}>
           <Col span={12}>
             <Form.Item
-              label="Difficulty"
+              label="Chế độ"
               name="difficulty"
               rules={[{ required: true, message: "Please select difficulty" }]}
             >
@@ -82,7 +82,7 @@ export default function CreateQuestionModal({
 
           <Col span={12}>
             <Form.Item
-              label="Category"
+              label="Danh mục"
               name="categoryId"
               rules={[{ required: true, message: "Please select category" }]}
             >
@@ -98,7 +98,7 @@ export default function CreateQuestionModal({
         </Row>
 
         {/* 4 đáp án */}
-        <Form.Item label="Answers">
+        <Form.Item label="Đáp án">
           <Space orientation="vertical" style={{ width: "100%" }}>
             {ANSWER_LABELS.map((label) => (
               <Row key={label} gutter={8} align="middle">
@@ -132,7 +132,7 @@ export default function CreateQuestionModal({
                     ]}
                     style={{ marginBottom: 0 }}
                   >
-                    <Input placeholder={`Answer ${label}`} />
+                    <Input placeholder={`Đáp án ${label}`} />
                   </Form.Item>
                 </Col>
               </Row>
@@ -140,7 +140,7 @@ export default function CreateQuestionModal({
           </Space>
         </Form.Item>
         {/* Nội dung chu thich */}
-        <Form.Item label="Explanation" name="explanation">
+        <Form.Item label="Chú thích" name="explanation">
           <Input.TextArea rows={2} />
         </Form.Item>
       </Form>
