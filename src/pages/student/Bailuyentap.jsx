@@ -3,7 +3,11 @@ import { Card, Row, Col, Tag, Button, Input, Spin, Empty } from "antd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faClock, faBook, faHeart, faSearch } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
-import { getExamsByClass ,startExam} from "../../services/student/studentServices";
+import {
+  getExamsByClass,
+  startExam,
+  resolveAttemptId,
+} from "../../services/student/studentServices";
 import { useAuth } from "../../context/AuthContext";
 
 const Bailuyentap = () => {
@@ -108,11 +112,18 @@ const handleStartExam = async (examId) => {
       throw new Error("Không có dữ liệu bài thi");
     }
 
-    // 👉 Map dữ liệu giống Thithat đang dùng
+    const attemptId = resolveAttemptId(data);
+    if (attemptId == null) {
+      throw new Error("API start không trả về attemptId");
+    }
+
+    // 👉 Map dữ liệu giống Thithat đang dùng (cần attemptId để nộp bài)
     const examData = {
+      attemptId,
       examTitle: data.examTitle,
       duration: data.duration,
       questions: data.questions,
+      examType: data.examType,
     };
 
     // 👉 Navigate to practice exam page
