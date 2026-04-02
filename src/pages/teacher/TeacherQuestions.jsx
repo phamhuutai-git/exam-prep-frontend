@@ -257,10 +257,10 @@ export default function TeacherQuestion() {
       <StatsCards
         loading={stats.loading}
         items={[
-          { title: "Total", value: stats.countTotal },
-          { title: "Easy", value: stats.countEasy },
-          { title: "Medium", value: stats.countMedium },
-          { title: "Hard", value: stats.countHard },
+          { title: "Tổng số câu hỏi", value: stats.countTotal },
+          { title: "Số câu dễ", value: stats.countEasy },
+          { title: "Số câu trung bình", value: stats.countMedium },
+          { title: "Số câu khó", value: stats.countHard },
         ]}
       />
 
@@ -269,7 +269,7 @@ export default function TeacherQuestion() {
         <div style={{ flex: 1, minWidth: 220 }}>
           <Input
             prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
-            placeholder="Search Question..."
+            placeholder="Tìm kiếm câu hỏi..."
             allowClear
             onChange={(e) => setSearchInput(e.target.value)}
           />
@@ -280,7 +280,7 @@ export default function TeacherQuestion() {
 
         {/* Difficulty */}
         <Select
-          placeholder="Difficulty"
+          placeholder="Chế độ"
           allowClear
           style={{ width: 150 }}
           onChange={(v) => setDiffFilter(v)}
@@ -292,7 +292,7 @@ export default function TeacherQuestion() {
           ))}
         </Select>
         <Select
-          placeholder="Category"
+          placeholder="Chủ đề"
           allowClear
           style={{ width: 150 }}
           onChange={(v) => setCatFilter(v)}

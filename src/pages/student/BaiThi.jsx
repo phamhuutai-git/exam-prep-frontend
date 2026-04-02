@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Card, Row, Col, Tag, Button, Input } from "antd";
+import { Card, Row, Col, Tag, Button, Input, Modal } from "antd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faClock, faBook, faHeart, faSearch } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
-import { getExamsByClassOfficial, startExam } from "../../services/student/studentServices"; // ✅ thêm startExam
+import { getExamsByClassOfficial, startExam, restartExam } from "../../services/student/studentServices"; // ✅ thêm startExam
 import { useAuth } from "../../context/AuthContext";
 const BaiThi = () => {
   const [liked, setLiked] = useState({});
@@ -31,6 +31,30 @@ const BaiThi = () => {
       }
     }
   };
+
+  //Them function restart thi
+  const handleRestartExam = (examId) => {
+    Modal.confirm({
+      title: "Xác nhận làm lại bài thi",
+      content: "Bạn sẽ mất kết quả hiện tại. Bạn có chắc muốn làm lại?",
+      okText: "Làm lại",
+      cancelText: "Hủy",
+      onOk: async () => {
+        try {
+          const res = await restartExam(examId);
+          const data = res.data?.data;
+
+          navigate(`/student/thi/${examId}`, {
+            state: data,
+          });
+          console.log(data);
+        } catch (err) {
+          console.error(err);
+          alert("Không thể làm lại bài thi");
+        }
+      }
+    })
+  }
 
   const formatDuration = (time) => {
     if (!time) return "N/A";
@@ -173,6 +197,19 @@ const BaiThi = () => {
                   onClick={() => handleStartExam(exam.id)}
                 >
                   Thi
+                </Button>
+
+                <Button
+                  danger
+                  style={{
+                    marginLeft: 16,
+                    borderRadius: 8,
+                    padding: "0 16px",
+                    fontWeight: 500,
+                  }}
+                  onClick={() => handleRestartExam(exam.id)}
+                >
+                  Làm lại
                 </Button>
               </Card>
             </Col>

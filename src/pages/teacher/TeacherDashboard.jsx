@@ -34,16 +34,6 @@ export default function TeacherDashboard() {
   useEffect(() => {
     // MOCK DATA
     const mockData = {
-      scoreDistribution: [
-        { range: "0-4", count: 10 },
-        { range: "4-5", count: 25 },
-        { range: "5-6", count: 50 },
-        { range: "6-7", count: 100 },
-        { range: "7-8", count: 120 },
-        { range: "8-9", count: 80 },
-        { range: "9-10", count: 40 },
-      ],
-
       recentExams: [
         {
           id: 1,

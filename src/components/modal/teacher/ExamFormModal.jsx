@@ -195,7 +195,8 @@ export default function ExamFormModal({
           <Form.Item
             name="category"
             label="Danh mục"
-            rules={[{ required: true, message: "Bắt buộc" }]}>
+            rules={[{ required: true, message: "Bắt buộc" }]}
+          >
             <Select placeholder="Chọn danh mục">
               {(categories || []).map((c) => (
                 <Option key={c.id} value={c.name}>
@@ -259,7 +260,6 @@ export default function ExamFormModal({
             </Row>
           </div>
         </Form>
-
 
         {/* ── Phần chọn câu hỏi ── */}
         <div style={{ borderTop: "1px solid #f0f0f0", paddingTop: 16 }}>
