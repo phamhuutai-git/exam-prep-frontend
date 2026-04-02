@@ -86,6 +86,7 @@ const LichSuThi = () => {
                    style={{ maxWidth: 400 }}
                  />
                </div>
+               
       {/* LIST */}
       <Row gutter={[16, 24]}>
         {filteredHistory.slice(0, visibleCount).map((exam) => (
