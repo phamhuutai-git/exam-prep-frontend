@@ -269,7 +269,7 @@ const formatDate = (date) => {
             onCancel={() => setOpenModal(false)}
             footer={[
               <Button key="review" type="primary" onClick={() => setOpenModal(false)}>
-                Xem lại bài
+                Kết thúc
               </Button>,
             ]}
           >
