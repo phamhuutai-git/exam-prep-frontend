@@ -185,7 +185,7 @@ const Thithu = () => {
           return;
         }
 
-        const res = await submitExam(attemptId, answerList);
+        const res = await submitExam(attemptId, answerList, examData.examType);
         const resultPayload = res.data?.data ?? res.data;
         setResult(resultPayload);
 
