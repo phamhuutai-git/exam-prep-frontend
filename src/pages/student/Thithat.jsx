@@ -263,6 +263,44 @@ const Thithat = () => {
       </Row>
 
       {/* MODAL */}
+    <Modal
+            title="Kết quả bài thi"
+            open={openModal}
+            onCancel={() => setOpenModal(false)}
+            footer={[
+              <Button key="review" type="primary" onClick={() => setOpenModal(false)}>
+                Kết thúc
+              </Button>,
+            ]}
+          >
+            <p><b>Ngày thi:</b> {formatDate(startTime)}</p>
+
+            <p><b>Thời gian:</b> {examData.duration} phút</p>
+
+            <p><b>Loại thi:</b> {examData.examType}</p>
+            <p><b>Thời gian nộp:</b> {submitDuration}</p>
+    
+            <p>
+  <b>Trạng thái:</b>{" "}
+ <span style={{ color: result?.resultStatus === "PASSED" ? "#52c41a" : "#ff4d4f" }}>
+  {result?.resultStatus === "PASSED" ? "ĐẠT" : "KHÔNG ĐẠT"}
+</span>
+</p>
+
+<hr />
+
+<h3>Kết quả</h3>
+
+<p>
+ <b>Điểm số:</b>{" "}
+{result ? result.score : 0}
+</p>
+
+<p><b>Đúng:</b> {result?.correctCount}/{result?.totalQuestions}</p>
+
+<p><b>Sai:</b> {result?.wrongCount}</p>
+<p><b>Chưa làm:</b> {result?.blankCount}</p>
+          </Modal>
       <Modal
         title="Kết quả bài thi"
         open={openModal}
