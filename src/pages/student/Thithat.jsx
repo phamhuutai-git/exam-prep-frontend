@@ -3,7 +3,10 @@ import { useEffect } from "react";
 
 import { Card, Row, Col, Radio, Button, Modal } from "antd";
 import { useNavigate, useLocation } from "react-router-dom";
-import { submitExam } from "../../services/student/studentServices";
+import {
+  submitExam,
+  resolveAttemptId,
+} from "../../services/student/studentServices";
 
 const { confirm } = Modal;
 
@@ -97,7 +100,14 @@ const formatTime = (seconds) => {
       })
     );
 
-    const res = await submitExam(examData.attemptId, answerList);
+    const attemptId = resolveAttemptId(examData);
+    if (attemptId == null) {
+      alert("Thiếu mã lượt thi. Vui lòng vào lại từ danh sách bài thi.");
+      setSubmitted(false);
+      return;
+    }
+
+    const res = await submitExam(attemptId, answerList);
     console.log(res);
 
     setResult(res.data); // ✅ đúng
