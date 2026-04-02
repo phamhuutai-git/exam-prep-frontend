@@ -73,9 +73,9 @@ const LichSuluyentap = () => {
 
   return (
     <div style={{ padding: "24px" }}>
-    <h1>Danh sách bài thi</h1>
+    <h1>Lịch sử thi luyện tập</h1>
       <p style={{ marginBottom: "32px", color: "#666" }}>
-        Chọn bài thi để bắt đầu luyện tập
+        Xem lại lịch sử thi luyện tập của bạn
       </p>
 
       {/* SEARCH */}

@@ -82,9 +82,9 @@ const LichSuThi = () => {
 
   return (
     <div style={{ padding: "24px" }}>
-      <h1>Danh sách bài thi</h1>
+      <h1>Lịch sử thi thật</h1>
       <p style={{ marginBottom: "32px", color: "#666" }}>
-        Chọn bài thi để bắt đầu luyện tập
+        Xem lại lịch sử thi thật của bạn
       </p>
 
       {/* SEARCH */}
