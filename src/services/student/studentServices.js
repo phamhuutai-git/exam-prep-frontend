@@ -36,11 +36,14 @@ export const getReviewExam = (attemptId) => {
 };
 
 // // ✅ LẤY DANH SÁCH BÀI THI THEO LOẠI (OFFICIAL / PRACTICE)
-export const getAttemptsByExamType = (examType) =>
+export const getAttemptsByExamType = (examType, pageable) =>
   api({
     method: "get",
     url: "/exams-attempt/attempts/exam-type",
-    data: {
+    params: {
       examType,
+      page: pageable?.page ?? 0,
+      size: pageable?.size ?? 10,
+      sort: pageable?.sort ?? [],
     },
   });
