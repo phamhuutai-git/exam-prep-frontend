@@ -28,31 +28,37 @@ const LichSuluyentap = () => {
         const raw = res?.data?.data?.content || res?.data?.content || [];
 
         const mapped = raw.map((item) => {
-          const total =
-            (item.correctCount ?? 0) +
-            (item.wrongCount ?? 0) +
-            (item.blankCount ?? 0);
+  const total =
+    (item.correctCount ?? 0) +
+    (item.wrongCount ?? 0) +
+    (item.blankCount ?? 0);
 
-          const isPass = (item.score ?? 0) >= 5;
+  const isPass = (item.score ?? 0) >= 5;
 
-          return {
-            id: item.id,
-            title: item.exam?.title || "Không có tiêu đề",
-            date: item.startTime
-              ? new Date(item.startTime).toLocaleDateString("vi-VN")
-              : "N/A",
-            duration: item.exam?.duration || "0",
-            type: item.exam?.examType === "OFFICIAL" ? "Thi thật" : "Luyện tập",
-            score: item.score ?? 0,
-            correct: item.correctCount ?? 0,
-            wrong: item.wrongCount ?? 0,
-            total,
-            timeDone: `${item.timeSpentSeconds ?? 0}s`,
-            status: isPass ? "ĐẠT" : "KHÔNG ĐẠT",
-            isPass,
-            rawData: item,
-          };
-        });
+  return {
+    id: item.id,
+    title: item.exam?.title || "Không có tiêu đề",
+    date: item.startTime
+      ? new Date(item.startTime).toLocaleDateString("vi-VN")
+      : "N/A",
+
+    // ✅ thêm dòng này
+    endTime: item.endTime
+      ? new Date(item.endTime).toLocaleTimeString("vi-VN")
+      : "Chưa hoàn thành",
+
+    duration: item.exam?.duration || "0",
+    type: item.exam?.examType === "OFFICIAL" ? "Thi thật" : "Luyện tập",
+    score: item.score ?? 0,
+    correct: item.correctCount ?? 0,
+    wrong: item.wrongCount ?? 0,
+    total,
+    timeDone: `${item.timeSpentSeconds ?? 0}s`,
+    status: isPass ? "ĐẠT" : "KHÔNG ĐẠT",
+    isPass,
+    rawData: item,
+  };
+});
 
         setHistoryData(mapped);
       } catch (err) {
@@ -128,8 +134,10 @@ const LichSuluyentap = () => {
               {/* INFO */}
               <div style={{ fontSize: 13, color: "#666" }}>
                 <div>
-                  <FontAwesomeIcon icon={faCalendar} /> {exam.date}
+                                    <FontAwesomeIcon icon={faCalendar} /> {exam.date} - {exam.endTime}
+                  
                 </div>
+                
                 <div>
                   <FontAwesomeIcon icon={faClock} /> {exam.duration} -{" "}
                   {exam.type}
