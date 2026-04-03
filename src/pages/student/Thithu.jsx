@@ -437,9 +437,9 @@ const Thithu = () => {
           <Button key="review" type="primary" onClick={() => setOpenModal(false)}>
             Xem lại bài
           </Button>,
-          // <Button key="finish" type="primary" onClick={handleGoBack}>
-          //   Kết thúc
-          // </Button>
+          <Button key="finish" type="primary" onClick={handleGoBack}>
+            Kết thúc
+          </Button>
         ]}
       >
         <p><b>Ngày thi:</b> {formatDate(startTime)}</p>
