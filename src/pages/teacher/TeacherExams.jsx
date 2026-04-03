@@ -33,6 +33,7 @@ const TeacherExams = () => {
   const [searchInput, setSearchInput] = useState("");
   const [catFilter, setCatFilter] = useState();
   const [dateFilter, setDateFilter] = useState();
+  const [sortOrder, setSortOrder] = useState("");
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -236,6 +237,19 @@ const TeacherExams = () => {
             }}
           />
         </div>
+
+        <Select
+          placeholder="Sắp xếp"
+          style={{ width: 160 }}
+          allowClear
+          onChange={(value) => {
+            setSortOrder(value);
+            setPage(0);
+          }}
+        >
+          <Select.Option value="asc">Cũ → Mới</Select.Option>
+          <Select.Option value="desc">Mới → Cũ</Select.Option>
+        </Select>
       </div>
 
       <div className="question-table-wrapper">

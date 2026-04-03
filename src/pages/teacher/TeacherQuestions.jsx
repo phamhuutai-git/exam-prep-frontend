@@ -33,6 +33,7 @@ export default function TeacherQuestion() {
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(4);
   const [total, setTotal] = useState(0);
+  const [sortOrder, setSortOrder] = useState("");
   //star
   const [stats, setStats] = useState({
     countTotal: 0,
@@ -280,7 +281,7 @@ export default function TeacherQuestion() {
 
         {/* Difficulty */}
         <Select
-          placeholder="Chế độ"
+          placeholder="Mức độ"
           allowClear
           style={{ width: 150 }}
           onChange={(v) => setDiffFilter(v)}
@@ -302,6 +303,19 @@ export default function TeacherQuestion() {
               {c.name}
             </Select.Option>
           ))}
+        </Select>
+
+        <Select
+          placeholder="Sắp xếp"
+          style={{ width: 160 }}
+          allowClear
+          onChange={(value) => {
+            setSortOrder(value);
+            setPage(0);
+          }}
+        >
+          <Select.Option value="asc">Cũ → Mới</Select.Option>
+          <Select.Option value="desc">Mới → Cũ</Select.Option>
         </Select>
       </div>
 
