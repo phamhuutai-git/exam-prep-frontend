@@ -126,7 +126,7 @@ const LichSuThi = () => {
               {/* SCORE */}
               <div>
                 <Progress percent={exam.score} size="small" /> {/* 🔥 fix */}
-                <b>Điểm: {exam.score}/10</b>
+                <b>Điểm: {exam.score}/100</b>
               </div>
 
               {/* STATS */}
