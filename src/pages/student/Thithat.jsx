@@ -253,11 +253,11 @@ const Thithat = () => {
               Nộp bài
             </Button>
 
-            {submitted && (
-              <Button block onClick={handleGoBack}>
-                Quay lại
-              </Button>
-            )}
+            {/* {submitted && (
+              // <Button block onClick={handleGoBack}>
+              //   Quay lại
+              // </Button>
+            )} */}
           </div>
         </Col>
       </Row>
@@ -309,9 +309,7 @@ const Thithat = () => {
           <Button key="finish" type="primary" onClick={handleGoBack}>
             Kết thúc
           </Button>
-          // <Button key="review" type="primary" onClick={() => setOpenModal(false)}>
-          //   Xem lại bài thi
-          // </Button>,
+          
         ]}
       >
         <p><b>Ngày thi:</b> {formatDate(startTime)}</p>
