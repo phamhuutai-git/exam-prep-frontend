@@ -1,6 +1,5 @@
 import React, { useState, useRef } from "react";
 import { useEffect } from "react";
-
 import { Card, Row, Col, Radio, Button, Modal } from "antd";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
@@ -213,11 +212,12 @@ const Thithat = () => {
           <div
             ref={rightPanelRef}
             style={{
+              
               background: "#fff",
               padding: "16px",
               borderRadius: "12px",
               position: "sticky",
-              top: "20px",
+              top: "90px",
             }}
           >
             <p>Xem lại nhanh</p>
@@ -253,11 +253,11 @@ const Thithat = () => {
               Nộp bài
             </Button>
 
-            {submitted && (
-              <Button block onClick={handleGoBack}>
-                Quay lại
-              </Button>
-            )}
+            {/* {submitted && (
+              // <Button block onClick={handleGoBack}>
+              //   Quay lại
+              // </Button>
+            )} */}
           </div>
         </Col>
       </Row>
@@ -309,9 +309,7 @@ const Thithat = () => {
           <Button key="finish" type="primary" onClick={handleGoBack}>
             Kết thúc
           </Button>
-          // <Button key="review" type="primary" onClick={() => setOpenModal(false)}>
-          //   Xem lại bài thi
-          // </Button>,
+          
         ]}
       >
         <p><b>Ngày thi:</b> {formatDate(startTime)}</p>

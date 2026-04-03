@@ -78,7 +78,7 @@ export default function EditQuestionModal({
 
   return (
     <Modal
-      title="Edit Question"
+      title="Chỉnh sửa câu hỏi"
       open={open}
       onCancel={handleCancel}
       onOk={handleOk}
@@ -87,14 +87,14 @@ export default function EditQuestionModal({
       width={600}
     >
       <Form form={form} layout="vertical" onFinish={handleFinish}>
-        <Form.Item label="Question" name="content" rules={[{ required: true }]}>
+        <Form.Item label="Câu hỏi" name="content" rules={[{ required: true }]}>
           <Input.TextArea rows={3} />
         </Form.Item>
 
         <Row gutter={12}>
           <Col span={12}>
             <Form.Item
-              label="Difficulty"
+              label="Mức độ"
               name="difficulty"
               rules={[{ required: true }]}
             >
@@ -110,7 +110,7 @@ export default function EditQuestionModal({
 
           <Col span={12}>
             <Form.Item
-              label="Category"
+              label="Danh mục"
               name="categoryId"
               rules={[{ required: true }]}
             >
@@ -125,7 +125,7 @@ export default function EditQuestionModal({
           </Col>
         </Row>
 
-        <Form.Item label="Answers">
+        <Form.Item label="Đáp án">
           <Space direction="vertical" style={{ width: "100%" }}>
             {ANSWER_LABELS.map((label) => (
               <Row key={label} gutter={8} align="middle">
@@ -156,7 +156,7 @@ export default function EditQuestionModal({
             ))}
           </Space>
         </Form.Item>
-        <Form.Item label="Explanation" name="explanation">
+        <Form.Item label="Chú thích" name="explanation">
           <Input.TextArea rows={2} />
         </Form.Item>
       </Form>
