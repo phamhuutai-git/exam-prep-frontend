@@ -5,15 +5,20 @@ const { Title, Text } = Typography;
 
 export default function ViewClassDrawer({ data, onClose }) {
   return (
-    <Drawer title="Class Detail" open={!!data} onClose={onClose} style={{ width: 500 }}>
+    <Drawer
+      title="Chi tiết lớp học"
+      open={!!data}
+      onClose={onClose}
+      style={{ width: 500 }}
+    >
       {data && (
-        <div style={{maxWidth: 500, margin: "0 auto"}}>
+        <div style={{ maxWidth: 500, margin: "0 auto" }}>
           <Card style={{ marginBottom: 16 }}>
             <Title level={5}>{data.name}</Title>
 
             <Space>
-              <Tag color="blue">{data.studentCount} students</Tag>
-              <Tag color="purple">{data.exams.length} exams</Tag>
+              <Tag color="blue">{data.studentCount} học sinh</Tag>
+              <Tag color="purple">{data.exams.length} đề thi</Tag>
             </Space>
           </Card>
 
@@ -43,12 +48,8 @@ export default function ViewClassDrawer({ data, onClose }) {
                     {/* Row info */}
                     <Space wrap size="small">
                       <Tag color="blue">Code: {e.code}</Tag>
-                      <Tag color="green">
-                        Phân loại: {e.category?.name}
-                      </Tag>
-                      <Tag>
-                        Thời gian: {e.duration}
-                      </Tag>
+                      <Tag color="green">Phân loại: {e.category?.name}</Tag>
+                      <Tag>Thời gian: {e.duration}</Tag>
                     </Space>
 
                     {/* Date */}

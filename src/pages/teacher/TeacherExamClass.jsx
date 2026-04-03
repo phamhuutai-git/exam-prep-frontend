@@ -2,7 +2,6 @@ import { useState, useMemo, useEffect } from "react";
 import UserHeader from "../../components/user/UserHeader";
 import ExamClassTable from "../../components/teacher/ExamClassTable";
 import ViewClassDrawer from "../../components/modal/teacher/ViewClassDrawer";
-import StatsCards from "../../components/common/StatsCards";
 import AppPagination from "../../components/common/AppPagination";
 import EditClassExamModal from "../../components/modal/teacher/EditClassExamModal";
 import "../../assets/styles/User.css";
@@ -12,104 +11,6 @@ import { Input, Select } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import classExamService from "../../services/teacher/classExamService.js";
 import { toast } from "react-toastify";
-
-// MOCK DATA
-const MOCK_CLASS_EXAMS = [
-  {
-    id: 1,
-    name: "Railway01",
-    students: 25,
-    exams: [
-      {
-        id: 1, // class_exam.id
-        examId: 1,
-        title: "Java Basic Test",
-        duration: 30,
-        startTime: "2024-04-01 09:00:00",
-        endTime: "2024-04-01 09:30:00",
-        status: "HAS_EXAM",
-      },
-    ],
-  },
-  {
-    id: 2,
-    name: "Railway02",
-    students: 30,
-    exams: [
-      {
-        id: 2,
-        examId: 2,
-        title: "Spring Test",
-        duration: 40,
-        startTime: "2024-04-01 10:00:00",
-        endTime: "2024-04-01 10:40:00",
-        status: "HAS_EXAM",
-      },
-    ],
-  },
-  {
-    id: 3,
-    name: "Railway03",
-    students: 20,
-    exams: [
-      {
-        id: 3,
-        examId: 3,
-        title: "SQL Test",
-        duration: 30,
-        startTime: "2024-04-02 09:00:00",
-        endTime: "2024-04-02 09:30:00",
-        status: "HAS_EXAM",
-      },
-      {
-        id: 4,
-        examId: 4,
-        title: "HTML Test",
-        duration: 20,
-        startTime: "2024-04-02 10:00:00",
-        endTime: "2024-04-02 10:20:00",
-        status: "HAS_EXAM",
-      },
-    ],
-  },
-  {
-    id: 4,
-    name: "Rocket01",
-    students: 18,
-    exams: [],
-  },
-  {
-    id: 5,
-    name: "Rocket02",
-    students: 18,
-    exams: [
-      {
-        id: 5,
-        examId: 5,
-        title: "JS Test",
-        duration: 25,
-        startTime: "2024-04-03 09:00:00",
-        endTime: "2024-04-03 09:25:00",
-        status: "HAS_EXAM",
-      },
-      {
-        id: 6,
-        examId: 6,
-        title: "JS 1",
-        duration: 25,
-        startTime: "2024-04-03 10:00:00",
-        endTime: "2024-04-03 10:25:00",
-        status: "HAS_EXAM",
-      },
-    ],
-  },
-];
-const MOCK_EXAMS = [
-  { id: 1, title: "Java Basic Test" },
-  { id: 2, title: "SQL Test" },
-  { id: 3, title: "ReactJS" },
-  { id: 4, title: "Spring Boot" },
-];
 
 export default function TeacherExamsClass() {
   const [classes, setClasses] = useState([]);
@@ -162,19 +63,16 @@ export default function TeacherExamsClass() {
 
   const handleSave = async ({ classId, examIds }) => {
     try {
-
       // Call API to save changes
       await classExamService.updateExam(classId, examIds);
       toast.success("Lưu thay đổi thành công");
 
-      setReloadEdit(prev => !prev);
+      setReloadEdit((prev) => !prev);
       setOpenModal(false);
-    }
-    catch (error) {
+    } catch (error) {
       console.error("Error saving class exams: ", error);
       toast.error("Lỗi khi lưu thay đổi");
     }
-
   };
 
   // FILTER
@@ -206,15 +104,6 @@ export default function TeacherExamsClass() {
         description="Gán đề thi cho lớp học và quản lý lịch thi"
       />
 
-      <StatsCards
-        items={[
-          { title: "Total Class", value: 0 },
-          { title: "Total Student", value: 0 },
-          { title: "Total Has Exam", value: 0 },
-          { title: "Total All Exam ", value: 0 },
-        ]}
-      />
-
       {/* Filters */}
       <div className="filter-bar">
         {/* SEARCH */}
@@ -223,7 +112,7 @@ export default function TeacherExamsClass() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
-            placeholder="Search Class Name..."
+            placeholder="Tìm kiếm tên lớp..."
             allowClear
             onClear={() => setSearch("")}
           />
@@ -235,12 +124,12 @@ export default function TeacherExamsClass() {
         <Select
           value={sortClass || undefined}
           onChange={(value) => setSortClass(value || "")}
-          placeholder="Sort by"
+          placeholder="Lọc theo"
           allowClear
           style={{ width: 170 }}
         >
-          <Select.Option value="class">Class</Select.Option>
-          <Select.Option value="exam">Total Exam</Select.Option>
+          <Select.Option value="class">Lớp</Select.Option>
+          <Select.Option value="exam">Số đề thi</Select.Option>
         </Select>
       </div>
       {/* TABLE */}

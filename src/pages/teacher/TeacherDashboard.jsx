@@ -6,19 +6,51 @@ import StatsCards from "../../components/common/StatsCards";
 import CreateQuestionModal from "../../components/modal/teacher/Createquestionmodal";
 import ExamFormModal from "../../components/modal/teacher/ExamFormModal";
 import ScoreChart from "../../components/teacher/dashboard/ScoreChart";
-import RecentExams from "../../components/teacher/dashboard/RecentExams";
-import RecentAttempts from "../../components/teacher/dashboard/RecentAttempts";
 import QuickActions from "../../components/teacher/dashboard/QuickActions";
 import questionService from "../../services/teacher/questionService";
+import dashBoardService from "../../services/teacher/dashboardService";
 export default function TeacherDashboard() {
   const [stats, setStats] = useState([]);
   const [scoreDist, setScoreDist] = useState([]);
-  const [recentExams, setRecentExams] = useState([]);
-  const [recentAttempts, setRecentAttempts] = useState([]);
   const [openQuestion, setOpenQuestion] = useState(false);
   const [openExam, setOpenExam] = useState(false);
   const [categories, setCategories] = useState([]);
+  const [allQuestions, setAllQuestions] = useState([]);
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const res = await dashBoardService.stats();
 
+        const data = res.data.data;
+
+        setStats([
+          { title: "Tổng số đề thi", value: data.totalExams },
+          { title: "Tổng số câu hỏi", value: data.totalQuestions },
+          { title: "Tổng số học sinh", value: data.totalStudents },
+        ]);
+      } catch (err) {
+        console.error("Lỗi load stats:", err);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
+  useEffect(() => {
+    const fetchQuestions = async () => {
+      try {
+        const res = await questionService.getQuestionsByTeacher({
+          page: 0,
+          size: 1000,
+        });
+        setAllQuestions(res.data.data.content);
+      } catch (err) {
+        console.error("Lỗi load questions:", err);
+      }
+    };
+
+    fetchQuestions();
+  }, []);
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -30,75 +62,6 @@ export default function TeacherDashboard() {
     };
 
     fetchCategories();
-  }, []);
-  useEffect(() => {
-    // MOCK DATA
-    const mockData = {
-      recentExams: [
-        {
-          id: 1,
-          title: "Java Core Test",
-          category: "Java",
-          attempts: 120,
-          avgScore: 7.5,
-        },
-        {
-          id: 2,
-          title: "Spring Boot Exam",
-          category: "Spring",
-          attempts: 90,
-          avgScore: 8.2,
-        },
-        {
-          id: 3,
-          title: "SQL Advanced",
-          category: "SQL",
-          attempts: 75,
-          avgScore: 6.9,
-        },
-        {
-          id: 4,
-          title: "JavaScript Basic",
-          category: "JavaScript",
-          attempts: 150,
-          avgScore: 8.8,
-        },
-      ],
-
-      recentAttempts: [
-        {
-          id: 1,
-          student: "Nguyen Van A",
-          exam: "Java Core Test",
-          score: 8.5,
-        },
-        {
-          id: 2,
-          student: "Tran Thi B",
-          exam: "SQL Advanced",
-          score: 6.0,
-        },
-        {
-          id: 3,
-          student: "Le Van C",
-          exam: "Spring Boot Exam",
-          score: 9.0,
-        },
-        {
-          id: 4,
-          student: "Pham Thi D",
-          exam: "JavaScript Basic",
-          score: 7.5,
-        },
-      ],
-    };
-
-    setTimeout(() => {
-      setStats(mockData.stats);
-      setScoreDist(mockData.scoreDistribution);
-      setRecentExams(mockData.recentExams);
-      setRecentAttempts(mockData.recentAttempts);
-    }, 500);
   }, []);
 
   return (
@@ -129,25 +92,12 @@ export default function TeacherDashboard() {
       />
 
       {/* STATS */}
-      <StatsCards
-        items={[
-          { title: "Total Exams", value: 0 },
-          { title: "Total Questions", value: 0 },
-          { title: "totalStudents", value: 0 },
-          { title: "totalAttempts", value: 0 },
-        ]}
-      />
+      <StatsCards items={stats} />
 
       {/* ROW 1 */}
       <div style={{ display: "flex", gap: 16, marginTop: 20 }}>
         <ScoreChart data={scoreDist} />
         <QuickActions />
-      </div>
-
-      {/* ROW 2 */}
-      <div style={{ display: "flex", gap: 16, marginTop: 20 }}>
-        <RecentExams data={recentExams} />
-        <RecentAttempts data={recentAttempts} />
       </div>
       {/* CREATE QUESTION */}
       <CreateQuestionModal
@@ -165,7 +115,7 @@ export default function TeacherDashboard() {
       {openExam && (
         <ExamFormModal
           exam={null}
-          questions={[]}
+          questions={allQuestions}
           categories={categories}
           onClose={() => setOpenExam(false)}
           onSave={(data) => {

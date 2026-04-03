@@ -52,6 +52,7 @@ const TeacherExams = () => {
         maxDate: dateFilter?.end || undefined,
         page,
         size,
+        ...(sortOrder && { sort: `id,${sortOrder}` }),
       });
       const result = response.data.data;
       setExams(result.content);
@@ -64,7 +65,7 @@ const TeacherExams = () => {
 
   useEffect(() => {
     fetchExams();
-  }, [search, catFilter, dateFilter, page, size, reload]);
+  }, [search, catFilter, dateFilter, page, size, reload, sortOrder]);
 
   useEffect(() => {
     async function fetchCategories() {
@@ -243,12 +244,12 @@ const TeacherExams = () => {
           style={{ width: 160 }}
           allowClear
           onChange={(value) => {
-            setSortOrder(value);
+            setSortOrder(value || "");
             setPage(0);
           }}
         >
-          <Select.Option value="asc">Cũ → Mới</Select.Option>
           <Select.Option value="desc">Mới → Cũ</Select.Option>
+          <Select.Option value="asc">Cũ → Mới</Select.Option>
         </Select>
       </div>
 

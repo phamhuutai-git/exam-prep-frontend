@@ -140,7 +140,7 @@ export default function CreateQuestionModal({
           </Space>
         </Form.Item>
         {/* Nội dung chu thich */}
-        <Form.Item label="Chú thích" name="explanation">
+        <Form.Item label="Giải thích" name="explanation">
           <Input.TextArea rows={2} />
         </Form.Item>
       </Form>

@@ -68,6 +68,7 @@ export default function TeacherQuestion() {
         categoryId: catFilter,
         page: page,
         size: size,
+        ...(sortOrder && { sort: `id,${sortOrder}` }),
       });
       setQuestions(res.data.data.content);
       setTotal(res.data.data.totalElements);
@@ -220,7 +221,7 @@ export default function TeacherQuestion() {
   // fetch main data
   useEffect(() => {
     fetchQuestions();
-  }, [search, diffFilter, catFilter, page, size]);
+  }, [search, diffFilter, catFilter, page, size, sortOrder]);
 
   // fetch static data
   useEffect(() => {
@@ -310,12 +311,13 @@ export default function TeacherQuestion() {
           style={{ width: 160 }}
           allowClear
           onChange={(value) => {
-            setSortOrder(value);
+            setSortOrder(value || "");
             setPage(0);
           }}
         >
-          <Select.Option value="asc">Cũ → Mới</Select.Option>
+          {" "}
           <Select.Option value="desc">Mới → Cũ</Select.Option>
+          <Select.Option value="asc">Cũ → Mới</Select.Option>
         </Select>
       </div>
 
