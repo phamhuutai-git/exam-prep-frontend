@@ -142,7 +142,7 @@ const LichSuluyentap = () => {
                   percent={exam.score} // ✅ FIX
                   size="small"
                 />
-                <b>Điểm: {exam.score}/10</b>
+                <b>Điểm: {exam.score}/100</b>
               </div>
 
               {/* STATS */}
