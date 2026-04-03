@@ -1,9 +1,14 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Card, Row, Col, Tag, Button, Input, Spin, Empty } from "antd";
+import { Card, Row, Col, Tag, Button, Input, Spin, Empty, Modal } from "antd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faClock, faBook, faHeart, faSearch } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
-import { getExamsByClass ,startExam} from "../../services/student/studentServices";
+import {
+  getExamsByClass,
+  startExam,
+  resolveAttemptId,
+  restartExam
+} from "../../services/student/studentServices";
 import { useAuth } from "../../context/AuthContext";
 
 const Bailuyentap = () => {
@@ -25,6 +30,30 @@ const Bailuyentap = () => {
       ? `${parseInt(h)} giờ ${parseInt(m)} phút`
       : `${parseInt(m)} phút`;
   };
+
+  //Them function restart thi
+  const handleRestartExam = (examId) => {
+    Modal.confirm({
+      title: "Xác nhận làm lại bài luyện tập",
+      content: "Bạn sẽ mất kết quả hiện tại. Bạn có chắc muốn làm lại?",
+      okText: "Làm lại",
+      cancelText: "Hủy",
+      onOk: async () => {
+        try {
+          const res = await restartExam(examId);
+          const data = res.data?.data;
+
+          navigate(`/student/thi/${examId}`, {
+            state: data,
+          });
+          console.log(data);
+        } catch (err) {
+          console.error(err);
+          alert("Không thể làm lại bài luyện tập");
+        }
+      }
+    })
+  }
 
   useEffect(() => {
     const loadData = () => {
@@ -96,63 +125,70 @@ const Bailuyentap = () => {
     localStorage.setItem("favoriteExams", JSON.stringify(newLiked));
     window.dispatchEvent(new Event("storage"));
   };
-const handleStartExam = async (examId) => {
-  try {
-    setLoading(true);
+  const handleStartExam = async (examId) => {
+    try {
+      setLoading(true);
 
-    const res = await startExam(examId);
+      const res = await startExam(examId);
 
-    const data = res.data?.data;
+      const data = res.data?.data;
 
-    if (!data) {
-      throw new Error("Không có dữ liệu bài thi");
+      if (!data) {
+        throw new Error("Không có dữ liệu bài thi");
+      }
+
+      const attemptId = resolveAttemptId(data);
+      if (attemptId == null) {
+        throw new Error("API start không trả về attemptId");
+      }
+
+      // 👉 Map dữ liệu giống Thithat đang dùng (cần attemptId để nộp bài)
+      const examData = {
+        attemptId,
+        examTitle: data.examTitle,
+        duration: data.duration,
+        questions: data.questions,
+        examType: data.examType,
+      };
+
+      // 👉 Navigate to practice exam page
+      navigate(`/student/thithu/${examId}`, {
+        state: examData,
+      });
+
+    } catch (err) {
+      console.error("Lỗi start exam:", err);
+
+      // 🔥 xử lý case đã thi dở
+      if (
+        err.response?.data?.message?.includes("ongoing attempt")
+      ) {
+        alert("Bạn đang có bài thi chưa nộp!");
+      } else {
+        alert("Không thể bắt đầu bài thi");
+      }
+    } finally {
+      setLoading(false);
     }
-
-    // 👉 Map dữ liệu giống Thithat đang dùng
-    const examData = {
-      examTitle: data.examTitle,
-      duration: data.duration,
-      questions: data.questions,
-    };
-
-    // 👉 Navigate to practice exam page
-    navigate(`/student/thithu/${examId}`, {
-      state: examData,
-    });
-
-  } catch (err) {
-    console.error("Lỗi start exam:", err);
-
-    // 🔥 xử lý case đã thi dở
-    if (
-      err.response?.data?.message?.includes("ongoing attempt")
-    ) {
-      alert("Bạn đang có bài thi chưa nộp!");
-    } else {
-      alert("Không thể bắt đầu bài thi");
-    }
-  } finally {
-    setLoading(false);
-  }
-};
+  };
   return (
     <div style={{ padding: "24px" }}>
-      <h1>Danh sách bài thi</h1>
+      <h1>Danh sách bài thi luyện tập</h1>
       <p style={{ marginBottom: "32px", color: "#666" }}>
         Chọn bài thi để bắt đầu luyện tập
       </p>
 
       {/* SEARCH */}
-        <div style={{ marginBottom: '24px' }}>
-                 <Input
-                   className="search-input"
-                   prefix={<FontAwesomeIcon icon={faSearch} />}
-                   placeholder="Tìm kiếm bài thi theo tiêu đề, môn học..."
-                   value={searchTerm}
-                   onChange={(e) => setSearchTerm(e.target.value)}
-                   style={{ maxWidth: 400 }}
-                 />
-               </div>
+      <div style={{ marginBottom: '24px' }}>
+        <Input
+          className="search-input"
+          prefix={<FontAwesomeIcon icon={faSearch} />}
+          placeholder="Tìm kiếm bài thi theo tiêu đề, môn học..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={{ maxWidth: 400 }}
+        />
+      </div>
 
       {/* LOADING */}
       {loading ? (
@@ -215,11 +251,24 @@ const handleStartExam = async (examId) => {
                   }}
                 >
                   <Button
-  type="primary"
-  onClick={() => handleStartExam(exam.id)}
->
-  Luyện tập
-</Button>
+                    type="primary"
+                    onClick={() => handleStartExam(exam.id)}
+                  >
+                    Luyện tập
+                  </Button>
+
+                  <Button
+                    danger
+                    style={{
+                      marginLeft: 16,
+                      borderRadius: 8,
+                      padding: "0 16px",
+                      fontWeight: 500,
+                    }}
+                    onClick={() => handleRestartExam(exam.id)}
+                  >
+                    Làm lại
+                  </Button>
                 </div>
               </Card>
             </Col>

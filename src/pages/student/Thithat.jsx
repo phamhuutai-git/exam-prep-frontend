@@ -1,9 +1,12 @@
-import React, { useState, useRef} from "react";
+import React, { useState, useRef } from "react";
 import { useEffect } from "react";
 
 import { Card, Row, Col, Radio, Button, Modal } from "antd";
 import { useNavigate, useLocation } from "react-router-dom";
-import { submitExam } from "../../services/student/studentServices";
+import {
+  submitExam,
+  resolveAttemptId,
+} from "../../services/student/studentServices";
 
 const { confirm } = Modal;
 
@@ -33,29 +36,29 @@ const Thithat = () => {
   const [submitted, setSubmitted] = useState(false);
   const [result, setResult] = useState(null);
   const [openModal, setOpenModal] = useState(false);
-useEffect(() => {
-  if (submitted) return; // nếu đã nộp thì dừng
+  useEffect(() => {
+    if (submitted) return; // nếu đã nộp thì dừng
 
-  if (timeLeft <= 0) {
-    handleConfirmSubmit(); // ⏰ auto submit
-    return;
-  }
+    if (timeLeft <= 0) {
+      handleConfirmSubmit(); // ⏰ auto submit
+      return;
+    }
 
-  const timer = setInterval(() => {
-    setTimeLeft((prev) => prev - 1);
-  }, 1000);
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => prev - 1);
+    }, 1000);
 
-  return () => clearInterval(timer);
-}, [timeLeft, submitted]);
+    return () => clearInterval(timer);
+  }, [timeLeft, submitted]);
 
-const formatTime = (seconds) => {
-  if (seconds <= 0 || isNaN(seconds)) {
-    return "00:00";
-  }
-  const m = Math.floor(seconds / 60);
-  const s = seconds % 60;
-  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
-};
+  const formatTime = (seconds) => {
+    if (seconds <= 0 || isNaN(seconds)) {
+      return "00:00";
+    }
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+  };
   // ❌ nếu reload mất data
   if (!examData) {
     return <div style={{ padding: 24 }}>Không có dữ liệu bài thi</div>;
@@ -79,34 +82,41 @@ const formatTime = (seconds) => {
 
   // ✅ submit thật
   const handleConfirmSubmit = async () => {
-  if (submitted) return; // ❗ cực quan trọng
+    if (submitted) return; // ❗ cực quan trọng
 
-  setSubmitted(true);
+    setSubmitted(true);
 
-  const endTime = new Date();
-  const diffMs = endTime - startTime;
-  const minutes = Math.floor(diffMs / 60000);
-  const seconds = Math.floor((diffMs % 60000) / 1000);
-  setSubmitDuration(`${minutes} phút ${seconds} giây`);
+    const endTime = new Date();
+    const diffMs = endTime - startTime;
+    const minutes = Math.floor(diffMs / 60000);
+    const seconds = Math.floor((diffMs % 60000) / 1000);
+    setSubmitDuration(`${minutes} phút ${seconds} giây`);
 
-  try {
-    const answerList = Object.entries(answers).map(
-      ([questionId, answerId]) => ({
-        questionId: Number(questionId),
-        selectedOptionId: answerId,
-      })
-    );
+    try {
+      const answerList = Object.entries(answers).map(
+        ([questionId, answerId]) => ({
+          questionId: Number(questionId),
+          selectedOptionId: answerId,
+        })
+      );
 
-    const res = await submitExam(examData.attemptId, answerList);
-    console.log(res);
+      const attemptId = resolveAttemptId(examData);
+      if (attemptId == null) {
+        alert("Thiếu mã lượt thi. Vui lòng vào lại từ danh sách bài thi.");
+        setSubmitted(false);
+        return;
+      }
 
-    setResult(res.data); // ✅ đúng
-    setOpenModal(true);
-  } catch (err) {
-    console.error(err);
-    setSubmitted(false);
-  }
-};
+      const res = await submitExam(attemptId, answerList);
+      console.log(res);
+
+      setResult(res.data); // ✅ đúng
+      setOpenModal(true);
+    } catch (err) {
+      console.error(err);
+      setSubmitted(false);
+    }
+  };
 
   const handleSubmit = () => {
     const unanswered = questions.filter((q) => !answers[q.id]).length;
@@ -136,9 +146,9 @@ const formatTime = (seconds) => {
       block: "center",
     });
   };
-const formatDate = (date) => {
-  return new Date(date).toLocaleString("vi-VN");
-};
+  const formatDate = (date) => {
+    return new Date(date).toLocaleString("vi-VN");
+  };
 
 
   return (
@@ -152,19 +162,19 @@ const formatDate = (date) => {
         <Col style={{ textAlign: "right" }}>
           <p>Thời gian làm bài</p>
           <h3 style={{ color: timeLeft <= 60 ? "red" : "black" }}>
-  {formatTime(timeLeft)}
-</h3>
+            {formatTime(timeLeft)}
+          </h3>
         </Col>
       </Row>
 
       <Row gutter={24}>
         {/* LEFT */}
         <Col span={16}>
-  {questions.map((q, index) => (
-    <div
-      key={`${q.id}-${index}`}
-      ref={(el) => (questionRefs.current[index] = el)}
-    >
+          {questions.map((q, index) => (
+            <div
+              key={`${q.id}-${index}`}
+              ref={(el) => (questionRefs.current[index] = el)}
+            >
               <Card
                 title={`Câu ${index + 1}`}
                 style={{
@@ -259,7 +269,7 @@ const formatDate = (date) => {
             onCancel={() => setOpenModal(false)}
             footer={[
               <Button key="review" type="primary" onClick={() => setOpenModal(false)}>
-                Xem lại bài
+                Kết thúc
               </Button>,
             ]}
           >
@@ -282,10 +292,8 @@ const formatDate = (date) => {
 <h3>Kết quả</h3>
 
 <p>
-  <b>Điểm số:</b>{" "}
-  {result
-    ? ((result.score / result.totalQuestions) * 10).toFixed(1)
-    : 0}/10
+ <b>Điểm số:</b>{" "}
+{result ? result.score : 0}
 </p>
 
 <p><b>Đúng:</b> {result?.correctCount}/{result?.totalQuestions}</p>
@@ -293,6 +301,47 @@ const formatDate = (date) => {
 <p><b>Sai:</b> {result?.wrongCount}</p>
 <p><b>Chưa làm:</b> {result?.blankCount}</p>
           </Modal>
+      <Modal
+        title="Kết quả bài thi"
+        open={openModal}
+        onCancel={() => setOpenModal(false)}
+        footer={[
+          // <Button key="finish" type="primary" onClick={handleGoBack}>
+          //   Kết thúc
+          // </Button>
+          <Button key="review" type="primary" onClick={() => setOpenModal(false)}>
+            Xem lại bài thi
+          </Button>,
+        ]}
+      >
+        <p><b>Ngày thi:</b> {formatDate(startTime)}</p>
+
+        <p><b>Thời gian:</b> {examData.duration} phút</p>
+
+        <p><b>Loại thi:</b> {examData.examType}</p>
+        <p><b>Thời gian nộp:</b> {submitDuration}</p>
+
+        <p>
+          <b>Trạng thái:</b>{" "}
+          <span style={{ color: result?.resultStatus === "PASSED" ? "#52c41a" : "#ff4d4f" }}>
+            {result?.resultStatus === "PASSED" ? "ĐẠT" : "KHÔNG ĐẠT"}
+          </span>
+        </p>
+
+        <hr />
+
+        <h3>Kết quả</h3>
+
+        <p>
+          <b>Điểm số:</b>{" "}
+          {result ? (result.score).toFixed(1) : 0}
+        </p>
+
+        <p><b>Đúng:</b> {result?.correctCount}/{result?.totalQuestions}</p>
+
+        <p><b>Sai:</b> {result?.wrongCount}</p>
+        <p><b>Chưa làm:</b> {result?.blankCount}</p>
+      </Modal>
     </div>
   );
 };
