@@ -197,7 +197,7 @@ const LichSuluyentap = () => {
               cursor: "pointer",
             }}
           >
-            Tải thêm kết quả ⬇
+            Tải thêm kết quả
           </button>
         </div>
       )}
