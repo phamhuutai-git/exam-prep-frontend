@@ -236,7 +236,7 @@ export default function TeacherQuestion() {
         handleAdd={() => setCreateOpen(true)}
         extra={
           <>
-            <Button icon={<DownloadOutlined />} onClick={handleExport}>
+            <Button icon={<UploadOutlined />} onClick={handleExport}>
               Export
             </Button>
 
@@ -247,7 +247,7 @@ export default function TeacherQuestion() {
                 return false;
               }}
             >
-              <Button icon={<UploadOutlined />}>Import</Button>
+              <Button icon={<DownloadOutlined />}>Import</Button>
             </Upload>
           </>
         }
