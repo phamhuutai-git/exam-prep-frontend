@@ -31,29 +31,6 @@ const Bailuyentap = () => {
       : `${parseInt(m)} phút`;
   };
 
-  //Them function restart thi
-  const handleRestartExam = (examId) => {
-    Modal.confirm({
-      title: "Xác nhận làm lại bài luyện tập",
-      content: "Bạn sẽ mất kết quả hiện tại. Bạn có chắc muốn làm lại?",
-      okText: "Làm lại",
-      cancelText: "Hủy",
-      onOk: async () => {
-        try {
-          const res = await restartExam(examId);
-          const data = res.data?.data;
-
-          navigate(`/student/thi/${examId}`, {
-            state: data,
-          });
-          console.log(data);
-        } catch (err) {
-          console.error(err);
-          alert("Không thể làm lại bài luyện tập");
-        }
-      }
-    })
-  }
 
   useEffect(() => {
     const loadData = () => {
@@ -171,6 +148,54 @@ const Bailuyentap = () => {
       setLoading(false);
     }
   };
+
+  //Them function restart thi
+  const handleRestartExam = (examId) => {
+    Modal.confirm({
+      title: "Xác nhận làm lại bài luyện tập",
+      content: "Bạn sẽ mất kết quả hiện tại. Bạn có chắc muốn làm lại?",
+      okText: "Làm lại",
+      cancelText: "Hủy",
+      onOk: async () => {
+        try {
+          setLoading(true);
+
+          const res = await restartExam(examId);
+          const data = res.data?.data;
+
+          if (!data) {
+            throw new Error("Không có dữ liệu bài thi");
+          }
+
+          const attemptId = resolveAttemptId(data);
+          if (attemptId == null) {
+            throw new Error("API restart không trả về attemptId");
+          }
+
+          // Map dữ liệu giống Thithat đang dùng (cần attemptId để nộp bài)
+          const examData = {
+            attemptId,
+            examTitle: data.examTitle,
+            duration: data.duration,
+            questions: data.questions,
+            examType: data.examType,
+          };
+
+          // 👉 Navigate to practice exam page
+          navigate(`/student/thithu/${examId}`, {
+            state: examData,
+          });
+
+          console.log(data);
+        } catch (err) {
+          console.error(err);
+          alert("Không thể làm lại bài luyện tập");
+        }
+      }
+    })
+  }
+
+
   return (
     <div style={{ padding: "24px" }}>
       <h1>Danh sách bài thi luyện tập</h1>
