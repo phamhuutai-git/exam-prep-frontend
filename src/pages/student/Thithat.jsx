@@ -1,6 +1,5 @@
 import React, { useState, useRef } from "react";
 import { useEffect } from "react";
-
 import { Card, Row, Col, Radio, Button, Modal } from "antd";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
@@ -213,11 +212,12 @@ const Thithat = () => {
           <div
             ref={rightPanelRef}
             style={{
+              
               background: "#fff",
               padding: "16px",
               borderRadius: "12px",
               position: "sticky",
-              top: "20px",
+              top: "90px",
             }}
           >
             <p>Xem lại nhanh</p>
