@@ -134,10 +134,10 @@ const LichSuluyentap = () => {
               {/* INFO */}
               <div style={{ fontSize: 13, color: "#666" }}>
                 <div>
-                                    <FontAwesomeIcon icon={faCalendar} /> {exam.date} - {exam.endTime}
+                  <FontAwesomeIcon icon={faCalendar} /> {exam.date} - {exam.endTime}
                   
                 </div>
-                
+              
                 <div>
                   <FontAwesomeIcon icon={faClock} /> {exam.duration} -{" "}
                   {exam.type}

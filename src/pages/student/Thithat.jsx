@@ -138,13 +138,33 @@ const Thithat = () => {
     navigate("/student/bai-thi");
   };
 
-  const scrollToQuestion = (index) => {
-    setActiveQuestion(index);
-    questionRefs.current[index]?.scrollIntoView({
+  const scrollToQuestion = (id) => {
+  setActiveQuestion(id);
+
+  const el = questionRefs.current[id];
+  if (!el) return;
+
+  // Scroll bên trái
+  el.scrollIntoView({
+    behavior: "smooth",
+    block: "center",
+  });
+
+  // Scroll bên phải (Xem lại nhanh)
+  if (rightPanelRef.current) {
+    const container = rightPanelRef.current;
+
+    const elTop = el.getBoundingClientRect().top;
+    const containerTop = container.getBoundingClientRect().top;
+
+    const offset = elTop - containerTop;
+
+    container.scrollTo({
+      top: container.scrollTop + offset - 100,
       behavior: "smooth",
-      block: "center",
     });
-  };
+  }
+};
   const formatDate = (date) => {
     return new Date(date).toLocaleString("vi-VN");
   };
@@ -210,16 +230,17 @@ const Thithat = () => {
         {/* RIGHT */}
         <Col span={8}>
           <div
-            ref={rightPanelRef}
-            style={{
-              
-              background: "#fff",
-              padding: "16px",
-              borderRadius: "12px",
-              position: "sticky",
-              top: "90px",
-            }}
-          >
+  ref={rightPanelRef}
+  style={{
+    background: "#fff",
+    padding: "16px",
+    borderRadius: "12px",
+    position: "sticky",
+    top: "90px",
+    maxHeight: "80vh",
+    overflowY: "auto",
+  }}
+>
             <p>Xem lại nhanh</p>
 
             <div
