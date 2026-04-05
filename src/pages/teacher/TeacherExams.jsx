@@ -193,21 +193,7 @@ const TeacherExams = () => {
           />
         </div>
         <div className="filter-divider" />
-        <Select
-          placeholder="Danh mục"
-          allowClear
-          style={{ width: 150 }}
-          onChange={(v) => {
-            setCatFilter(v);
-            setPage(0);
-          }}
-        >
-          {categories.map((c) => (
-            <Select.Option key={c.id} value={c.name}>
-              {c.name}
-            </Select.Option>
-          ))}
-        </Select>
+
         {/* Date range filter */}
         <div style={{ display: "flex", gap: 8 }}>
           {/* From date */}
@@ -238,7 +224,21 @@ const TeacherExams = () => {
             }}
           />
         </div>
-
+        <Select
+          placeholder="Danh mục"
+          allowClear
+          style={{ width: 150 }}
+          onChange={(v) => {
+            setCatFilter(v);
+            setPage(0);
+          }}
+        >
+          {categories.map((c) => (
+            <Select.Option key={c.id} value={c.name}>
+              {c.name}
+            </Select.Option>
+          ))}
+        </Select>
         <Select
           placeholder="Sắp xếp"
           style={{ width: 160 }}

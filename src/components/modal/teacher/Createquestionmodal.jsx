@@ -66,7 +66,7 @@ export default function CreateQuestionModal({
         <Row gutter={12}>
           <Col span={12}>
             <Form.Item
-              label="Chế độ"
+              label="Mức độ"
               name="difficulty"
               rules={[{ required: true, message: "Please select difficulty" }]}
             >
