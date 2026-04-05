@@ -6,9 +6,7 @@ import {
   getReviewExam,
 } from "../../services/student/studentServices";
 import { useNavigate, useLocation } from "react-router-dom";
-
 const { confirm } = Modal;
-
 /** Gom text giải thích từ một object đáp án gốc (backend có thể đặt tên khác nhau). */
 const explanationFromRawAnswer = (a) => {
   if (!a || typeof a !== "object") return "";
@@ -225,13 +223,33 @@ const Thithu = () => {
     navigate("/student/bai-thi-luyen-tap");
   };
 
-  const scrollToQuestion = (id) => {
-    setActiveQuestion(id);
-    questionRefs.current[id]?.scrollIntoView({
+const scrollToQuestion = (id) => {
+  setActiveQuestion(id);
+
+  const el = questionRefs.current[id];
+  if (!el) return;
+
+  // Scroll bên trái
+  el.scrollIntoView({
+    behavior: "smooth",
+    block: "center",
+  });
+
+  // Scroll bên phải (Xem lại nhanh)
+  if (rightPanelRef.current) {
+    const container = rightPanelRef.current;
+
+    const elTop = el.getBoundingClientRect().top;
+    const containerTop = container.getBoundingClientRect().top;
+
+    const offset = elTop - containerTop;
+
+    container.scrollTo({
+      top: container.scrollTop + offset - 100,
       behavior: "smooth",
-      block: "center",
     });
-  };
+  }
+};
   const formatDate = (date) => {
     return new Date(date).toLocaleString("vi-VN");
   };
@@ -352,20 +370,19 @@ const Thithu = () => {
         </Col>
 
         <Col span={8}>
-          <div
-            ref={rightPanelRef}
-            style={{
-              background: "#fff",
-              padding: "16px",
-              borderRadius: "12px",
-              position: "sticky",
-              top: "20px",
-            }}
-          >
+         <div
+  ref={rightPanelRef}
+  style={{
+    background: "#fff",
+    padding: "16px",
+    borderRadius: "12px",
+    position: "sticky",
+    top: "90px",
+    maxHeight: "80vh",
+    overflowY: "auto",
+  }}
+>
             <p style={{ marginBottom: "10px" }}>Xem lại nhanh</p>
-
-
-
             <div
               style={{
                 display: "grid",
@@ -437,9 +454,9 @@ const Thithu = () => {
           <Button key="review" type="primary" onClick={() => setOpenModal(false)}>
             Xem lại bài
           </Button>,
-          <Button key="finish" type="primary" onClick={handleGoBack}>
-            Kết thúc
-          </Button>
+          // <Button key="finish" type="primary" onClick={handleGoBack}>
+          //   Kết thúc
+          // </Button>
         ]}
       >
         <p><b>Ngày thi:</b> {formatDate(startTime)}</p>
