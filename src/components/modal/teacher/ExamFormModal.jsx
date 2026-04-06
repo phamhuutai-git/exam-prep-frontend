@@ -308,7 +308,7 @@ export default function ExamFormModal({
               >
                 <Option value="">Tất cả</Option>
                 {categories.map((c) => (
-                  <Option key={c.id} value={c.id}>
+                  <Option key={c.id} value={c.name}>
                     {c.name}
                   </Option>
                 ))}
