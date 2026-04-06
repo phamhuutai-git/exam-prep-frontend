@@ -144,7 +144,13 @@ const TeacherExams = () => {
       setIsModalOpen(false);
       setEditingExam(null);
     } catch (error) {
-      toast.error("Có lỗi xảy ra khi lưu đề thi");
+      const errorMessage =
+        error.response?.data?.message || // backend trả về
+        error.response?.data ||          // fallback nếu trả string
+        error.message ||                 // lỗi JS
+        "Có lỗi xảy ra khi lưu đề thi";
+
+      toast.error(errorMessage);
       console.error(error);
     }
   };
