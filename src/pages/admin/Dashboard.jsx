@@ -1,9 +1,37 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Card, Row, Col, Statistic } from 'antd'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import {  faUsers, faUserGraduate, faChalkboardTeacher } from '@fortawesome/free-solid-svg-icons'
+import { faUsers, faUserGraduate, faChalkboardTeacher } from '@fortawesome/free-solid-svg-icons'
+import { getClassCount, getStudentCount, getTeacherCount } from '../../services/userService'
 
 const Dashboard = () => {
+
+  const [totalClasses, setTotalClasses] = useState(0)
+  const [totalStudents, setTotalStudents] = useState(0)
+  const [totalTeachers, setTotalTeachers] = useState(0)
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [classes, students, teachers] = await Promise.all([
+          getClassCount(),
+          getStudentCount(),
+          getTeacherCount(),
+        ])
+
+        // ⚠️ backend bạn trả về là số → .data
+        setTotalClasses(classes.data)
+        setTotalStudents(students.data)
+        setTotalTeachers(teachers.data)
+
+      } catch (error) {
+        console.error("Lỗi load dashboard:", error)
+      }
+    }
+
+    fetchData()
+  }, [])
+
   return (
     <div style={{ padding: '24px' }}>
       <h1 style={{ marginBottom: '24px' }}>Dashboard Admin</h1>
@@ -12,45 +40,43 @@ const Dashboard = () => {
       </p>
 
       <Row gutter={[16, 16]}>
-      
 
         {/* Tổng lớp */}
         <Col xs={24} sm={12} lg={6}>
-          <Card variant="borderless">
+          <Card>
             <Statistic
               title="Tổng số lớp học"
-              value={0}
+              value={totalClasses}
               prefix={<FontAwesomeIcon icon={faUsers} />}
-              styles={{ content: { color: '#52c41a' } }}
             />
           </Card>
         </Col>
 
         {/* Học sinh */}
         <Col xs={24} sm={12} lg={6}>
-          <Card variant="borderless">
+          <Card>
             <Statistic
               title="Tổng số học sinh"
-              value={0}
+              value={totalStudents}
               prefix={<FontAwesomeIcon icon={faUserGraduate} />}
-              styles={{ content: { color: '#faad14' } }}
             />
           </Card>
         </Col>
 
         {/* Giáo viên */}
         <Col xs={24} sm={12} lg={6}>
-          <Card variant="borderless">
+          <Card>
             <Statistic
               title="Tổng số giáo viên"
-              value={0}
+              value={totalTeachers}
               prefix={<FontAwesomeIcon icon={faChalkboardTeacher} />}
-              styles={{ content: { color: '#eb2f96' } }}
             />
           </Card>
         </Col>
+
       </Row>
     </div>
   )
 }
+
 export default Dashboard

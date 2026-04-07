@@ -76,7 +76,17 @@ export const deleteUser = (id) => {
   return api.delete(`/users/${id}`);
 }
 
-//users/teachers/class-id/1
 
-
+//admin/classes/count
+export const getClassCount = () => {
+  return api.get("/admin/classes/count");
+}
+///admin/users/students/count
+export const getStudentCount = () => {
+  return api.get("/v1/admin/users/students/count");
+}
+///admin/users/teachers/count
+export const getTeacherCount = () => {
+  return api.get("/v1/admin/users/teachers/count");
+}
 
