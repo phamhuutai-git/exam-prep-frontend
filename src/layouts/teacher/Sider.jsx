@@ -6,7 +6,9 @@ import {
   faFileLines,
   faClipboardQuestion,
   faUsers,
-  faChalkboard,
+  faLayerGroup,
+  faChalkboard
+ 
 } from "@fortawesome/free-solid-svg-icons";
 import "../../assets/styles/Sider.css";
 import logo from "../../assets/images/logo.png";
@@ -32,12 +34,18 @@ const adminMenuItems = [
   },
   {
     id: 4,
+    title: "Quản lý danh mục",
+    path: "/teacher/category",
+    icon: faLayerGroup,
+  },
+  {
+    id: 5,
     title: "Quản lý điểm thi",
     path: "/teacher/students",
     icon: faUsers,
   },
   {
-    id: 5,
+    id: 6,
     title: "Quản lý đề thi theo lớp",
     path: "/teacher/exam-classes",
     icon: faChalkboard,

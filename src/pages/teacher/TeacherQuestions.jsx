@@ -196,7 +196,7 @@ export default function TeacherQuestion() {
     const timer = setTimeout(() => {
       setSearch(searchInput);
       setPage(0); // reset page
-    }, 500);
+    }, 300);
 
     return () => clearTimeout(timer);
   }, [searchInput]);
