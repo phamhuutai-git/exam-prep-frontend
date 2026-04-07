@@ -6,6 +6,6 @@ const categoriesService = {
 
   updateCategories: (id, data) => api.put(`/categories/${id}`, data),
 
-  deleteCategories: (id) => api.delete(`/categories/${id}`)
+  // deleteCategories: (id) => api.delete(`/categories/${id}`)
 }
 export default categoriesService
