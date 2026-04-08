@@ -63,12 +63,11 @@ export default function TeacherCategory() {
       setEditingCategory(null);
       fetchCategories();
     } catch (err) {
-      message.error("Thao tác thất bại");
+      err?.response?.data?.message && message.error(err.response.data.message);
     }
     setLoadingSubmit(false);
   };
 
- 
   useEffect(() => {
     const timer = setTimeout(() => {
       if (searchInput !== search) {
@@ -91,7 +90,7 @@ export default function TeacherCategory() {
             type="primary"
             icon={<PlusOutlined />}
             onClick={() => {
-              setEditingCategory(null); 
+              setEditingCategory(null);
               setModalOpen(true);
             }}
           >
@@ -105,7 +104,7 @@ export default function TeacherCategory() {
         items={[
           {
             title: "Tổng số danh mục",
-        value: total,
+            value: total,
           },
         ]}
       />
