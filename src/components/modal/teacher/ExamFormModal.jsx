@@ -14,9 +14,12 @@ import {
   Button,
   Tooltip,
   Switch,
+  message
 } from "antd";
 import { SearchOutlined, PlusOutlined } from "@ant-design/icons";
 import CreateQuestionModal from "./Createquestionmodal";
+// Import Component AI (Đảm bảo đường dẫn này khớp với vị trí file của bạn)
+import AiExamGenerator from "../../exam/AiExamGenerator";
 
 const { Text } = Typography;
 const { Option } = Select;
@@ -28,19 +31,22 @@ const DIFF_MAP = {
 };
 
 export default function ExamFormModal({
-  exam,
-  questions: initialQuestions,
-  categories,
-  onClose,
-  onSave,
-  onCreateQuestion,
-}) {
+                                        exam,
+                                        questions: initialQuestions,
+                                        categories,
+                                        onClose,
+                                        onSave,
+                                        onCreateQuestion,
+                                      }) {
   const [form] = Form.useForm();
   const [selectedIds, setSelectedIds] = useState([]);
   const [qSearch, setQSearch] = useState("");
   const [qCat, setQCat] = useState("");
   const [questions, setQuestions] = useState(initialQuestions || []);
   const [createQOpen, setCreateQOpen] = useState(false);
+
+  // State quản lý ẩn/hiện Form AI
+  const [showAiForm, setShowAiForm] = useState(false);
 
   useEffect(() => {
     setQuestions(initialQuestions || []);
@@ -62,7 +68,7 @@ export default function ExamFormModal({
       form.resetFields();
       setSelectedIds([]);
     }
-  }, [exam]);
+  }, [exam, form]);
 
   function convertToMinutes(time) {
     if (!time) return undefined;
@@ -82,7 +88,7 @@ export default function ExamFormModal({
 
     if (qSearch) {
       d = d.filter((q) =>
-        q.content.toLowerCase().includes(qSearch.toLowerCase()),
+          q.content.toLowerCase().includes(qSearch.toLowerCase()),
       );
     }
 
@@ -107,9 +113,9 @@ export default function ExamFormModal({
   };
 
   const toggleQuestion = (id) =>
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
-    );
+      setSelectedIds((prev) =>
+          prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+      );
 
   const handleCreateQuestion = async (payload) => {
     try {
@@ -129,258 +135,331 @@ export default function ExamFormModal({
     }
   };
 
+  // =============== HÀM ĐÃ ĐƯỢC CẬP NHẬT: Xử lý & Lưu dữ liệu AI vào DB ===============
+  const handleAiGenerateSuccess = async (newAiQuestions) => {
+    try {
+      const currentCategory = form.getFieldValue("category") || "AI Generated";
+      const savedQuestions = []; // Mảng chứa các câu hỏi có ID thật từ DB
+
+      // Hiển thị thông báo đang lưu
+      const hideMsg = message.loading("Đang lưu câu hỏi AI vào ngân hàng...", 0);
+
+      // Lưu lần lượt từng câu hỏi AI vào Database để lấy ID thật
+      if (onCreateQuestion) {
+        for (const q of newAiQuestions) {
+          const payload = { ...q, category: currentCategory };
+          const savedQ = await onCreateQuestion(payload);
+          if (savedQ && savedQ.id) {
+            savedQuestions.push(savedQ);
+          }
+        }
+      } else {
+        // Fallback chạy offline
+        newAiQuestions.forEach((q, index) => {
+          savedQuestions.push({ ...q, id: Date.now() + index, category: currentCategory });
+        });
+      }
+
+      hideMsg(); // Tắt thông báo loading
+
+      if (savedQuestions.length > 0) {
+        // 1. Nhét câu hỏi THẬT lên đầu danh sách hiển thị
+        setQuestions((prev) => [...savedQuestions, ...prev]);
+
+        // 2. Tự động chọn (tích xanh) theo ID THẬT
+        setSelectedIds((prev) => [
+          ...prev,
+          ...savedQuestions.map((q) => q.id),
+        ]);
+
+        message.success(`Đã tự động lưu ${savedQuestions.length} câu hỏi vào ngân hàng!`);
+      }
+
+      // 3. Đóng form AI
+      setShowAiForm(false);
+
+    } catch (error) {
+      console.error("Lỗi khi lưu câu hỏi AI vào DB:", error);
+      message.error("Có lỗi xảy ra khi lưu câu hỏi AI vào hệ thống.");
+    }
+  };
+  // =================================================================
+
   return (
-    <>
-      <Modal
-        title={exam ? "Chỉnh sửa đề thi" : "Tạo đề thi"}
-        open
-        onCancel={onClose}
-        onOk={handleOk}
-        okText={exam ? "Lưu" : "Tạo đề thi"}
-        cancelText="Hủy"
-        width={680}
-      >
-        <Form
-          form={form}
-          layout="vertical"
-          initialValues={{
-            code: exam?.code,
-            title: exam?.title,
-            duration: convertToMinutes(exam?.duration),
-            category: exam?.category,
-          }}
-          onValuesChange={(changedValues) => {
-            if (changedValues.examType) {
-              if (changedValues.examType === "PRACTICE") {
-                form.setFieldsValue({ reviewAllowed: true });
-              } else if (changedValues.examType === "OFFICIAL") {
-                form.setFieldsValue({ reviewAllowed: false });
-              }
-            }
-          }}
+      <>
+        <Modal
+            title={exam ? "Chỉnh sửa đề thi" : "Tạo đề thi"}
+            open
+            onCancel={onClose}
+            onOk={handleOk}
+            okText={exam ? "Lưu" : "Tạo đề thi"}
+            cancelText="Hủy"
+            width={720}
         >
-          <Row gutter={12}>
-            <Col span={12}>
-              <Form.Item
-                name="code"
-                label="Mã đề"
-                rules={[{ required: true, message: "Bắt buộc" }]}
-              >
-                <Input placeholder="VD: EX006" />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                name="duration"
-                label="Thời gian (phút)"
-                rules={[{ required: true, message: "Bắt buộc" }]}
-              >
-                <InputNumber
-                  min={1}
-                  placeholder="30"
-                  style={{ width: "100%" }}
-                />
-              </Form.Item>
-            </Col>
-          </Row>
-
-          <Form.Item
-            name="title"
-            label="Tên đề thi"
-            rules={[{ required: true, message: "Bắt buộc" }]}
+          <Form
+              form={form}
+              layout="vertical"
+              initialValues={{
+                code: exam?.code,
+                title: exam?.title,
+                duration: convertToMinutes(exam?.duration),
+                category: exam?.category,
+              }}
+              onValuesChange={(changedValues) => {
+                if (changedValues.examType) {
+                  if (changedValues.examType === "PRACTICE") {
+                    form.setFieldsValue({ reviewAllowed: true });
+                  } else if (changedValues.examType === "OFFICIAL") {
+                    form.setFieldsValue({ reviewAllowed: false });
+                  }
+                }
+              }}
           >
-            <Input placeholder="VD: Java Advanced Test" />
-          </Form.Item>
-
-          <Form.Item
-            name="category"
-            label="Danh mục"
-            rules={[{ required: true, message: "Bắt buộc" }]}
-          >
-            <Select placeholder="Chọn danh mục">
-              {(categories || []).map((c) => (
-                <Option key={c.id} value={c.name}>
-                  {c.name}
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
-
-          <div style={{ borderTop: "1px solid #f0f0f0", paddingTop: 16 }}>
-            {/* Label Cài đặt */}
-            <Text strong style={{ fontSize: 16 }}>
-              ⚙️ Cài đặt đề thi
-            </Text>
-
-            <Row gutter={12} style={{ marginTop: 12, alignItems: "center" }}>
-              {/* Loại đề thi */}
-              <Col span={8}>
+            <Row gutter={12}>
+              <Col span={12}>
                 <Form.Item
-                  name="examType"
-                  label="Loại đề thi"
-                  rules={[{ required: true, message: "Bắt buộc" }]}
+                    name="code"
+                    label="Mã đề"
+                    rules={[{ required: true, message: "Bắt buộc" }]}
                 >
-                  <Select placeholder="Chọn loại đề">
-                    <Option value="PRACTICE">Luyện tập</Option>
-                    <Option value="OFFICIAL">Thi thật</Option>
-                  </Select>
+                  <Input placeholder="VD: EX006" />
                 </Form.Item>
               </Col>
-
-              {/* Allow review - căn giữa + spacing */}
-              <Col span={7} style={{ textAlign: "center", marginLeft: 20 }}>
+              <Col span={12}>
                 <Form.Item
-                  name="reviewAllowed"
-                  label="Cho phép xem lại"
-                  valuePropName="checked"
-                  initialValue={false}
-                >
-                  <Switch
-                    style={{ marginTop: 1 }}
-                    disabled={form.getFieldValue("examType") === "OFFICIAL"}
-                  />
-                </Form.Item>
-              </Col>
-
-              {/* Pass score */}
-              <Col span={8}>
-                <Form.Item
-                  name="passScore"
-                  label="Điểm để pass"
-                  rules={[{ required: true, message: "Bắt buộc" }]}
+                    name="duration"
+                    label="Thời gian (phút)"
+                    rules={[{ required: true, message: "Bắt buộc" }]}
                 >
                   <InputNumber
-                    min={0}
-                    max={100}
-                    style={{ width: "100%" }}
-                    placeholder="VD: 50"
+                      min={1}
+                      placeholder="30"
+                      style={{ width: "100%" }}
                   />
                 </Form.Item>
               </Col>
             </Row>
-          </div>
-        </Form>
 
-        {/* ── Phần chọn câu hỏi ── */}
-        <div style={{ borderTop: "1px solid #f0f0f0", paddingTop: 16 }}>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              marginBottom: 10,
-            }}
-          >
-            <Text strong>Chọn câu hỏi từ ngân hàng</Text>
-            <Space>
-              <Text type="secondary">
-                Đã chọn: <b>{selectedIds.length}</b>
-              </Text>
-              <Tooltip title="Tạo câu hỏi mới và thêm vào đề">
-                <Button
-                  type="primary"
-                  size="small"
-                  icon={<PlusOutlined />}
-                  onClick={() => setCreateQOpen(true)}
-                >
-                  Tạo câu hỏi
-                </Button>
-              </Tooltip>
-            </Space>
-          </div>
+            <Form.Item
+                name="title"
+                label="Tên đề thi"
+                rules={[{ required: true, message: "Bắt buộc" }]}
+            >
+              <Input placeholder="VD: Java Advanced Test" />
+            </Form.Item>
 
-          {/* Thanh tìm kiếm */}
-          <Row gutter={8} style={{ marginBottom: 10 }}>
-            <Col flex={1}>
-              <Input
-                prefix={<SearchOutlined />}
-                placeholder="Tìm câu hỏi..."
-                value={qSearch}
-                onChange={(e) => setQSearch(e.target.value)}
-              />
-            </Col>
-            <Col>
-              <Select
-                value={qCat}
-                onChange={setQCat}
-                style={{ width: 150 }}
-                placeholder="Tất cả"
-              >
-                <Option value="">Tất cả</Option>
-                {categories.map((c) => (
-                  <Option key={c.id} value={c.id}>
-                    {c.name}
-                  </Option>
+            <Form.Item
+                name="category"
+                label="Danh mục"
+                rules={[{ required: true, message: "Bắt buộc" }]}
+            >
+              <Select placeholder="Chọn danh mục">
+                {(categories || []).map((c) => (
+                    <Option key={c.id} value={c.name}>
+                      {c.name}
+                    </Option>
                 ))}
               </Select>
-            </Col>
-          </Row>
+            </Form.Item>
 
-          {/* Danh sách câu hỏi */}
-          <div
-            style={{
-              maxHeight: 220,
-              overflowY: "auto",
-              display: "flex",
-              flexDirection: "column",
-              gap: 6,
-            }}
-          >
-            {filteredQ.length === 0 && (
-              <Text
-                type="secondary"
-                style={{
-                  textAlign: "center",
-                  padding: "16px 0",
-                  display: "block",
-                }}
-              >
-                Không có câu hỏi nào. Hãy tạo câu hỏi mới!
+            <div style={{ borderTop: "1px solid #f0f0f0", paddingTop: 16 }}>
+              {/* Label Cài đặt */}
+              <Text strong style={{ fontSize: 16 }}>
+                ⚙️ Cài đặt đề thi
               </Text>
-            )}
-            {filteredQ.map((q) => {
-              const sel = selectedIds.includes(q.id);
-              const diff = DIFF_MAP[q.difficulty];
-              return (
-                <div
-                  key={q.id}
-                  onClick={() => toggleQuestion(q.id)}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 10,
-                    padding: "10px 12px",
-                    borderRadius: 8,
-                    border: `1px solid ${sel ? "#b7eb8f" : "#f0f0f0"}`,
-                    background: sel ? "#f6ffed" : "#fafafa",
-                    cursor: "pointer",
-                    transition: "all 0.15s",
-                  }}
-                >
-                  <Checkbox checked={sel} />
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <Text ellipsis style={{ display: "block" }}>
-                      {q.content}
-                    </Text>
-                    <Space size={4} style={{ marginTop: 3 }}>
-                      {diff && <Tag color={diff.color}>{diff.label}</Tag>}
-                      {q.category && <Tag>{q.category}</Tag>}
-                    </Space>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </Modal>
 
-      {/* Modal tạo câu hỏi — hiển thị phía trên */}
-      <CreateQuestionModal
-        open={createQOpen}
-        onCancel={() => setCreateQOpen(false)}
-        onSave={handleCreateQuestion}
-        categories={categories}
-      />
-    </>
+              <Row gutter={12} style={{ marginTop: 12, alignItems: "center" }}>
+                {/* Loại đề thi */}
+                <Col span={8}>
+                  <Form.Item
+                      name="examType"
+                      label="Loại đề thi"
+                      rules={[{ required: true, message: "Bắt buộc" }]}
+                  >
+                    <Select placeholder="Chọn loại đề">
+                      <Option value="PRACTICE">Luyện tập</Option>
+                      <Option value="OFFICIAL">Thi thật</Option>
+                    </Select>
+                  </Form.Item>
+                </Col>
+
+                {/* Allow review - căn giữa + spacing */}
+                <Col span={7} style={{ textAlign: "center", marginLeft: 20 }}>
+                  <Form.Item
+                      name="reviewAllowed"
+                      label="Cho phép xem lại"
+                      valuePropName="checked"
+                      initialValue={false}
+                  >
+                    <Switch
+                        style={{ marginTop: 1 }}
+                        disabled={form.getFieldValue("examType") === "OFFICIAL"}
+                    />
+                  </Form.Item>
+                </Col>
+
+                {/* Pass score */}
+                <Col span={8}>
+                  <Form.Item
+                      name="passScore"
+                      label="Điểm để pass"
+                      rules={[{ required: true, message: "Bắt buộc" }]}
+                  >
+                    <InputNumber
+                        min={0}
+                        max={100}
+                        style={{ width: "100%" }}
+                        placeholder="VD: 50"
+                    />
+                  </Form.Item>
+                </Col>
+              </Row>
+            </div>
+          </Form>
+
+          {/* ── Phần chọn câu hỏi ── */}
+          <div style={{ borderTop: "1px solid #f0f0f0", paddingTop: 16 }}>
+            <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: 10,
+                }}
+            >
+              <Text strong>Chọn câu hỏi từ ngân hàng</Text>
+              <Space>
+                <Text type="secondary">
+                  Đã chọn: <b>{selectedIds.length}</b>
+                </Text>
+
+                {/* Nút Tạo bằng AI mới thêm vào */}
+                <Tooltip title="Sử dụng trí tuệ nhân tạo để sinh câu hỏi">
+                  <Button
+                      size="small"
+                      onClick={() => setShowAiForm(!showAiForm)}
+                      style={{
+                        borderColor: '#722ed1',
+                        color: '#722ed1',
+                        background: showAiForm ? '#f9f0ff' : 'white'
+                      }}
+                  >
+                    ✨ Tạo bằng AI
+                  </Button>
+                </Tooltip>
+
+                <Tooltip title="Tạo câu hỏi thủ công và thêm vào đề">
+                  <Button
+                      type="primary"
+                      size="small"
+                      icon={<PlusOutlined />}
+                      onClick={() => setCreateQOpen(true)}
+                  >
+                    Tạo câu hỏi
+                  </Button>
+                </Tooltip>
+              </Space>
+            </div>
+
+            {/* Khu vực hiển thị Form AI */}
+            {showAiForm && (
+                <div style={{ marginBottom: 16, transition: "all 0.3s" }}>
+                  <AiExamGenerator onGenerateSuccess={handleAiGenerateSuccess} />
+                </div>
+            )}
+
+            {/* Thanh tìm kiếm */}
+            <Row gutter={8} style={{ marginBottom: 10 }}>
+              <Col flex={1}>
+                <Input
+                    prefix={<SearchOutlined />}
+                    placeholder="Tìm câu hỏi..."
+                    value={qSearch}
+                    onChange={(e) => setQSearch(e.target.value)}
+                />
+              </Col>
+              <Col>
+                <Select
+                    value={qCat}
+                    onChange={setQCat}
+                    style={{ width: 150 }}
+                    placeholder="Tất cả"
+                >
+                  <Option value="">Tất cả</Option>
+                  {categories.map((c) => (
+                      <Option key={c.id} value={c.id}>
+                        {c.name}
+                      </Option>
+                  ))}
+                </Select>
+              </Col>
+            </Row>
+
+            {/* Danh sách câu hỏi */}
+            <div
+                style={{
+                  maxHeight: 220,
+                  overflowY: "auto",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 6,
+                }}
+            >
+              {filteredQ.length === 0 && (
+                  <Text
+                      type="secondary"
+                      style={{
+                        textAlign: "center",
+                        padding: "16px 0",
+                        display: "block",
+                      }}
+                  >
+                    Không có câu hỏi nào. Hãy tạo câu hỏi mới!
+                  </Text>
+              )}
+              {filteredQ.map((q) => {
+                const sel = selectedIds.includes(q.id);
+                const diff = DIFF_MAP[q.difficulty];
+                return (
+                    <div
+                        key={q.id}
+                        onClick={() => toggleQuestion(q.id)}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 10,
+                          padding: "10px 12px",
+                          borderRadius: 8,
+                          border: `1px solid ${sel ? "#b7eb8f" : "#f0f0f0"}`,
+                          background: sel ? "#f6ffed" : "#fafafa",
+                          cursor: "pointer",
+                          transition: "all 0.15s",
+                        }}
+                    >
+                      <Checkbox checked={sel} />
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <Text ellipsis style={{ display: "block" }}>
+                          {q.content}
+                        </Text>
+                        <Space size={4} style={{ marginTop: 3 }}>
+                          {diff && <Tag color={diff.color}>{diff.label}</Tag>}
+                          {q.category && <Tag>{q.category}</Tag>}
+                        </Space>
+                      </div>
+                    </div>
+                );
+              })}
+            </div>
+          </div>
+        </Modal>
+
+        {/* Modal tạo câu hỏi — hiển thị phía trên */}
+        <CreateQuestionModal
+            open={createQOpen}
+            onCancel={() => setCreateQOpen(false)}
+            onSave={handleCreateQuestion}
+            categories={categories}
+        />
+      </>
   );
 }
