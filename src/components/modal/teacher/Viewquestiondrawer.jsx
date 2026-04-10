@@ -17,7 +17,7 @@ const diffColor = {
 export default function ViewQuestionDrawer({ question, onClose }) {
   return (
     <Drawer
-      title=" Question Detail"
+      title="Chi tiết câu hỏi"
       open={!!question}
       onClose={onClose}
        size="large"
@@ -60,7 +60,7 @@ export default function ViewQuestionDrawer({ question, onClose }) {
           {/* Answers */}
           {question.answers && question.answers.length > 0 && (
             <>
-              <Divider orientation="left">Answers</Divider>
+              <Divider orientation="left">Đáp án</Divider>
 
               <List
                 rowKey={(item, index) => index}
@@ -96,7 +96,7 @@ export default function ViewQuestionDrawer({ question, onClose }) {
           {/* Explanation */}
           {question?.explanation && (
             <>
-              <Divider orientation="left">Explanation</Divider>
+              <Divider orientation="left">Giải thích</Divider>
 
               <Card
                 style={{

@@ -66,7 +66,7 @@ export default function CreateQuestionModal({
         <Row gutter={12}>
           <Col span={12}>
             <Form.Item
-              label="Chế độ"
+              label="Mức độ"
               name="difficulty"
               rules={[{ required: true, message: "Please select difficulty" }]}
             >
@@ -140,7 +140,7 @@ export default function CreateQuestionModal({
           </Space>
         </Form.Item>
         {/* Nội dung chu thich */}
-        <Form.Item label="Chú thích" name="explanation">
+        <Form.Item label="Giải thích" name="explanation">
           <Input.TextArea rows={2} />
         </Form.Item>
       </Form>

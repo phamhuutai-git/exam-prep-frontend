@@ -10,7 +10,7 @@ const QuestionTable = ({ data, loading, onView, onEdit, onDelete }) => {
       dataIndex: "content",
     },
     {
-      title: "Chế độ",
+      title: "Mức độ",
       dataIndex: "difficulty",
       render: (d) => {
         const color =

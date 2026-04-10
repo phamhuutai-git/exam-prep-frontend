@@ -1,19 +1,16 @@
-import BaseTable from "../common/BaseTable";
+import React from "react";
 import TableActions from "../common/TableActions";
+import BaseTable from "../common/BaseTable";
 
-export default function ExamClassTable({ data, onView, onEdit, loading }) {
+const CategoryTable = ({ data, loading, onEdit, onDelete }) => {
   const columns = [
     {
-      title: "Lớp",
+      title: "Mã danh mục",
+      dataIndex: "id",
+    },
+    {
+      title: "Danh mục",
       dataIndex: "name",
-    },
-    {
-      title: "Số học sinh",
-      dataIndex: "studentCount",
-    },
-    {
-      title: "Số đề thi",
-      render: (_, record) => record.exams?.length || 0,
     },
     {
       title: "Hành động",
@@ -21,7 +18,7 @@ export default function ExamClassTable({ data, onView, onEdit, loading }) {
       render: (_, record) => (
         <TableActions
           record={record}
-          onView={onView}
+          showView={false}
           onEdit={onEdit}
           showDelete={false}
         />
@@ -30,4 +27,6 @@ export default function ExamClassTable({ data, onView, onEdit, loading }) {
   ];
 
   return <BaseTable columns={columns} data={data} loading={loading} />;
-}
+};
+
+export default CategoryTable;

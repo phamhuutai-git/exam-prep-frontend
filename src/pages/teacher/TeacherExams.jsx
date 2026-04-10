@@ -33,6 +33,7 @@ const TeacherExams = () => {
   const [searchInput, setSearchInput] = useState("");
   const [catFilter, setCatFilter] = useState();
   const [dateFilter, setDateFilter] = useState();
+  const [sortOrder, setSortOrder] = useState("");
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -51,6 +52,7 @@ const TeacherExams = () => {
         maxDate: dateFilter?.end || undefined,
         page,
         size,
+        ...(sortOrder && { sort: `id,${sortOrder}` }),
       });
       const result = response.data.data;
       setExams(result.content);
@@ -63,7 +65,7 @@ const TeacherExams = () => {
 
   useEffect(() => {
     fetchExams();
-  }, [search, catFilter, dateFilter, page, size, reload]);
+  }, [search, catFilter, dateFilter, page, size, reload, sortOrder]);
 
   useEffect(() => {
     async function fetchCategories() {
@@ -142,7 +144,13 @@ const TeacherExams = () => {
       setIsModalOpen(false);
       setEditingExam(null);
     } catch (error) {
-      toast.error("Có lỗi xảy ra khi lưu đề thi");
+      const errorMessage =
+        error.response?.data?.message || // backend trả về
+        error.response?.data ||          // fallback nếu trả string
+        error.message ||                 // lỗi JS
+        "Có lỗi xảy ra khi lưu đề thi";
+
+      toast.error(errorMessage);
       console.error(error);
     }
   };
@@ -191,21 +199,7 @@ const TeacherExams = () => {
           />
         </div>
         <div className="filter-divider" />
-        <Select
-          placeholder="Danh mục"
-          allowClear
-          style={{ width: 150 }}
-          onChange={(v) => {
-            setCatFilter(v);
-            setPage(0);
-          }}
-        >
-          {categories.map((c) => (
-            <Select.Option key={c.id} value={c.name}>
-              {c.name}
-            </Select.Option>
-          ))}
-        </Select>
+
         {/* Date range filter */}
         <div style={{ display: "flex", gap: 8 }}>
           {/* From date */}
@@ -236,6 +230,33 @@ const TeacherExams = () => {
             }}
           />
         </div>
+        <Select
+          placeholder="Danh mục"
+          allowClear
+          style={{ width: 150 }}
+          onChange={(v) => {
+            setCatFilter(v);
+            setPage(0);
+          }}
+        >
+          {categories.map((c) => (
+            <Select.Option key={c.id} value={c.name}>
+              {c.name}
+            </Select.Option>
+          ))}
+        </Select>
+        <Select
+          placeholder="Sắp xếp"
+          style={{ width: 160 }}
+          allowClear
+          onChange={(value) => {
+            setSortOrder(value || "");
+            setPage(0);
+          }}
+        >
+          <Select.Option value="desc">Mới → Cũ</Select.Option>
+          <Select.Option value="asc">Cũ → Mới</Select.Option>
+        </Select>
       </div>
 
       <div className="question-table-wrapper">

@@ -1,8 +1,8 @@
-import { Card, Button, Space } from "antd";
+import { Card } from "antd";
 import {
   FileTextOutlined,
   FormOutlined,
-  BarChartOutlined,
+  TeamOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 
@@ -13,57 +13,78 @@ export default function QuickActions() {
     {
       label: "Quản lý đề thi",
       icon: <FileTextOutlined />,
+      color: "#1677ff",
       path: "/teacher/exams",
     },
     {
       label: "Ngân hàng câu hỏi",
       icon: <FormOutlined />,
+      color: "#52c41a",
       path: "/teacher/questions",
     },
     {
-      label: "Quản lý học viên ",
-      icon: <BarChartOutlined />,
+      label: "Xem điểm học viên",
+      icon: <TeamOutlined />,
+      color: "#fa8c16",
       path: "/teacher/students",
     },
   ];
 
   return (
     <Card
-      title={<h3 style={{ margin: 0 }}>Truy cập nhanh</h3>}
+      title={<h3 style={{ margin: 0 }}>⚡ Truy cập nhanh</h3>}
       style={{
         flex: 1,
-        borderRadius: 12,
-        boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+        borderRadius: 16,
+        boxShadow: "0 6px 20px rgba(0,0,0,0.08)",
       }}
     >
-      <Space orientation="vertical" style={{ width: "100%" }} size="middle">
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         {actions.map((action, index) => (
-          <Button
+          <div
             key={index}
-            type={action.type}
-            icon={action.icon}
-            block
-            size="large"
             onClick={() => navigate(action.path)}
             style={{
               display: "flex",
-              justifyContent: "flex-start",
               alignItems: "center",
-              gap: 10,
-              borderRadius: 10,
-              transition: "all 0.2s ease",
+              gap: 12,
+              padding: "14px 16px",
+              borderRadius: 12,
+              cursor: "pointer",
+              background: "#fafafa",
+              transition: "all 0.25s ease",
+              border: "1px solid #f0f0f0",
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.transform = "translateY(-2px)";
+              e.currentTarget.style.transform = "translateY(-3px)";
+              e.currentTarget.style.boxShadow = "0 8px 20px rgba(0,0,0,0.1)";
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow = "none";
             }}
           >
-            {action.label}
-          </Button>
+            <div
+              style={{
+                fontSize: 20,
+                color: "#fff",
+                background: action.color,
+                padding: 10,
+                borderRadius: 10,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              {action.icon}
+            </div>
+
+            <span style={{ fontSize: 14, fontWeight: 500 }}>
+              {action.label}
+            </span>
+          </div>
         ))}
-      </Space>
+      </div>
     </Card>
   );
 }

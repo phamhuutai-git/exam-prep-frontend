@@ -27,6 +27,7 @@ import TeacherDashboard from "./pages/teacher/TeacherDashboard";
 import TeacherExamsClass from "./pages/teacher/TeacherExamClass";
 import Bailuyentap from "./pages/student/Bailuyentap";
 import LichSuluyentap from "./pages/student/LichSuluyentap";
+import TeacherCategory from "./pages/teacher/TeacherCategory";
 const App = () => {
   return (
     <>
@@ -65,7 +66,7 @@ const App = () => {
           <Route path="bai-thi-luyen-tap" element={<Bailuyentap />} />
           <Route path="lich-su-luyen-tap" element={<LichSuluyentap />} />
           <Route path="thi/:id" element={<Thithat />} />
-      
+
           <Route path="thithu/:id" element={<Thithu />} />
           <Route
             path="bai-thi"
@@ -89,6 +90,7 @@ const App = () => {
           <Route index element={<TeacherDashboard />} />
           <Route path="exams" element={<TeacherExams />} />
           <Route path="questions" element={<TeacherQuestions />} />
+          <Route path="category" element={<TeacherCategory />} />
           <Route path="students" element={<TeacherStudents />} />
           <Route path="exam-classes" element={<TeacherExamsClass />} />
         </Route>
@@ -105,7 +107,6 @@ const App = () => {
           <Route path="users" element={<User />} />
           <Route path="classes" element={<Classes />} />
           <Route path="assign-teacher" element={<AssignTeacher />} />
-
         </Route>
 
         {/* 404 Page */}
