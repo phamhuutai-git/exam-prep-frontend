@@ -13,7 +13,7 @@ const Dashboard = () => {
           <Card variant="borderless">
             <Statistic
               title="Số bài thi đã làm"
-              value={12}
+              value={0}
               prefix={<FontAwesomeIcon icon={faClipboardList} />}
               styles={{ content: { color: '#1890ff' } }}
             />
@@ -23,7 +23,7 @@ const Dashboard = () => {
           <Card variant="borderless">
             <Statistic
               title="Đề thi yêu thích"
-              value={5}
+              value={0}
               prefix={<FontAwesomeIcon icon={faHeart} />}
               styles={{ content: { color: '#ff4d4f' } }}
             />
