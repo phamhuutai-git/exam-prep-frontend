@@ -89,4 +89,3 @@ export const getStudentCount = () => {
 export const getTeacherCount = () => {
   return api.get("/v1/admin/users/teachers/count");
 }
-

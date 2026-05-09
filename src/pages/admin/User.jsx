@@ -1,176 +1,173 @@
-import React, { useState, useMemo, useEffect } from 'react'
-import { Form } from 'antd'
-import { toast } from 'react-toastify'
-import '../../assets/styles/User.css'
-import UserHeader from '../../components/user/UserHeader'
-import UserFilter from '../../components/user/UserFilter'
-import UserTable from '../../components/user/UserTable'
-import Add from '../../components/modal/user/Add'
-import { getUsers, unlockUser, lockUser ,updateUser,addUser} from '../../services/userService.js'
+import React, { useState, useMemo, useEffect } from "react";
+import { Form } from "antd";
+import { toast } from "react-toastify";
+import "../../assets/styles/User.css";
+import UserHeader from "../../components/user/UserHeader";
+import UserFilter from "../../components/user/UserFilter";
+import UserTable from "../../components/user/UserTable";
+import Add from "../../components/modal/user/Add";
+import { getUsers, unlockUser, lockUser, updateUser, addUser } from "../../services/userService.js";
+
 const User = () => {
-  const [users, setUsers] = useState([])
-  const [page, setPage] = useState(0)
-  const [loading, setLoading] = useState(false)
-  const [total, setTotal] = useState(0)
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [isEditMode, setIsEditMode] = useState(false)
-  const [selectedUser, setSelectedUser] = useState(null)
-  const [form] = Form.useForm()
-  const [searchTerm, setSearchTerm] = useState('')
-  const [roleFilter, setRoleFilter] = useState('')
-  // ================= FETCH =================
+  const [allUsers, setAllUsers] = useState([]);
+  const [page, setPage] = useState(0);
+  const [pageSize] = useState(5);
+  const [loading, setLoading] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [form] = Form.useForm();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [roleFilter, setRoleFilter] = useState("");
+
+  // ================= FETCH ALL =================
   useEffect(() => {
-    fetchUsers(page)
-  }, [page])
-  const fetchUsers = async (pageParam = page) => {
-    setLoading(true)
+    fetchAllUsers();
+  }, []);
+
+  const fetchAllUsers = async () => {
+    setLoading(true);
     try {
-      const res = await getUsers({
-        page: pageParam,
-        size: 5
-      })
-      const rawData = res.data?.data?.content || []
-      const mappedData = rawData.map(user => ({
+      const firstRes = await getUsers({ page: 0, size: 1000 });
+      const data = firstRes.data?.data;
+
+      const rawData = data?.content || [];
+      const totalElements = data?.totalElements || 0;
+
+      let allRaw = rawData;
+
+      if (rawData.length < totalElements) {
+        const totalPages = Math.ceil(totalElements / pageSize);
+        const requests = [];
+        for (let i = 1; i < totalPages; i++) {
+          requests.push(getUsers({ page: i, size: pageSize }));
+        }
+        const results = await Promise.all(requests);
+        results.forEach((res) => {
+          allRaw = [...allRaw, ...(res.data?.data?.content || [])];
+        });
+      }
+
+      const mappedData = allRaw.map((user) => ({
         id: user.id,
         username: user.username,
         email: user.email,
-        fullName: `${user.firstName || ''} ${user.lastName || ''}`.trim(),
+        fullName: `${user.firstName || ""} ${user.lastName || ""}`.trim(),
         role: user.role?.toLowerCase(),
         status: user.status,
-        createdAt: user.createdDate?.split('T')[0] || ''
-      }))
+        createdAt: user.createdDate?.split("T")[0] || "",
+      }));
 
-      setUsers(mappedData)
-      setTotal(res.data?.data?.totalElements || 0)
+      setAllUsers(mappedData);
     } catch (error) {
-      toast.error('Lỗi khi tải danh sách!' + error.message)
+      toast.error("Lỗi khi tải danh sách! " + error.message);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
-  // ================= FILTER =================
+  };
+
+  // ================= FILTER (trên toàn bộ data) =================
   const filteredUsers = useMemo(() => {
-    return users.filter(user => {
+    return allUsers.filter((user) => {
       const matchesSearch =
         !searchTerm ||
         user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.fullName.toLowerCase().includes(searchTerm.toLowerCase())
-      const matchesRole =
-        !roleFilter || user.role === roleFilter
+        user.fullName.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesRole = !roleFilter || user.role === roleFilter;
+      return matchesSearch && matchesRole;
+    });
+  }, [allUsers, searchTerm, roleFilter]);
 
-      return matchesSearch && matchesRole
-    })
-  }, [users, searchTerm, roleFilter])
+  useEffect(() => {
+    setPage(0);
+  }, [searchTerm, roleFilter]);
+
+  // ================= Paginate filtered data =================
+  const pagedUsers = useMemo(() => {
+    const start = page * pageSize;
+    return filteredUsers.slice(start, start + pageSize);
+  }, [filteredUsers, page, pageSize]);
 
   // ================= CRUD =================
   const handleAdd = () => {
-    setIsEditMode(false)
-    setSelectedUser(null)
-    form.resetFields()
-    setIsModalOpen(true)
-  }
+    setIsEditMode(false);
+    setSelectedUser(null);
+    form.resetFields();
+    setIsModalOpen(true);
+  };
 
   const handleEdit = (record) => {
-    setIsEditMode(true)
-    setSelectedUser(record)
+    setIsEditMode(true);
+    setSelectedUser(record);
+    form.setFieldsValue({ ...record });
+    setIsModalOpen(true);
+  };
 
-    form.setFieldsValue({
-      ...record,
-      status: record.status
-    })
-    setIsModalOpen(true)
-  }
- const handleSubmit = async (values) => {
-  setLoading(true)
-  try {
-    if (isEditMode) {
-      // ================= UPDATE =================
-      const payload = {
-        username: values.username,
-        email: values.email,
-        fullName: values.fullName,
-        role: values.role.toUpperCase(),
-        active: values.status === 'ACTIVED'
+  const handleSubmit = async (values) => {
+    setLoading(true);
+    try {
+      if (isEditMode) {
+        const payload = {
+          username: values.username,
+          email: values.email,
+          fullName: values.fullName,
+          role: values.role.toUpperCase(),
+          active: values.status === "ACTIVED",
+        };
+        await updateUser(selectedUser.id, payload);
+        setAllUsers((prev) =>
+          prev.map((user) =>
+            user.id === selectedUser.id ? { ...user, ...values } : user,
+          ),
+        );
+        toast.success("Cập nhật thành công!");
+      } else {
+        const payload = {
+          username: values.username,
+          email: values.email,
+          fullName: values.fullName,
+          role: values.role.toUpperCase(),
+        };
+        await addUser(payload);
+        await fetchAllUsers(); // reload lại toàn bộ
+        setPage(0);
+        toast.success("Thêm thành công!");
       }
-      await updateUser(selectedUser.id, payload)
-      // update UI ngay
-      setUsers(prev =>
-        prev.map(user =>
-          user.id === selectedUser.id
-            ? {
-                ...user,
-                ...values,
-                status: values.status
-              }
-            : user
-        )
-      )
-
-      toast.success('Cập nhật thành công!')
-    } else {
-      // ================= ADD =================
-      const payload = {
-        username: values.username,
-        email: values.email,
-        fullName: values.fullName,
-        role: values.role.toUpperCase()
-      }
-
-      await addUser(payload)
-
-      // 🔥 FIX QUAN TRỌNG: setPage trước
-      setPage(0)
-
-      // 🔥 gọi lại API để lấy data mới nhất
-      await fetchUsers(0)
-
-      toast.success('Thêm thành công!')
+      setIsModalOpen(false);
+      form.resetFields();
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Lỗi xử lý!");
+    } finally {
+      setLoading(false);
     }
-
-    setIsModalOpen(false)
-    form.resetFields()
-  } catch (error) {
-    toast.error(
-      error?.response?.data?.message || 'Lỗi xử lý!'
-    )
-    console.error(error)
-  } finally {
-    setLoading(false)
-  }
-}
+  };
 
   // ================= TOGGLE =================
   const handleToggleStatus = async (record) => {
-    setLoading(true)
-
-    const newStatus =
-      record.status === 'ACTIVED' ? 'LOCKED' : 'ACTIVED'
-
-    // update UI trước
-    setUsers(users.map(u =>
-      u.id === record.id ? { ...u, status: newStatus } : u
-    ))
-
+    setLoading(true);
+    const newStatus = record.status === "ACTIVED" ? "LOCKED" : "ACTIVED";
+    setAllUsers((prev) =>
+      prev.map((u) => (u.id === record.id ? { ...u, status: newStatus } : u)),
+    );
     try {
-      if (newStatus === 'ACTIVED') {
-        await unlockUser(record.id)
+      if (newStatus === "ACTIVED") {
+        await unlockUser(record.id);
       } else {
-        await lockUser(record.id)
+        await lockUser(record.id);
       }
-
-      toast.success(newStatus === 'ACTIVED' ? 'Đã kích hoạt' : 'Đã khóa')
+      toast.success(newStatus === "ACTIVED" ? "Đã kích hoạt" : "Đã khóa");
     } catch {
-      // rollback
-      setUsers(users.map(u =>
-        u.id === record.id ? { ...u, status: record.status } : u
-      ))
-
-      toast.error('Lỗi!')
+      setAllUsers((prev) =>
+        prev.map((u) =>
+          u.id === record.id ? { ...u, status: record.status } : u,
+        ),
+      );
+      toast.error("Lỗi!");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div style={{ padding: 24 }}>
@@ -180,24 +177,22 @@ const User = () => {
         buttonText="Thêm"
         handleAdd={handleAdd}
       />
-
       <UserFilter
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
         roleFilter={roleFilter}
         setRoleFilter={setRoleFilter}
       />
-
       <UserTable
-        data={filteredUsers}
+        data={pagedUsers}
         loading={loading}
         onEdit={handleEdit}
         onToggleStatus={handleToggleStatus}
         page={page}
-        total={total}
+        pageSize={pageSize}
+        total={filteredUsers.length}
         onPageChange={setPage}
       />
-
       <Add
         open={isModalOpen}
         isEditMode={isEditMode}
@@ -207,7 +202,7 @@ const User = () => {
         onSubmit={handleSubmit}
       />
     </div>
-  )
-}
+  );
+};
 
-export default User
+export default User;
