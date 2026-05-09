@@ -1,0 +1,88 @@
+BO CAU HOI PHONG VAN LIEN QUAN DU AN EXAM PREP FRONTEND
+
+Muc tieu on:
+- Trinh bay project mach lac
+- React fundamentals chac
+- Git basics on
+- The hien thai do hoc hoi va cai tien
+
+I) PROJECT OVERVIEW (15 cau)
+1. Em mo ta route tree cua he thong 3 vai tro (admin/teacher/student) nhu the nao, va vi sao dung nested routes?
+2. Trong App.jsx, vi sao route "bai-thi" duoc khai bao 2 lan, va anh huong runtime ra sao?
+3. Luong login -> luu token/role -> fetch profile day du duoc to chuc the nao?
+4. Phan biet nhiem vu giua ProtectedRoute va PublicRoute, vi sao can ca hai?
+5. Vi sao dat BrowserRouter + AuthProvider o main.jsx thay vi App.jsx?
+6. Kien truc services hien tai duoc tach theo domain nhu the nao?
+7. Interceptor trong apiClient gan token ra sao, va token het han thi can xu ly gi?
+8. Trang admin User dang fetch toan bo du lieu khi backend paginate bang cach nao?
+9. Classes va AssignTeacher cung co logic fetch nhieu page, neu du lieu lon em toi uu gi?
+10. Viec tach AdminLayout/TeacherLayout/StudentLayout giup maintainability nhu the nao?
+11. Dashboard admin dung Promise.all; neu 1 API fail thi UX nen xu ly sao?
+12. Luong thi that tu danh sach bai thi den submit bai duoc thiet ke ra sao?
+13. Vi sao examService co fallback fetch ben canh Axios, va khi nao fallback chay?
+14. Header xu ly update profile/doi mat khau/logout theo luong nao?
+15. Diem nao trong kien truc hien tai de gay inconsistency giua frontend-backend contract nhat?
+
+II) REACT FUNDAMENTALS (15 cau)
+16. Tai sao AuthContext dung lazy initializer cho useState khi doc localStorage?
+17. Dependency [isLoggedIn, user] trong useEffect o AuthContext co nguy co re-fetch lap khong?
+18. Vi sao can useMemo cho filteredUsers, pagedUsers trong trang User?
+19. handleToggleStatus trong User la optimistic update hay pessimistic update? vi sao?
+20. Debounce search bang setTimeout trong TeacherExams/TeacherQuestions co han che gi?
+21. TeacherQuestions dang om nhieu concern (CRUD + import/export + stats); em tach component/hook the nao?
+22. ErrorBoundary (class component) bat loi render ra sao, vi sao hook component khong thay truc tiep?
+23. Timer trong Thithat.jsx dung setInterval; can tranh stale closure va cleanup the nao?
+24. Thithat.jsx render 2 Modal cung openModal; hanh vi UI co the gap la gi?
+25. Vi sao AppPagination can doi page 1-based (AntD) sang 0-based?
+26. Filter o BaiThi dung useMemo da du chua neu data lon? khi nao chuyen server-side search?
+27. Co che localStorage + storage event cho de yeu thich khac nhau giua current tab va tab khac?
+28. Header logout bang window.location.href thay vi navigate co trade-off gi?
+29. Du an co ca useAuth tu context va hooks; em xu ly duplicate abstraction nay the nao?
+30. Nhieu trang dung inline style, em danh gia trade-off voi css/module style system ra sao?
+
+III) GIT BASICS GAN VOI DU AN (10 cau)
+31. Neu sua endpoint trong userService.js, em tach commit the nao de reviewer de theo doi regression?
+32. Vua refactor AssignTeacher vua doi UI table, nen 1 commit hay nhieu commit? vi sao?
+33. Neu fix duplicate route o App.jsx, em viet commit message the hien "why" nhu the nao?
+34. Khi mot file vua doi functional vua format, em dung y tuong git add -p de tach patch ra sao?
+35. Neu merge conflict trong AuthContext khi 2 nguoi cung sua localStorage key, em resolve the nao?
+36. Truoc khi request review PR lon (pages + services), checklist tu review cua em gom gi?
+37. Sau merge moi phat hien bug (vi du modal trung), khi nao em chon revert thay vi fix-forward?
+38. Neu doi API contract (vi du endpoint /v1/admin/users/{id}), em viet PR description the nao?
+39. Neu can cherry-pick hotfix login flow sang release branch, em chuan bi commit ban dau the nao?
+40. Truoc khi sua lon, em dung git blame o file nao de truy vet quyet dinh ky thuat va vi sao?
+
+IV) THAI DO HOC HOI / CAI TIEN (10 cau)
+41. Neu duoc cai tien state management, em co dua React Query/SWR vao khong? bat dau o man nao?
+42. Em se chuan hoa mapping response (kieu res.data.data.content) ra sao de giam lap?
+43. Lam sao thong nhat endpoint naming va versioning (/users, /admin, /v1) de tranh bug tich hop?
+44. Test uu tien dau tien la unit service hay integration route guard/auth context? vi sao?
+45. Em giam coupling giua page va modal the nao de tai su dung tot hon?
+46. Neu backend cham, em thiet ke pattern loading/error state toan app nhu the nao?
+47. Em danh gia rui ro bao mat khi luu token localStorage va de xuat hardening gi?
+48. Em refactor cac trang table (User/Classes/AssignTeacher/TeacherStudents) theo huong hook dung chung the nao?
+49. Em thiet ke telemetry/logging gi de debug submit bai thi that bai?
+50. Neu co 2 tuan nang chat luong codebase, roadmap uu tien theo impact/effort cua em la gi?
+
+V) FILE/PHAN CODE THAY CO THE HOI XOAY QUANH
+- src/App.jsx
+- src/main.jsx
+- src/context/AuthContext.jsx
+- src/route/ProtectedRoute.jsx
+- src/route/PublicRoute.jsx
+- src/services/apiClient.js
+- src/services/userService.js
+- src/services/examService.js
+- src/pages/admin/User.jsx
+- src/pages/admin/Classes.jsx
+- src/pages/admin/AssignTeacher.jsx
+- src/pages/admin/Dashboard.jsx
+- src/pages/teacher/TeacherQuestions.jsx
+- src/pages/teacher/TeacherExams.jsx
+- src/pages/student/BaiThi.jsx
+- src/pages/student/Thithat.jsx
+
+Meo tra loi de "mach lac":
+1) Mo dau 20-30s: muc tieu du an + doi tuong nguoi dung + 3 vai tro.
+2) Than bai: noi theo flow "routing -> auth -> service -> page chinh -> bai hoc".
+3) Ket: neuoc 2-3 diem em da cai tien + 1-2 diem em muon hoc tiep.

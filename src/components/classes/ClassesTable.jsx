@@ -1,13 +1,13 @@
 import React from 'react'
 import { Table, Button, Space, Popconfirm, Pagination } from 'antd'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome' // 👈 THIẾU DÒNG NÀY
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPencil, faTrash, faUserPlus, faUserGraduate } from '@fortawesome/free-solid-svg-icons'
-const ClassesTable = ({ data, loading, onadd, onEdit, onDelete, onView, page, total, onPageChange }) => {
+const ClassesTable = ({ data, loading, onadd, onEdit, onDelete, onView, page, pageSize = 5, total, onPageChange }) => {
   const columns = [
     {
       title: 'STT',
       align: 'center',
-      render: (_, __, index) => (page * 5) + index + 1 
+      render: (_, __, index) => (page * pageSize) + index + 1
     },
     {
       title: 'Tên lớp',
@@ -79,7 +79,7 @@ const ClassesTable = ({ data, loading, onadd, onEdit, onDelete, onView, page, to
         <Pagination
           current={page + 1}
           total={total}
-          pageSize={5}
+          pageSize={pageSize}
           onChange={(p) => onPageChange(p - 1)}
         />
       </div>

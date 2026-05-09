@@ -9,6 +9,7 @@ const UserTable = ({
   onEdit,
   onToggleStatus,
   page = 0,
+  pageSize = 5,
   total = 0,
   onPageChange
 }) => {
@@ -31,7 +32,7 @@ const UserTable = ({
   const columns = [
     {
       title: 'STT',
-      render: (_, __, index) => page * 5 + index + 1
+      render: (_, __, index) => page * pageSize + index + 1
     },
     { title: 'Email', dataIndex: 'email' },
     { title: 'Username', dataIndex: 'username' },
@@ -88,7 +89,7 @@ const UserTable = ({
         <Pagination
           current={page + 1}
           total={total}
-          pageSize={5}
+          pageSize={pageSize}
           onChange={(p) => onPageChange && onPageChange(p - 1)}
         />
       </div>

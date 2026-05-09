@@ -10,6 +10,7 @@ import {
 const AssignTeacherTable = ({
   data = [],
   page = 0,
+  pageSize = 5,
   total = 0,
   onPageChange,
   onAddTeacher,
@@ -22,7 +23,7 @@ const AssignTeacherTable = ({
     {
       title: 'STT',
       align: 'center',
-      render: (_, __, index) => page * 5 + index + 1
+      render: (_, __, index) => page * pageSize + index + 1
     },
     {
       title: 'Lớp',
@@ -85,7 +86,7 @@ const AssignTeacherTable = ({
         <Pagination
           current={page + 1}
           total={total}
-          pageSize={5}
+          pageSize={pageSize}
           onChange={(p) => onPageChange(p - 1)}
         />
       </div>

@@ -4,6 +4,7 @@ import StudentLayout from "./layouts/student/StudentLayout";
 import TeacherLayout from "./layouts/teacher/TeacherLayout";
 import AdminLayouts from "./layouts/admin/AdminLayout";
 import ResetPassword from "./pages/login/ResetPassword";
+import ResetPasswordNewPassword from "./pages/login/ResetPasswordNewPassword";
 import Dashboard from "./pages/admin/Dashboard";
 import { Routes, Route } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
@@ -46,6 +47,14 @@ const App = () => {
           element={
             <PublicRoute>
               <ResetPassword />
+            </PublicRoute>
+          }
+        />
+        <Route
+          path="/reset-password/new"
+          element={
+            <PublicRoute>
+              <ResetPasswordNewPassword />
             </PublicRoute>
           }
         />
