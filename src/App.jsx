@@ -19,7 +19,7 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import AssignTeacher from "./pages/admin/AssignTeacher";
 import StudentDashboard from "./pages/student/Dashboard";
 import LichSuThi from "./pages/student/LichSuThi";
-import DeThiYeuThich from "./pages/student/DeThiYeuThich";
+
 import BaiThi from "./pages/student/BaiThi";
 import TeacherExams from "./pages/teacher/TeacherExams";
 import TeacherQuestions from "./pages/teacher/TeacherQuestions";
@@ -70,7 +70,6 @@ const App = () => {
         >
           <Route index element={<StudentDashboard />} />
           <Route path="lich-su-thi" element={<LichSuThi />} />
-          <Route path="de-thi-yeu-thich" element={<DeThiYeuThich />} />
           <Route path="bai-thi" element={<BaiThi />} />
           <Route path="bai-thi-luyen-tap" element={<Bailuyentap />} />
           <Route path="lich-su-luyen-tap" element={<LichSuluyentap />} />

@@ -38,7 +38,7 @@ export default function TeacherCategory() {
       setCategories(res.data.data.content || []);
       setTotal(res.data.data.totalElements || 0);
     } catch (err) {
-      message.error("Load categories failed");
+      message.error("Load categories failed" + (err?.response?.data?.message || ""));
     }
     setLoading(false);
   };

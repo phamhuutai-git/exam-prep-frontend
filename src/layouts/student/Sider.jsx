@@ -4,7 +4,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { 
   faChartLine, 
   faClipboardList, 
-  faHeart 
 } from '@fortawesome/free-solid-svg-icons'
 import '../../assets/styles/Sider.css'
 import logo from '../../assets/images/logo.png'
@@ -39,13 +38,6 @@ const studentMenuItems = [
     title: 'Lịch sử thi thật', 
     path: '/student/lich-su-thi',
     icon: faClipboardList 
-  },
-
-  { 
-    id: 5, 
-    title: 'Đề thi yêu thích', 
-    path: '/student/de-thi-yeu-thich',
-    icon: faHeart 
   },
 ]
 

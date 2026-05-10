@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { Modal, Table, Button } from 'antd'
 const Add = ({
   open,
@@ -9,14 +9,16 @@ const Add = ({
   currentClassTeacherIds = [],
   disabledTeacherIds = [] // thường teacher KHÔNG cần disable
 }) => {
+  const initialSelectedKeys = useMemo(() => {
+    return open ? currentClassTeacherIds : []
+  }, [open, currentClassTeacherIds])
+
   const [selectedRowKeys, setSelectedRowKeys] = useState([])
 
   // ✅ Sync khi mở modal
   useEffect(() => {
-    if (open) {
-      setSelectedRowKeys(currentClassTeacherIds)
-    }
-  }, [open, currentClassTeacherIds])
+    setSelectedRowKeys(initialSelectedKeys)
+  }, [initialSelectedKeys])
 
   const columns = [
     {

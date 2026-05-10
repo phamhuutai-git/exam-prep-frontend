@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Card, Row, Col, Tag, Button, Input, Spin, Empty, Modal } from "antd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faClock, faBook, faHeart, faSearch } from "@fortawesome/free-solid-svg-icons";
+import { faClock, faBook, faSearch } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 import {
   getExamsByClass,
@@ -12,7 +12,6 @@ import {
 import { useAuth } from "../../context/AuthContext";
 
 const Bailuyentap = () => {
-  const [liked, setLiked] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
   const [exams, setExams] = useState([]);
 
@@ -33,11 +32,6 @@ const Bailuyentap = () => {
 
 
   useEffect(() => {
-    const loadData = () => {
-      const saved = JSON.parse(localStorage.getItem("favoriteExams")) || {};
-      setLiked(saved);
-    };
-
     const fetchData = async () => {
       try {
         setLoading(true);
@@ -71,16 +65,9 @@ const Bailuyentap = () => {
       }
     };
 
-    loadData();
-
     if (user) {
       fetchData();
     }
-
-    window.addEventListener("storage", loadData);
-    return () => {
-      window.removeEventListener("storage", loadData);
-    };
   }, [user]);
 
   const filteredData = useMemo(() => {
@@ -92,16 +79,6 @@ const Bailuyentap = () => {
     );
   }, [searchTerm, exams]);
 
-  const toggleLike = (exam) => {
-    const newLiked = {
-      ...liked,
-      [exam.id]: !liked[exam.id],
-    };
-
-    setLiked(newLiked);
-    localStorage.setItem("favoriteExams", JSON.stringify(newLiked));
-    window.dispatchEvent(new Event("storage"));
-  };
   const handleStartExam = async (examId) => {
     try {
       setLoading(true);
@@ -243,18 +220,7 @@ const Bailuyentap = () => {
                   textAlign: "center",
                 }}
               >
-                <FontAwesomeIcon
-                  icon={faHeart}
-                  onClick={() => toggleLike(exam)}
-                  style={{
-                    position: "absolute",
-                    top: 16,
-                    right: 16,
-                    fontSize: 20,
-                    cursor: "pointer",
-                    color: liked[exam.id] ? "hotpink" : "#ccc",
-                  }}
-                />
+                
 
                 <h3>{exam.title}</h3>
 

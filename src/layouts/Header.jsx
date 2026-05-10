@@ -3,53 +3,31 @@ import { Dropdown, message } from 'antd';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faCog, faKey, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 import { AuthContext } from '../context/AuthContext';
-import { updateProfileApi, changePasswordApi } from '../services/userService';
 import '../assets/styles/Header.css';
-import { toast } from 'react-toastify';
 import Capnhatthongtin from '../components/modal/auth/Capnhatthongtin';
 import Capnhatmatkhau from '../components/modal/auth/Capnhatmatkhau';
 
 const Header = () => {
- const { logout, userFullName, refreshUser, user } = useContext(AuthContext);
+ const { logout, userFullName, user, updateUserInfo, changePassword } = useContext(AuthContext);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = React.useState(false);
 
   const handleProfileUpdate = async (values) => {
-    try {
-      const [firstName, ...lastNameParts] = values.fullName.trim().split(" ");
-      const lastName = lastNameParts.join(" ") || "";
-      const updateData = {
-        firstName,
-        lastName,
-        email: values.email,
-      };
-      await updateProfileApi(updateData);
-      toast.success("Cập nhật thông tin thành công!");
-      await refreshUser();
-    } catch (error) {
-      const msg =
-        error.response?.data?.message || "Email đã tồn tại!";
-      toast.error(msg);
-      throw new Error(msg);
-    }
+    const [firstName, ...lastNameParts] = values.fullName.trim().split(" ");
+    const lastName = lastNameParts.join(" ") || "";
+    const updateData = {
+      firstName,
+      lastName,
+      email: values.email,
+    };
+    await updateUserInfo(updateData);
   };
 
   const handleChangePassword = async (values) => {
-    try {
-
-      await changePasswordApi({
-        password: values.currentPassword,
-        newPassword: values.newPassword,
-      });
-
-    } catch (error) {
-
-      const msg =
-        error.response?.data?.message ||
-        "Đổi mật khẩu thất bại!";
-
-      throw new Error(msg);
-    }
+    await changePassword({
+      password: values.currentPassword,
+      newPassword: values.newPassword,
+    });
   };
 
   const handleLogout = () => {

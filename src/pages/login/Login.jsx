@@ -1,4 +1,5 @@
-import React from "react";
+
+import {useState}from "react";
 import { Form, Input, Button } from "antd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser, faLock } from "@fortawesome/free-solid-svg-icons";
@@ -9,8 +10,8 @@ import Quenmatkhau from "../../components/modal/auth/Quenmatkhau";
 import { toast } from "react-toastify";
 import { useAuth } from "../../hooks/useAuth";
 const Login = () => {
-  const [loading, setLoading] = React.useState(false);
-  const [openForgot, setOpenForgot] = React.useState(false);
+  const [loading, setLoading] = useState(false);
+  const [openForgot, setOpenForgot] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
   const onFinish = async (values) => {
