@@ -3,7 +3,8 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { loginApi } from "../services/authService";
-import { getCurrentUserApi } from "../services/userService";
+import { getCurrentUserApi, updateProfileApi, changePasswordApi } from "../services/userService";
+import { toast } from "react-toastify";
 export const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
 export const AuthProvider = ({ children }) => {
@@ -12,49 +13,39 @@ export const AuthProvider = ({ children }) => {
     () => !!localStorage.getItem("accessToken")
   );
 
-  const [role, setRole] = useState(
-    () => localStorage.getItem("role")
-  );
+  const [role, setRole] = useState(null);
 
-  const [user, setUser] = useState(() => {
-    const stored = localStorage.getItem("user");
-    return stored ? JSON.parse(stored) : null;
-  });
+  const [user, setUser] = useState(null);
 
-  const [userFullName, setUserFullName] = useState(
-    () => localStorage.getItem("userFullName") || ""
-  );
+  const [userFullName, setUserFullName] = useState("");
 
-/**
- * Logs in the user by calling login API with credentials.
- * Saves token, role, userInfo to localStorage and updates state.
- * @param {Object} credentials - Login credentials
- * @param {string} credentials.emailOrUsername - Email or username
- * @param {string} credentials.password - Password
- * @returns {Promise<Object>} User data including role, token, username, failCount
- */
+  const [authReady, setAuthReady] = useState(false);
+
+
+
 const login = async (credentials) => {
   const res = await loginApi(credentials);
   const loginUser = res.data.data;
 
-  // Save login data to localStorage
+  // Save token only
   localStorage.setItem("accessToken", loginUser.token);
-  localStorage.setItem("role", loginUser.role);
-  localStorage.setItem("userInfo", JSON.stringify(loginUser));
 
   // Update state
   setIsLoggedIn(true);
-  setRole(loginUser.role);
+  setRole(loginUser.role || null);
+  setUser(loginUser);
+  const fullName = `${loginUser.firstName || ""} ${loginUser.lastName || ""}`.trim();
+  setUserFullName(fullName);
+  setAuthReady(true);
 
-  // Fetch full user profile
+  // Refresh profile from backend if available
   try {
     const userRes = await getCurrentUserApi();
     const fullUser = userRes.data.data;
     setUser(fullUser);
-    const fullName = `${fullUser.firstName} ${fullUser.lastName}`;
-    setUserFullName(fullName);
-    localStorage.setItem("user", JSON.stringify(fullUser));
-    localStorage.setItem("userFullName", fullName);
+    const updatedFullName = `${fullUser.firstName || ""} ${fullUser.lastName || ""}`.trim();
+    setUserFullName(updatedFullName);
+    setRole(fullUser.role || loginUser.role || null);
   } catch (error) {
     console.error("Failed to fetch user profile:", error);
   }
@@ -64,11 +55,12 @@ const login = async (credentials) => {
 
 
   const logout = () => {
-    localStorage.clear();
+    localStorage.removeItem("accessToken");
     setIsLoggedIn(false);
     setRole(null);
     setUser(null);
     setUserFullName("");
+    setAuthReady(false);
   };
 
   // Load user on mount if logged in
@@ -80,19 +72,23 @@ const login = async (credentials) => {
           const userRes = await getCurrentUserApi();
           const fullUser = userRes.data.data;
           setUser(fullUser);
-          const fullName = `${fullUser.firstName} ${fullUser.lastName}`;
+          const fullName = `${fullUser.firstName || ""} ${fullUser.lastName || ""}`.trim();
           setUserFullName(fullName);
-          localStorage.setItem("user", JSON.stringify(fullUser));
-          localStorage.setItem("userFullName", fullName);
+          setRole(fullUser.role || null);
         } catch (error) {
           console.error("Failed to load user:", error);
-          // If fetch fails, logout
           logout();
+        } finally {
+          setAuthReady(true);
         }
+      } else {
+        setAuthReady(true);
       }
     };
     if (isLoggedIn) {
       loadUser();
+    } else {
+      setAuthReady(true);
     }
   }, [isLoggedIn, user]);
 
@@ -101,12 +97,41 @@ const login = async (credentials) => {
       const userRes = await getCurrentUserApi();
       const fullUser = userRes.data.data;
       setUser(fullUser);
-      const fullName = `${fullUser.firstName} ${fullUser.lastName}`;
+      const fullName = `${fullUser.firstName || ""} ${fullUser.lastName || ""}`.trim();
       setUserFullName(fullName);
-      localStorage.setItem("user", JSON.stringify(fullUser));
-      localStorage.setItem("userFullName", fullName);
+      setRole(fullUser.role || null);
     } catch (error) {
       console.error("Failed to refresh user:", error);
+    }
+  };
+
+  // Hàm cập nhật thông tin user
+  const updateUserInfo = async (data) => {
+    try {
+      const res = await updateProfileApi(data);
+      // Giả sử API trả về user data sau khi update
+      const updatedUser = res.data.data || res.data;
+      setUser(updatedUser);
+      const fullName = `${updatedUser.firstName || ""} ${updatedUser.lastName || ""}`.trim();
+      setUserFullName(fullName);
+      setRole(updatedUser.role || role);
+      toast.success("Cập nhật thông tin thành công!");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Cập nhật thất bại!");
+      throw error;
+    }
+  };
+
+  // Hàm đổi mật khẩu
+  const changePassword = async (data) => {
+    try {
+      await changePasswordApi(data);
+      toast.success("Đổi mật khẩu thành công!");
+      // Có thể logout nếu muốn force re-login sau đổi mật khẩu
+      // logout();
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Đổi mật khẩu thất bại!");
+      throw error;
     }
   };
 
@@ -117,9 +142,12 @@ const login = async (credentials) => {
         role,
         user,
         userFullName,
+        authReady,
         login,
         logout,
         refreshUser,
+        updateUserInfo,
+        changePassword,
       }}
     >
       {children}
