@@ -27,100 +27,105 @@ import TeacherDashboard from "./pages/teacher/TeacherDashboard";
 import TeacherExamsClass from "./pages/teacher/TeacherExamClass";
 import Bailuyentap from "./pages/student/Bailuyentap";
 import LichSuluyentap from "./pages/student/LichSuluyentap";
+
+// --- IMPORT CÁC TRANG TẠO ĐỀ (AZOTA STYLE) ---
+import ExamCreationPortal from "./pages/teacher/ExamCreationPortal";
+import FastCreateExam from "./pages/teacher/FastCreateExam";
+import CreateFromBank from "./pages/teacher/CreateFromBank"; // Mới thêm
+import AICreateExam from "./pages/teacher/AICreateExam"; // Mới thêm
+
 const App = () => {
-  return (
-    <>
-      <Routes>
-        {/* Public Routes */}
-        <Route
-          path="/"
-          element={
-            <PublicRoute>
-              <Login />
-            </PublicRoute>
-          }
-        />
-        <Route
-          path="/reset-password"
-          element={
-            <PublicRoute>
-              <ResetPassword />
-            </PublicRoute>
-          }
-        />
+    return (
+        <>
+            <Routes>
+                {/* Public Routes */}
+                <Route
+                    path="/"
+                    element={
+                        <PublicRoute>
+                            <Login />
+                        </PublicRoute>
+                    }
+                />
+                <Route
+                    path="/reset-password"
+                    element={
+                        <PublicRoute>
+                            <ResetPassword />
+                        </PublicRoute>
+                    }
+                />
 
-        {/* Protected Routes */}
-        <Route
-          path="/student"
-          element={
-            <ProtectedRoute allowedRoles={["STUDENT"]}>
-              <StudentLayout />
-            </ProtectedRoute>
-          }
-        >
-          <Route index element={<StudentDashboard />} />
-          <Route path="lich-su-thi" element={<LichSuThi />} />
-          <Route path="de-thi-yeu-thich" element={<DeThiYeuThich />} />
-          <Route path="bai-thi" element={<BaiThi />} />
-          <Route path="bai-thi-luyen-tap" element={<Bailuyentap />} />
-          <Route path="lich-su-luyen-tap" element={<LichSuluyentap />} />
-          <Route path="thi/:id" element={<Thithat />} />
-      
-          <Route path="thithu/:id" element={<Thithu />} />
-          <Route
-            path="bai-thi"
-            element={
-              <ErrorBoundary>
-                <BaiThi />
-              </ErrorBoundary>
-            }
-          />
-        </Route>
+                {/* STUDENT ROUTES */}
+                <Route
+                    path="/student"
+                    element={
+                        <ProtectedRoute allowedRoles={["STUDENT"]}>
+                            <StudentLayout />
+                        </ProtectedRoute>
+                    }
+                >
+                    <Route index element={<StudentDashboard />} />
+                    <Route path="lich-su-thi" element={<LichSuThi />} />
+                    <Route path="de-thi-yeu-thich" element={<DeThiYeuThich />} />
+                    <Route path="bai-thi" element={<BaiThi />} />
+                    <Route path="bai-thi-luyen-tap" element={<Bailuyentap />} />
+                    <Route path="lich-su-luyen-tap" element={<LichSuluyentap />} />
+                    <Route path="thi/:id" element={<Thithat />} />
+                    <Route path="thithu/:id" element={<Thithu />} />
+                </Route>
 
-        {/* TEACHER */}
-        <Route
-          path="/teacher"
-          element={
-            <ProtectedRoute allowedRoles={["TEACHER"]}>
-              <TeacherLayout />
-            </ProtectedRoute>
-          }
-        >
-          <Route index element={<TeacherDashboard />} />
-          <Route path="exams" element={<TeacherExams />} />
-          <Route path="questions" element={<TeacherQuestions />} />
-          <Route path="students" element={<TeacherStudents />} />
-          <Route path="exam-classes" element={<TeacherExamsClass />} />
-        </Route>
+                {/* TEACHER ROUTES */}
+                <Route
+                    path="/teacher"
+                    element={
+                        <ProtectedRoute allowedRoles={["TEACHER"]}>
+                            <TeacherLayout />
+                        </ProtectedRoute>
+                    }
+                >
+                    <Route index element={<TeacherDashboard />} />
+                    <Route path="exams" element={<TeacherExams />} />
 
-        <Route
-          path="/admin"
-          element={
-            <ProtectedRoute allowedRoles={["ADMIN"]}>
-              <AdminLayouts />
-            </ProtectedRoute>
-          }
-        >
-          <Route index element={<Dashboard />} />
-          <Route path="users" element={<User />} />
-          <Route path="classes" element={<Classes />} />
-          <Route path="assign-teacher" element={<AssignTeacher />} />
+                    {/* --- NHÓM ĐƯỜNG DẪN TẠO ĐỀ THI --- */}
+                    <Route path="exams/portal" element={<ExamCreationPortal />} />
+                    <Route path="exams/fast-create" element={<FastCreateExam />} />
+                    <Route path="exams/from-bank" element={<CreateFromBank />} /> {/* Đã đăng ký */}
+                    <Route path="exams/ai-create" element={<AICreateExam />} /> {/* Đã đăng ký */}
 
-        </Route>
+                    <Route path="questions" element={<TeacherQuestions />} />
+                    <Route path="students" element={<TeacherStudents />} />
+                    <Route path="exam-classes" element={<TeacherExamsClass />} />
+                </Route>
 
-        {/* 404 Page */}
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+                {/* ADMIN ROUTES */}
+                <Route
+                    path="/admin"
+                    element={
+                        <ProtectedRoute allowedRoles={["ADMIN"]}>
+                            <AdminLayouts />
+                        </ProtectedRoute>
+                    }
+                >
+                    <Route index element={<Dashboard />} />
+                    <Route path="users" element={<User />} />
+                    <Route path="classes" element={<Classes />} />
+                    <Route path="assign-teacher" element={<AssignTeacher />} />
+                </Route>
 
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        newestOnTop
-        closeOnClick
-        pauseOnHover
-      />
-    </>
-  );
+                {/* 404 Page */}
+                <Route path="*" element={<NotFound />} />
+            </Routes>
+
+            <ToastContainer
+                position="top-right"
+                autoClose={3000}
+                newestOnTop
+                closeOnClick
+                pauseOnHover
+            />
+        </>
+    );
 };
 
 export default App;
