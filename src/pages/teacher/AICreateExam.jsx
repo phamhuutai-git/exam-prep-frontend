@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import {
     Row, Col, Card, Input, Button, Form, Select,
-    Space, Spin, InputNumber, Typography, Divider
+    Space, Spin, InputNumber, Typography, Divider, Modal
 } from "antd";
 import {
     SendOutlined, ArrowLeftOutlined, RobotOutlined,
-    CheckCircleFilled, BulbOutlined
+    CheckCircleFilled, BulbOutlined, SettingOutlined
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import examService from "../../services/teacher/examService";
@@ -18,6 +18,7 @@ const AICreateExam = () => {
     const navigate = useNavigate();
     const [form] = Form.useForm();
 
+    // --- States ---
     const [prompt, setPrompt] = useState("");
     const [numQuestions, setNumQuestions] = useState(10);
     const [rawText, setRawText] = useState("");
@@ -27,12 +28,15 @@ const AICreateExam = () => {
     const [submitting, setSubmitting] = useState(false);
     const [categories, setCategories] = useState([]);
 
+    // State điều khiển Modal
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
     useEffect(() => {
         const fetchCats = async () => {
             try {
                 const res = await examService.getAllCategory();
                 setCategories(res.data?.data || []);
-            } catch (error) { console.error("Lỗi danh mục:", error); }
+            } catch (error) { console.error(error); }
         };
         fetchCats();
     }, []);
@@ -67,9 +71,8 @@ const AICreateExam = () => {
                 difficulty: "MEDIUM"
             });
             setRawText(response.data);
-            toast.success(`AI đã tạo xong ${numQuestions} câu hỏi!`);
+            toast.success("AI đã tạo xong câu hỏi!");
         } catch (error) {
-            console.error(error);
             toast.error("AI đang bận, thử lại sau nhé!");
         } finally {
             setLoadingAI(false);
@@ -77,7 +80,6 @@ const AICreateExam = () => {
     };
 
     const handleToggleCorrect = (qIdx, label) => {
-        if (!rawText) return;
         const lines = rawText.split("\n");
         let currentQ = -1;
         const newLines = lines.map((line) => {
@@ -92,13 +94,19 @@ const AICreateExam = () => {
         setRawText(newLines.join("\n"));
     };
 
+    // Hàm mở Modal khi nhấn nút Lưu
+    const handleOpenSaveModal = () => {
+        if (previewQuestions.length === 0) {
+            toast.warning("Hãy nhờ AI tạo nội dung trước khi lưu!");
+            return;
+        }
+        setIsModalOpen(true);
+    };
+
     const onFinish = async (values) => {
-        if (previewQuestions.length === 0) return toast.warning("Chưa có nội dung!");
         setSubmitting(true);
         try {
             const selectedCat = categories.find(c => c.name === values.categoryName);
-
-            // Format duration HH:mm:ss
             let formattedDuration = values.duration || "00:45:00";
             if (formattedDuration.split(":").length === 2) formattedDuration += ":00";
 
@@ -111,74 +119,68 @@ const AICreateExam = () => {
                 rawText: rawText
             };
             await examService.createExamFast(payload);
-            toast.success("Lưu đề AI thành công! 🚀");
+            toast.success("Đề thi đã được xuất bản thành công! 🚀");
             navigate("/teacher/exams");
-        } catch (error) { toast.error("Lưu đề thất bại!"); console.error(error); }
-        finally { setSubmitting(false); }
+        } catch (error) {
+            toast.error("Lưu đề thất bại!");
+        } finally {
+            setSubmitting(false);
+            setIsModalOpen(false);
+        }
     };
 
     return (
         <div style={{ padding: "15px", background: "#f0f2f5", minHeight: "100vh" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "15px", background: "#fff", padding: "10px 20px", borderRadius: "8px", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }}>
+            {/* Header */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "15px", background: "#fff", padding: "10px 20px", borderRadius: "8px" }}>
                 <Space>
                     <Button icon={<ArrowLeftOutlined />} onClick={() => navigate(-1)}>Quay lại</Button>
                     <Divider type="vertical" />
                     <Title level={4} style={{ margin: 0, color: '#722ed1' }}><RobotOutlined /> Trợ lý AI tạo đề</Title>
                 </Space>
-                <Button type="primary" icon={<SendOutlined />} onClick={() => form.submit()} loading={submitting} size="large" style={{ background: '#722ed1', borderColor: '#722ed1' }}>Lưu & Xuất bản đề AI</Button>
+                <Button
+                    type="primary"
+                    icon={<SendOutlined />}
+                    onClick={handleOpenSaveModal} // Đổi thành mở Modal
+                    size="large"
+                    style={{ background: '#722ed1', borderColor: '#722ed1', fontWeight: 'bold' }}
+                >
+                    Lưu & Xuất bản đề AI
+                </Button>
             </div>
 
             <Row gutter={16} style={{ height: "calc(100vh - 110px)" }}>
+                {/* Cột trái: Tập trung vào Nhập lệnh và Nội dung thô */}
                 <Col span={10} style={{ height: "100%", display: "flex", flexDirection: "column" }}>
-                    {/* Card Nhập Lệnh AI */}
-                    <Card title={<Space><BulbOutlined style={{ color: '#722ed1' }}/> Yêu cầu AI tạo nội dung</Space>} style={{ marginBottom: "12px", borderRadius: "8px", border: '1px solid #d3adf7' }}>
-                        <TextArea rows={2} placeholder="Nhập chủ đề..." value={prompt} onChange={(e) => setPrompt(e.target.value)} style={{ marginBottom: 15 }} />
+                    <Card title={<Space><BulbOutlined style={{ color: '#722ed1' }}/> Yêu cầu AI</Space>} style={{ marginBottom: "12px", borderRadius: "8px" }}>
+                        <TextArea rows={2} placeholder="Nhập chủ đề..." value={prompt} onChange={(e) => setPrompt(e.target.value)} style={{ marginBottom: 10 }} />
                         <Row gutter={12} align="middle">
-                            <Col span={10}><Text strong>Số lượng:</Text></Col>
-                            <Col span={14}><InputNumber min={1} max={50} value={numQuestions} onChange={setNumQuestions} style={{ width: '100%' }} /></Col>
+                            <Col span={8}><Text strong>Số lượng:</Text></Col>
+                            <Col span={8}><InputNumber min={1} max={50} value={numQuestions} onChange={setNumQuestions} style={{ width: '100%' }} /></Col>
+                            <Col span={8}><Button type="primary" block loading={loadingAI} onClick={handleGenerateAI} style={{ background: '#722ed1', border: 'none' }}>Tạo ngay</Button></Col>
                         </Row>
-                        <Button type="primary" block icon={<RobotOutlined />} loading={loadingAI} onClick={handleGenerateAI} style={{ marginTop: 15, background: 'linear-gradient(90deg, #722ed1 0%, #b37feb 100%)', border: 'none' }}>Tạo ngay</Button>
                     </Card>
 
-                    {/* Card Cấu hình - ĐÃ THÊM CÁC TRƯỜNG CÒN THIẾU */}
-                    <Card style={{ flex: 1, borderRadius: "8px", overflowY: "auto" }} title="Thông tin cấu hình">
-                        <Form form={form} layout="vertical" onFinish={onFinish} initialValues={{ duration: "00:45:00", passScore: 5, examType: "PRACTICE" }}>
-                            <Row gutter={12}>
-                                <Col span={12}>
-                                    <Form.Item name="title" label="Tên đề thi" rules={[{ required: true }]}><Input placeholder="Tên đề..." /></Form.Item>
-                                </Col>
-                                <Col span={12}>
-                                    <Form.Item name="categoryName" label="Danh mục" rules={[{ required: true }]}>
-                                        <Select placeholder="Chọn">{categories.map(cat => <Select.Option key={cat.id} value={cat.name}>{cat.name}</Select.Option>)}</Select>
-                                    </Form.Item>
-                                </Col>
-                            </Row>
-
-                            <Row gutter={12}>
-                                <Col span={8}>
-                                    <Form.Item name="duration" label="Thời gian"><Input type="time" step="1" /></Form.Item>
-                                </Col>
-                                <Col span={8}>
-                                    <Form.Item name="passScore" label="Điểm Pass"><InputNumber min={0} max={10} style={{ width: "100%" }} /></Form.Item>
-                                </Col>
-                                <Col span={8}>
-                                    <Form.Item name="examType" label="Loại đề">
-                                        <Select>
-                                            <Select.Option value="PRACTICE">Luyện tập</Select.Option>
-                                            <Select.Option value="OFFICIAL">Chính thức</Select.Option>
-                                        </Select>
-                                    </Form.Item>
-                                </Col>
-                            </Row>
-                        </Form>
-                        <Text strong style={{ color: '#595959', fontSize: '12px' }}>Văn bản thô (Có thể sửa lời giải tại đây):</Text>
-                        <TextArea value={rawText} onChange={(e) => setRawText(e.target.value)} style={{ marginTop: 8, height: 120, fontFamily: "monospace", fontSize: '12px' }} />
+                    <Card
+                        title={<Space><SettingOutlined /> Nội dung văn bản thô (Có thể sửa trực tiếp)</Space>}
+                        style={{ flex: 1, borderRadius: "8px", display: "flex", flexDirection: "column" }}
+                        bodyStyle={{ flex: 1, padding: 0, display: "flex" }}
+                    >
+                        <TextArea
+                            value={rawText}
+                            onChange={(e) => setRawText(e.target.value)}
+                            style={{
+                                flex: 1, border: "none", resize: "none", padding: "20px",
+                                fontSize: "15px", fontFamily: "monospace", background: "#fafafa"
+                            }}
+                        />
                     </Card>
                 </Col>
 
+                {/* Cột phải: Preview */}
                 <Col span={14} style={{ height: "100%" }}>
-                    <Card title={`Bản xem trước (${previewQuestions.length} câu)`} style={{ height: "100%", borderRadius: "8px" }} bodyStyle={{ height: "calc(100% - 57px)", overflowY: "auto", padding: "20px" }}>
-                        <Spin spinning={loadingParser || loadingAI} tip="Đang chuẩn bị dữ liệu...">
+                    <Card title={`Bản xem trước dữ liệu AI (${previewQuestions.length} câu)`} style={{ height: "100%", borderRadius: "8px" }} bodyStyle={{ height: "calc(100% - 57px)", overflowY: "auto", padding: "20px" }}>
+                        <Spin spinning={loadingParser || loadingAI}>
                             {previewQuestions.map((q, idx) => (
                                 <div key={idx} style={{ marginBottom: "25px", background: "#fff", padding: "15px", borderRadius: "10px", border: "1px solid #f0f0f0" }}>
                                     <Text strong style={{ fontSize: "15px", color: "#722ed1", display: "block", marginBottom: "12px" }}>Câu {idx + 1}: {q.content}</Text>
@@ -198,7 +200,7 @@ const AICreateExam = () => {
                                     </Row>
                                     {q.explanation && (
                                         <div style={{ marginTop: "15px", padding: "12px", background: "#fffbe6", borderRadius: "8px", borderLeft: "5px solid #ffe58f" }}>
-                                            <Space style={{ marginBottom: 4 }}><BulbOutlined style={{ color: "#d48806" }} /><Text strong style={{ color: "#856404" }}>Lời giải chi tiết:</Text></Space>
+                                            <Space><BulbOutlined style={{ color: "#d48806" }} /><Text strong style={{ color: "#856404" }}>Lời giải chi tiết:</Text></Space>
                                             <br /><Text italic style={{ color: "#595959", fontSize: "13px" }}>{q.explanation}</Text>
                                         </div>
                                     )}
@@ -208,6 +210,55 @@ const AICreateExam = () => {
                     </Card>
                 </Col>
             </Row>
+
+            {/* MODAL CẤU HÌNH ĐỀ THI - XUẤT HIỆN KHI BẤM LƯU */}
+            <Modal
+                title={<Title level={4}><SettingOutlined /> Hoàn tất thông tin đề thi</Title>}
+                open={isModalOpen}
+                onOk={() => form.submit()}
+                onCancel={() => setIsModalOpen(false)}
+                confirmLoading={submitting}
+                okText="Xác nhận & Lưu đề"
+                cancelText="Quay lại sửa tiếp"
+                width={600}
+            >
+                <Form form={form} layout="vertical" onFinish={onFinish} initialValues={{ duration: "00:45:00", passScore: 5, examType: "PRACTICE" }}>
+                    <Form.Item name="title" label="Tên đề thi" rules={[{ required: true, message: 'Vui lòng nhập tên đề!' }]}>
+                        <Input placeholder="VD: Kiểm tra Lịch sử 1975-1990" />
+                    </Form.Item>
+
+                    <Row gutter={16}>
+                        <Col span={12}>
+                            <Form.Item name="categoryName" label="Danh mục" rules={[{ required: true }]}>
+                                <Select placeholder="Chọn danh mục">
+                                    {categories.map(cat => <Select.Option key={cat.id} value={cat.name}>{cat.name}</Select.Option>)}
+                                </Select>
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item name="examType" label="Loại hình đề thi">
+                                <Select>
+                                    <Select.Option value="PRACTICE">Luyện tập</Select.Option>
+                                    <Select.Option value="OFFICIAL">Chính thức</Select.Option>
+                                </Select>
+                            </Form.Item>
+                        </Col>
+                    </Row>
+
+                    <Row gutter={16}>
+                        <Col span={12}>
+                            <Form.Item name="duration" label="Thời gian làm bài">
+                                <Input type="time" step="1" style={{ width: '100%' }} />
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item name="passScore" label="Điểm sàn (Pass)">
+                                <InputNumber min={0} max={10} style={{ width: "100%" }} />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                </Form>
+            </Modal>
         </div>
     );
 };
