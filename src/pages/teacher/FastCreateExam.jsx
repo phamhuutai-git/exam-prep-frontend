@@ -5,8 +5,7 @@ import {
 } from "antd";
 import {
     SendOutlined, ArrowLeftOutlined, ThunderboltOutlined,
-    CheckCircleFilled, QuestionCircleOutlined, BulbOutlined,
-    EditOutlined, SettingOutlined
+    CheckCircleFilled, BulbOutlined, EditOutlined, SettingOutlined
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import examService from "../../services/teacher/examService";
@@ -102,8 +101,7 @@ const FastCreateExam = () => {
             if (formattedDuration.split(":").length === 2) formattedDuration += ":00";
 
             const payload = {
-                ...values,
-                code: `EX-FAST-${Date.now()}`,
+                ...values, // Đã bao gồm trường 'code' do giáo viên tự nhập
                 duration: formattedDuration,
                 categoryName: values.categoryName,
                 categoryId: selectedCat ? selectedCat.id : null,
@@ -141,7 +139,7 @@ const FastCreateExam = () => {
                 <Button
                     type="primary"
                     icon={<SendOutlined />}
-                    onClick={handleOpenSaveModal} // Gọi mở Modal
+                    onClick={handleOpenSaveModal}
                     size="large"
                     style={{ borderRadius: "6px", fontWeight: "bold" }}
                 >
@@ -150,12 +148,12 @@ const FastCreateExam = () => {
             </div>
 
             <Row gutter={16} style={{ height: "calc(100vh - 110px)" }}>
-                {/* CỘT TRÁI: EDITOR CHIẾM TOÀN BỘ CHIỀU CAO */}
+                {/* CỘT TRÁI: EDITOR */}
                 <Col span={10} style={{ height: "100%", display: "flex", flexDirection: "column" }}>
                     <Card
-                        title={<Space><EditOutlined /> Nội dung văn bản thô (Tự động bóc tách)</Space>}
+                        title={<Space><EditOutlined /> Nội dung văn bản</Space>}
                         style={{ flex: 1, borderRadius: "8px", display: "flex", flexDirection: "column", overflow: "hidden" }}
-                        bodyStyle={{ flex: 1, padding: 0, display: "flex" }}
+                        styles={{ body: { flex: 1, padding: 0, display: "flex" } }} // Fix AntD warning
                     >
                         <TextArea
                             value={rawText}
@@ -181,7 +179,7 @@ const FastCreateExam = () => {
                     <Card
                         title={`Bản xem trước (${previewQuestions.length} câu)`}
                         style={{ height: "100%", borderRadius: "8px", overflow: "hidden" }}
-                        bodyStyle={{ height: "calc(100% - 57px)", overflowY: "auto", padding: "20px" }}
+                        styles={{ body: { height: "calc(100% - 57px)", overflowY: "auto", padding: "20px" } }} // Fix AntD warning
                     >
                         <Spin spinning={loading} tip="Đang bóc tách dữ liệu...">
                             {previewQuestions.map((q, idx) => (
@@ -226,7 +224,7 @@ const FastCreateExam = () => {
                 </Col>
             </Row>
 
-            {/* MODAL CẤU HÌNH ĐỀ THI - CHỈ HIỆN KHI BẤM LƯU */}
+            {/* MODAL CẤU HÌNH ĐỀ THI */}
             <Modal
                 title={<Title level={4}><SettingOutlined /> Thông tin cấu hình đề thi</Title>}
                 open={isModalOpen}
@@ -243,6 +241,11 @@ const FastCreateExam = () => {
                     onFinish={onFinish}
                     initialValues={{ duration: "01:00:00", passScore: 5, examType: "PRACTICE" }}
                 >
+                    {/* TRƯỜNG NHẬP MÃ ĐỀ THI */}
+                    <Form.Item name="code" label="Mã đề thi" rules={[{ required: true, message: 'Vui lòng nhập mã đề thi!' }]}>
+                        <Input placeholder="VD: TOAN-15-MIN" size="large" />
+                    </Form.Item>
+
                     <Form.Item name="title" label="Tên đề thi" rules={[{ required: true, message: 'Hãy đặt tên cho đề thi của bạn!' }]}>
                         <Input placeholder="VD: Đề thi khảo sát chất lượng đầu năm" size="large" />
                     </Form.Item>
@@ -270,7 +273,7 @@ const FastCreateExam = () => {
                     <Row gutter={16}>
                         <Col span={12}>
                             <Form.Item name="duration" label="Thời gian làm bài">
-                                <Input type="time" step="1" size="large" />
+                                <Input type="time" step="1" size="large" style={{ width: '100%' }} />
                             </Form.Item>
                         </Col>
                         <Col span={12}>

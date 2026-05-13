@@ -36,7 +36,9 @@ const AICreateExam = () => {
             try {
                 const res = await examService.getAllCategory();
                 setCategories(res.data?.data || []);
-            } catch (error) { console.error(error); }
+            } catch (error) {
+                console.error("Lỗi tải danh mục:", error);
+            }
         };
         fetchCats();
     }, []);
@@ -51,7 +53,9 @@ const AICreateExam = () => {
             try {
                 const res = await examService.parsePreview(rawText);
                 setPreviewQuestions(res.data?.data || []);
-            } catch (error) { console.error(error); }
+            } catch (error) {
+                console.error("Lỗi parse preview:", error);
+            }
             finally { setLoadingParser(false); }
         }, 600);
         return () => clearTimeout(timer);
@@ -73,6 +77,7 @@ const AICreateExam = () => {
             setRawText(response.data);
             toast.success("AI đã tạo xong câu hỏi!");
         } catch (error) {
+            console.error("Lỗi khi gọi AI:", error); // FIX ESLint
             toast.error("AI đang bận, thử lại sau nhé!");
         } finally {
             setLoadingAI(false);
@@ -111,8 +116,7 @@ const AICreateExam = () => {
             if (formattedDuration.split(":").length === 2) formattedDuration += ":00";
 
             const payload = {
-                ...values,
-                code: `EX-AI-${Date.now()}`,
+                ...values, // Lấy luôn code từ form, không tự sinh nữa
                 duration: formattedDuration,
                 categoryName: values.categoryName,
                 categoryId: selectedCat ? selectedCat.id : null,
@@ -122,6 +126,7 @@ const AICreateExam = () => {
             toast.success("Đề thi đã được xuất bản thành công! 🚀");
             navigate("/teacher/exams");
         } catch (error) {
+            console.error("Lưu đề thất bại:", error); // FIX ESLint
             toast.error("Lưu đề thất bại!");
         } finally {
             setSubmitting(false);
@@ -141,7 +146,7 @@ const AICreateExam = () => {
                 <Button
                     type="primary"
                     icon={<SendOutlined />}
-                    onClick={handleOpenSaveModal} // Đổi thành mở Modal
+                    onClick={handleOpenSaveModal}
                     size="large"
                     style={{ background: '#722ed1', borderColor: '#722ed1', fontWeight: 'bold' }}
                 >
@@ -223,6 +228,12 @@ const AICreateExam = () => {
                 width={600}
             >
                 <Form form={form} layout="vertical" onFinish={onFinish} initialValues={{ duration: "00:45:00", passScore: 5, examType: "PRACTICE" }}>
+
+                    {/* TRƯỜNG NHẬP MÃ ĐỀ THI */}
+                    <Form.Item name="code" label="Mã đề thi" rules={[{ required: true, message: 'Vui lòng nhập mã đề thi!' }]}>
+                        <Input placeholder="VD: AI-TEST-01" />
+                    </Form.Item>
+
                     <Form.Item name="title" label="Tên đề thi" rules={[{ required: true, message: 'Vui lòng nhập tên đề!' }]}>
                         <Input placeholder="VD: Kiểm tra Lịch sử 1975-1990" />
                     </Form.Item>

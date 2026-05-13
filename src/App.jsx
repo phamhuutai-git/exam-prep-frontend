@@ -31,8 +31,10 @@ import LichSuluyentap from "./pages/student/LichSuluyentap";
 // --- IMPORT CÁC TRANG TẠO ĐỀ (AZOTA STYLE) ---
 import ExamCreationPortal from "./pages/teacher/ExamCreationPortal";
 import FastCreateExam from "./pages/teacher/FastCreateExam";
-import CreateFromBank from "./pages/teacher/CreateFromBank"; // Mới thêm
-import AICreateExam from "./pages/teacher/AICreateExam"; // Mới thêm
+import CreateFromBank from "./pages/teacher/CreateFromBank";
+import AICreateExam from "./pages/teacher/AICreateExam";
+import ImportWordExam from "./pages/teacher/ImportWordExam"; // <--- THÊM DÒNG NÀY
+
 
 const App = () => {
     return (
@@ -90,8 +92,9 @@ const App = () => {
                     {/* --- NHÓM ĐƯỜNG DẪN TẠO ĐỀ THI --- */}
                     <Route path="exams/portal" element={<ExamCreationPortal />} />
                     <Route path="exams/fast-create" element={<FastCreateExam />} />
-                    <Route path="exams/from-bank" element={<CreateFromBank />} /> {/* Đã đăng ký */}
-                    <Route path="exams/ai-create" element={<AICreateExam />} /> {/* Đã đăng ký */}
+                    <Route path="exams/from-bank" element={<CreateFromBank />} />
+                    <Route path="exams/ai-create" element={<AICreateExam />} />
+                    <Route path="exams/import-word" element={<ImportWordExam />} /> {/* <--- THÊM DÒNG NÀY */}
 
                     <Route path="questions" element={<TeacherQuestions />} />
                     <Route path="students" element={<TeacherStudents />} />
