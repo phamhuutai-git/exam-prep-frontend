@@ -49,15 +49,7 @@ const ExamCreationPortal = () => {
             tagText: 'AI',
             tagColor: 'purple'
         },
-        {
-            id: 'excel',
-            title: 'Tạo đề từ file Excel',
-            desc: 'Phù hợp cho các bộ đề có số lượng câu hỏi cực lớn.',
-            icon: <FileExcelOutlined style={{ fontSize: 36, color: '#217346' }} />,
-            path: '/teacher/exams/import-excel',
-            tagText: '', // Không có tag
-            tagColor: ''
-        }
+
     ];
 
     return (

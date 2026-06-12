@@ -41,7 +41,7 @@ const FastCreateExam = () => {
         fetchCats();
     }, []);
 
-    // 2. Logic Live Preview (Debounce 600ms)
+    // 2. Logic Live Preview
     useEffect(() => {
         if (!rawText.trim() || rawText.length < 10) {
             setPreviewQuestions([]);
@@ -101,7 +101,10 @@ const FastCreateExam = () => {
             if (formattedDuration.split(":").length === 2) formattedDuration += ":00";
 
             const payload = {
-                ...values, // Đã bao gồm trường 'code' do giáo viên tự nhập
+                title: values.title,
+                examType: values.examType,
+                passScore: values.passScore,
+                examCode: values.examCode.trim(), // Ép lấy chuẩn tên biến và xóa khoảng trắng thừa
                 duration: formattedDuration,
                 categoryName: values.categoryName,
                 categoryId: selectedCat ? selectedCat.id : null,
@@ -109,11 +112,12 @@ const FastCreateExam = () => {
             };
 
             await examService.createExamFast(payload);
-            toast.success("Đề thi đã được tạo thành công rực rỡ! 🚀");
+            toast.success("Đề thi đã được tạo thành công! ");
             navigate("/teacher/exams");
         } catch (err) {
             console.error("Lưu đề thất bại:", err);
-            toast.error("Có lỗi xảy ra khi lưu đề thi");
+            // Sửa lại dòng này để hiển thị lỗi chi tiết từ Backend trả về (nếu trùng mã)
+            toast.error(err.response?.data?.message || "Có lỗi xảy ra khi lưu đề thi");
         } finally {
             setSubmitting(false);
             setIsModalOpen(false);
@@ -132,7 +136,7 @@ const FastCreateExam = () => {
                     <Button icon={<ArrowLeftOutlined />} onClick={() => navigate(-1)}>Quay lại</Button>
                     <Divider type="vertical" />
                     <Title level={4} style={{ margin: 0 }}>
-                        <ThunderboltOutlined style={{ color: "#faad14" }} /> Soạn đề siêu tốc
+                        Soạn đề siêu tốc
                     </Title>
                 </Space>
 
@@ -242,7 +246,7 @@ const FastCreateExam = () => {
                     initialValues={{ duration: "01:00:00", passScore: 5, examType: "PRACTICE" }}
                 >
                     {/* TRƯỜNG NHẬP MÃ ĐỀ THI */}
-                    <Form.Item name="code" label="Mã đề thi" rules={[{ required: true, message: 'Vui lòng nhập mã đề thi!' }]}>
+                    <Form.Item name="examCode" label="Mã đề thi" rules={[{ required: true, message: 'Vui lòng nhập mã đề thi!' }]}>
                         <Input placeholder="VD: TOAN-15-MIN" size="large" />
                     </Form.Item>
 

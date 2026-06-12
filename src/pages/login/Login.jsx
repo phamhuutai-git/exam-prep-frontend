@@ -107,7 +107,7 @@ const Login = () => {
           </Form>
 
           <div className="login-footer">
-            <p>© 2026 VTI Academy. All rights reserved.</p>
+            <p>© 2026 THPT Hoàng Cầu. All rights reserved.</p>
           </div>
         </div>
 

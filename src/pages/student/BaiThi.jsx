@@ -3,8 +3,9 @@ import { Card, Row, Col, Tag, Button, Input, Modal } from "antd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faClock, faBook, faHeart, faSearch } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
-import { getExamsByClassOfficial, startExam, restartExam } from "../../services/student/studentServices"; // ✅ thêm startExam
+import { getExamsByClassOfficial, startExam, restartExam } from "../../services/student/studentServices";
 import { useAuth } from "../../context/AuthContext";
+
 const BaiThi = () => {
   const [liked, setLiked] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
@@ -12,18 +13,30 @@ const BaiThi = () => {
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
-  // ✅ THÊM FUNCTION NÀY
+
+  // ---> ĐÃ SỬA: Hàm formatDuration hỗ trợ cả số nguyên (phút) và chuỗi
+  const formatDuration = (time) => {
+    if (time === null || time === undefined) return "N/A";
+    if (typeof time === "number" || !String(time).includes(":")) {
+      const totalMins = parseInt(time, 10);
+      const h = Math.floor(totalMins / 60);
+      const m = totalMins % 60;
+      if (h > 0) return m > 0 ? `${h} giờ ${m} phút` : `${h} giờ`;
+      return `${m} phút`;
+    }
+    const parts = time.split(":");
+    const h = parseInt(parts[0], 10);
+    const m = parseInt(parts[1], 10);
+    return h > 0 ? `${h} giờ ${m} phút` : `${m} phút`;
+  };
+
   const handleStartExam = async (examId) => {
     try {
       const res = await startExam(examId);
       const data = res.data?.data;
-      navigate(`/student/thi/${examId}`, {
-        state: data,
-      });
-      console.log(data);
+      navigate(`/student/thi/${examId}`, { state: data });
     } catch (err) {
       const msg = err.response?.data?.message;
-
       if (msg?.includes("ongoing attempt")) {
         alert("Bạn đang có bài thi chưa nộp!");
       } else {
@@ -32,7 +45,6 @@ const BaiThi = () => {
     }
   };
 
-  //Them function restart thi
   const handleRestartExam = (examId) => {
     Modal.confirm({
       title: "Xác nhận làm lại bài thi",
@@ -43,25 +55,13 @@ const BaiThi = () => {
         try {
           const res = await restartExam(examId);
           const data = res.data?.data;
-
-          navigate(`/student/thi/${examId}`, {
-            state: data,
-          });
-          console.log(data);
+          navigate(`/student/thi/${examId}`, { state: data });
         } catch (err) {
           console.error(err);
           alert("Không thể làm lại bài thi");
         }
       }
-    })
-  }
-
-  const formatDuration = (time) => {
-    if (!time) return "N/A";
-    const [h, m] = time.split(":");
-    return parseInt(h) > 0
-      ? `${parseInt(h)} giờ ${parseInt(m)} phút`
-      : `${parseInt(m)} phút`;
+    });
   };
 
   useEffect(() => {
@@ -73,15 +73,12 @@ const BaiThi = () => {
     const fetchData = async () => {
       try {
         const classId = user?.classId;
-
-        if (!classId) {
-          console.log("Chưa có classId");
-          return;
-        }
+        if (!classId) return;
 
         setLoading(true);
 
-        const res = await getExamsByClassOfficial(classId);
+        // ---> ĐÃ SỬA: Thêm { page: 0, size: 1000 } để lấy tất cả bài thi thật
+        const res = await getExamsByClassOfficial(classId, { page: 0, size: 1000 });
         const rawData = res.data?.data?.content || [];
 
         const mapped = rawData.map((item) => ({
@@ -101,122 +98,67 @@ const BaiThi = () => {
     };
 
     loadLiked();
-
-    if (user) {
-      fetchData();
-    }
-
+    if (user) fetchData();
     window.addEventListener("storage", loadLiked);
-    return () => {
-      window.removeEventListener("storage", loadLiked);
-    };
+    return () => window.removeEventListener("storage", loadLiked);
   }, [user]);
 
   const filteredData = useMemo(() => {
     return exams.filter(
-      (exam) =>
-        !searchTerm ||
-        exam.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        exam.subject.toLowerCase().includes(searchTerm.toLowerCase())
+        (exam) =>
+            !searchTerm ||
+            exam.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            exam.subject.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [searchTerm, exams]);
 
   const toggleLike = (exam) => {
-    const newLiked = {
-      ...liked,
-      [exam.id]: !liked[exam.id],
-    };
-
+    const newLiked = { ...liked, [exam.id]: !liked[exam.id] };
     setLiked(newLiked);
     localStorage.setItem("favoriteExams", JSON.stringify(newLiked));
     window.dispatchEvent(new Event("storage"));
   };
 
   return (
-    <div style={{ padding: "24px" }}>
-      <h1>Danh sách bài thi thật</h1>
-      <p style={{ marginBottom: "32px", color: "#666" }}>
-        Chọn bài thi để bắt đầu thi
-      </p>
+      <div style={{ padding: "24px" }}>
+        <h1>Danh sách bài thi thật</h1>
+        <p style={{ marginBottom: "32px", color: "#666" }}>Chọn bài thi để bắt đầu thi</p>
 
-      <div style={{ marginBottom: "24px" }}>
-        <Input
-          className="search-input"
-          prefix={<FontAwesomeIcon icon={faSearch} />}
-          placeholder="Tìm kiếm bài thi theo tiêu đề, môn học..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          style={{ maxWidth: 400 }}
-        />
+        <div style={{ marginBottom: "24px" }}>
+          <Input
+              className="search-input"
+              prefix={<FontAwesomeIcon icon={faSearch} />}
+              placeholder="Tìm kiếm bài thi theo tiêu đề, môn học..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{ maxWidth: 400 }}
+          />
+        </div>
+
+        {loading ? (
+            <p style={{ textAlign: "center" }}>Đang tải...</p>
+        ) : filteredData.length === 0 ? (
+            <p style={{ textAlign: "center" }}>Không có bài thi</p>
+        ) : (
+            <Row gutter={[24, 24]}>
+              {filteredData.map((exam) => (
+                  <Col xs={24} sm={12} md={8} lg={6} key={exam.id}>
+                    <Card hoverable style={{ borderRadius: 12, position: "relative", textAlign: "center" }}>
+                      <FontAwesomeIcon icon={faHeart} onClick={() => toggleLike(exam)} style={{ position: "absolute", top: 16, right: 16, fontSize: 20, cursor: "pointer", color: liked[exam.id] ? "hotpink" : "#ccc" }} />
+                      <h3>{exam.title}</h3>
+                      <p style={{ color: "#888" }}><FontAwesomeIcon icon={faBook} /> {exam.questions} câu hỏi</p>
+                      <Tag color="blue">{exam.subject}</Tag>
+                      <p><FontAwesomeIcon icon={faClock} /> {exam.duration}</p>
+                      <div style={{ display: "flex", justifyContent: "center", gap: 10 }}>
+                        <Button type="primary" onClick={() => handleStartExam(exam.id)}>Thi</Button>
+                        <Button danger style={{ marginLeft: 16, borderRadius: 8, padding: "0 16px", fontWeight: 500 }} onClick={() => handleRestartExam(exam.id)}>Làm lại</Button>
+                      </div>
+                    </Card>
+                  </Col>
+              ))}
+            </Row>
+        )}
       </div>
-
-      {loading ? (
-        <p style={{ textAlign: "center" }}>Đang tải...</p>
-      ) : filteredData.length === 0 ? (
-        <p style={{ textAlign: "center" }}>Không có bài thi</p>
-      ) : (
-        <Row gutter={[24, 24]}>
-          {filteredData.map((exam) => (
-            <Col xs={24} sm={12} md={8} lg={6} key={exam.id}>
-              <Card
-                hoverable
-                style={{
-                  borderRadius: 12,
-                  position: "relative",
-                  textAlign: "center",
-                }}
-              >
-                <FontAwesomeIcon
-                  icon={faHeart}
-                  onClick={() => toggleLike(exam)}
-                  style={{
-                    position: "absolute",
-                    top: 16,
-                    right: 16,
-                    fontSize: 20,
-                    cursor: "pointer",
-                    color: liked[exam.id] ? "hotpink" : "#ccc",
-                  }}
-                />
-
-                <h3>{exam.title}</h3>
-
-                <p style={{ color: "#888" }}>
-                  <FontAwesomeIcon icon={faBook} /> {exam.questions} câu hỏi
-                </p>
-
-                <Tag color="blue">{exam.subject}</Tag>
-
-                <p>
-                  <FontAwesomeIcon icon={faClock} /> {exam.duration}
-                </p>
-
-                {/* ✅ CHỈ SỬA CHỖ NÀY */}
-                <Button
-                  type="primary"
-                  onClick={() => handleStartExam(exam.id)}
-                >
-                  Thi
-                </Button>
-
-                <Button
-                  danger
-                  style={{
-                    marginLeft: 16,
-                    borderRadius: 8,
-                    padding: "0 16px",
-                    fontWeight: 500,
-                  }}
-                  onClick={() => handleRestartExam(exam.id)}
-                >
-                  Làm lại
-                </Button>
-              </Card>
-            </Col>
-          ))}
-        </Row>
-      )}
-    </div>
   );
 };
 

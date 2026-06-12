@@ -1,5 +1,5 @@
 import React from "react";
-import Login from "./pages/login/Login";
+import Login  from "./pages/login/Login";
 import StudentLayout from "./layouts/student/StudentLayout";
 import TeacherLayout from "./layouts/teacher/TeacherLayout";
 import AdminLayouts from "./layouts/admin/AdminLayout";
@@ -28,13 +28,11 @@ import TeacherExamsClass from "./pages/teacher/TeacherExamClass";
 import Bailuyentap from "./pages/student/Bailuyentap";
 import LichSuluyentap from "./pages/student/LichSuluyentap";
 
-// --- IMPORT CÁC TRANG TẠO ĐỀ (AZOTA STYLE) ---
 import ExamCreationPortal from "./pages/teacher/ExamCreationPortal";
 import FastCreateExam from "./pages/teacher/FastCreateExam";
 import CreateFromBank from "./pages/teacher/CreateFromBank";
 import AICreateExam from "./pages/teacher/AICreateExam";
-import ImportWordExam from "./pages/teacher/ImportWordExam"; // <--- THÊM DÒNG NÀY
-
+import ImportWordExam from "./pages/teacher/ImportWordExam";
 
 const App = () => {
     return (
@@ -58,7 +56,7 @@ const App = () => {
                     }
                 />
 
-                {/* STUDENT ROUTES */}
+                {/* ================= STUDENT ROUTES CÓ SIDEBAR ================= */}
                 <Route
                     path="/student"
                     element={
@@ -73,11 +71,29 @@ const App = () => {
                     <Route path="bai-thi" element={<BaiThi />} />
                     <Route path="bai-thi-luyen-tap" element={<Bailuyentap />} />
                     <Route path="lich-su-luyen-tap" element={<LichSuluyentap />} />
-                    <Route path="thi/:id" element={<Thithat />} />
-                    <Route path="thithu/:id" element={<Thithu />} />
                 </Route>
 
-                {/* TEACHER ROUTES */}
+                {/* ================= STUDENT ROUTES FULL MÀN HÌNH (LÀM BÀI THI) ================= */}
+                {/* 🔥 Đã được đưa ra ngoài StudentLayout để không bị dính thanh Menu */}
+                <Route
+                    path="/student/thi/:id"
+                    element={
+                        <ProtectedRoute allowedRoles={["STUDENT"]}>
+                            <Thithat />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/student/thithu/:id"
+                    element={
+                        <ProtectedRoute allowedRoles={["STUDENT"]}>
+                            <Thithu />
+                        </ProtectedRoute>
+                    }
+                />
+
+
+                {/* ================= TEACHER ROUTES ================= */}
                 <Route
                     path="/teacher"
                     element={
@@ -94,14 +110,14 @@ const App = () => {
                     <Route path="exams/fast-create" element={<FastCreateExam />} />
                     <Route path="exams/from-bank" element={<CreateFromBank />} />
                     <Route path="exams/ai-create" element={<AICreateExam />} />
-                    <Route path="exams/import-word" element={<ImportWordExam />} /> {/* <--- THÊM DÒNG NÀY */}
+                    <Route path="exams/import-word" element={<ImportWordExam />} />
 
                     <Route path="questions" element={<TeacherQuestions />} />
                     <Route path="students" element={<TeacherStudents />} />
                     <Route path="exam-classes" element={<TeacherExamsClass />} />
                 </Route>
 
-                {/* ADMIN ROUTES */}
+                {/* ================= ADMIN ROUTES ================= */}
                 <Route
                     path="/admin"
                     element={

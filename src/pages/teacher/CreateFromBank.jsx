@@ -32,11 +32,9 @@ const CreateFromBank = () => {
         const initData = async () => {
             setLoading(true);
             try {
-                // Lấy danh mục
                 const catRes = await examService.getAllCategory();
                 setCategories(catRes.data?.data || []);
 
-                // Lấy toàn bộ câu hỏi của giáo viên (tạm lấy size 1000 để dễ chọn)
                 const qRes = await questionService.getQuestionsByTeacher({ page: 0, size: 1000 });
                 const qList = qRes.data?.data?.content || [];
                 setQuestions(qList);
@@ -58,7 +56,6 @@ const CreateFromBank = () => {
             result = result.filter(q => q.content.toLowerCase().includes(searchText.toLowerCase()));
         }
         if (selectedCategory) {
-            // Giả định backend trả về categoryName hoặc categoryId trong Question
             result = result.filter(q => q.categoryName === selectedCategory || q.categoryId === selectedCategory);
         }
         setFilteredQuestions(result);
@@ -88,12 +85,21 @@ const CreateFromBank = () => {
 
         setSubmitting(true);
         try {
-            // Khớp payload với API createExam bạn đang có
+            // ---> BẮT ĐẦU SỬA: Chuyển đổi thời gian sang phút (Integer)
+            let totalMinutes = 60;
+            if (values.duration) {
+                const timeParts = values.duration.split(":");
+                const hours = parseInt(timeParts[0], 10) || 0;
+                const minutes = parseInt(timeParts[1], 10) || 0;
+                totalMinutes = (hours * 60) + minutes;
+            }
+            // ---> KẾT THÚC SỬA
+
             const payload = {
                 title: values.title,
-                code: `EX${Date.now()}`,
-                duration: values.duration || "01:00:00",
-                category: values.categoryName || "General", // Đổi 'categoryName' thành 'category' để khớp với Backend
+                code: values.examCode.trim(), // ---> BẮT ĐẦU SỬA: Dùng mã đề nhập tay từ giao diện
+                duration: totalMinutes,       // Đã chuyển thành số nguyên (VD: 60)
+                category: values.categoryName,
                 examType: values.examType || "PRACTICE",
                 reviewAllowed: "TRUE",
                 passScore: parseFloat(values.passScore) || 5.0,
@@ -102,7 +108,7 @@ const CreateFromBank = () => {
 
             await examService.createExam(payload);
             toast.success("Xuất bản đề thi thành công! 🎉");
-            navigate("/teacher/exams"); // Quay về danh sách đề thi
+            navigate("/teacher/exams");
         } catch (err) {
             console.error("Lưu đề thất bại:", err);
             toast.error(err.response?.data?.message || "Có lỗi xảy ra khi xuất bản đề thi");
@@ -137,7 +143,7 @@ const CreateFromBank = () => {
         },
         {
             title: 'Ngày tạo',
-            dataIndex: 'createdAt', // Tùy vào field backend trả về
+            dataIndex: 'createdAt',
             key: 'createdAt',
             width: 150,
             render: (date) => date ? new Date(date).toLocaleDateString('vi-VN') : 'N/A'
@@ -146,7 +152,6 @@ const CreateFromBank = () => {
 
     return (
         <div style={{ padding: "15px", background: "#f0f2f5", minHeight: "100vh" }}>
-            {/* Header Bar */}
             <div style={{
                 display: "flex", justifyContent: "space-between", alignItems: "center",
                 marginBottom: "15px", background: "#fff", padding: "10px 20px",
@@ -178,7 +183,6 @@ const CreateFromBank = () => {
             </div>
 
             <Row gutter={16} style={{ height: "calc(100vh - 110px)" }}>
-                {/* CỘT TRÁI: THÔNG TIN ĐỀ THI */}
                 <Col span={8} style={{ height: "100%", display: "flex", flexDirection: "column" }}>
                     <Card style={{ flex: 1, borderRadius: "8px", overflowY: 'auto' }} title="Thông tin Đề thi">
                         <Form
@@ -187,11 +191,20 @@ const CreateFromBank = () => {
                             onFinish={onFinish}
                             initialValues={{ duration: "01:00:00", passScore: 5, examType: "PRACTICE" }}
                         >
+                            {/* BẮT ĐẦU SỬA: Thêm Form.Item cho Mã đề thi */}
+                            <Form.Item name="examCode" label="Mã đề thi" rules={[
+                                { required: true, message: 'Vui lòng nhập mã đề thi!' },
+                                { whitespace: true, message: 'Mã đề thi không được bỏ trống!' }
+                            ]}>
+                                <Input placeholder="VD: THPT-ANH11-01" size="large" />
+                            </Form.Item>
+                            {/* KẾT THÚC SỬA */}
+
                             <Form.Item name="title" label="Tên đề thi" rules={[{ required: true, message: 'Vui lòng nhập tên đề!' }]}>
                                 <Input placeholder="VD: Bài kiểm tra 15 phút Java" size="large" />
                             </Form.Item>
 
-                            <Form.Item name="categoryName" label="Danh mục" rules={[{ required: true }]}>
+                            <Form.Item name="categoryName" label="Danh mục" rules={[{ required: true, message: 'Vui lòng chọn danh mục!' }]}>
                                 <Select placeholder="Chọn danh mục" size="large">
                                     {categories.map(cat => (
                                         <Select.Option key={cat.id} value={cat.name}>{cat.name}</Select.Option>
@@ -231,7 +244,6 @@ const CreateFromBank = () => {
                     </Card>
                 </Col>
 
-                {/* CỘT PHẢI: BẢNG NGÂN HÀNG CÂU HỎI */}
                 <Col span={16} style={{ height: "100%" }}>
                     <Card
                         title="Ngân hàng câu hỏi của bạn"

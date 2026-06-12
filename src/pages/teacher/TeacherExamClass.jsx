@@ -33,6 +33,7 @@ export default function TeacherExamsClass() {
         const result = response.data.data;
 
         setClasses(result.content);
+        // Lưu đúng tổng số lượng lớp từ CSDL (để thanh Pagination biết có bao nhiêu trang)
         setTotal(result.totalElements);
       } catch (error) {
         console.error(error);
@@ -50,7 +51,9 @@ export default function TeacherExamsClass() {
     setSelectedClass(record);
 
     try {
-      const response = await examsAPI.getExamsByTeacher(0, 100);
+      // ---> SỬA TẠI ĐÂY: Ép size 1000 bằng Object params
+      // (Nếu file examService.js của bạn thiết kế nhận 2 tham số rời, hãy đổi thành: getExamsByTeacher(0, 1000))
+      const response = await examsAPI.getExamsByTeacher({ page: 0, size: 1000 });
       const result = response.data.data;
       setAllExams(result.content);
     } catch (error) {
@@ -63,7 +66,6 @@ export default function TeacherExamsClass() {
 
   const handleSave = async ({ classId, examIds }) => {
     try {
-      // Call API to save changes
       await classExamService.updateExam(classId, examIds);
       toast.success("Lưu thay đổi thành công");
 
@@ -75,7 +77,7 @@ export default function TeacherExamsClass() {
     }
   };
 
-  // FILTER
+  // FILTER CHỮ: Chỉ lọc dựa trên dữ liệu hiện tại đang có mặt trên màn hình
   const filteredData = useMemo(() => {
     let data = classes;
 
@@ -87,79 +89,73 @@ export default function TeacherExamsClass() {
     return data;
   }, [classes, search]);
 
-  // PAGINATION
-  const paginatedData = useMemo(() => {
-    const start = page * size;
-    return filteredData.slice(start, start + size);
-  }, [filteredData, page, size]);
-
-  useEffect(() => {
-    setTotal(filteredData.length);
-  }, [filteredData]);
+  // ---> ĐÃ XÓA HÀM paginatedData
+  // ---> ĐÃ XÓA useEffect GHI ĐÈ setTotal
 
   return (
-    <div className="teacher-question-page">
-      <UserHeader
-        title="Quản lý lớp thi"
-        description="Gán đề thi cho lớp học và quản lý lịch thi"
-      />
+      <div className="teacher-question-page">
+        <UserHeader
+            title="Quản lý lớp thi"
+            description="Gán đề thi cho lớp học và quản lý lịch thi"
+        />
 
-      {/* Filters */}
-      <div className="filter-bar">
-        {/* SEARCH */}
-        <div style={{ flex: 1, minWidth: 220 }}>
-          <Input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
-            placeholder="Tìm kiếm tên lớp..."
-            allowClear
-            onClear={() => setSearch("")}
+        {/* Filters */}
+        <div className="filter-bar">
+          {/* SEARCH */}
+          <div style={{ flex: 1, minWidth: 220 }}>
+            <Input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
+                placeholder="Tìm kiếm tên lớp..."
+                allowClear
+                onClear={() => setSearch("")}
+            />
+          </div>
+
+          <div className="filter-divider" />
+
+          {/* SORT */}
+          <Select
+              value={sortClass || undefined}
+              onChange={(value) => setSortClass(value || "")}
+              placeholder="Lọc theo"
+              allowClear
+              style={{ width: 170 }}
+          >
+            <Select.Option value="class">Lớp</Select.Option>
+            <Select.Option value="exam">Số đề thi</Select.Option>
+          </Select>
+        </div>
+        {/* TABLE */}
+        <div className="question-table-wrapper">
+          <ExamClassTable
+              data={filteredData} // ---> SỬA TẠI ĐÂY: Đổ thẳng filteredData vào Bảng
+              onView={handleView}
+              onEdit={handleEdit}
           />
         </div>
 
-        <div className="filter-divider" />
+        {/* PAGINATION */}
+        <AppPagination
+            page={page}
+            size={size}
+            total={total}
+            onChange={(p, s) => {
+              setPage(p);
+              setSize(s);
+            }}
+        />
 
-        {/* SORT */}
-        <Select
-          value={sortClass || undefined}
-          onChange={(value) => setSortClass(value || "")}
-          placeholder="Lọc theo"
-          allowClear
-          style={{ width: 170 }}
-        >
-          <Select.Option value="class">Lớp</Select.Option>
-          <Select.Option value="exam">Số đề thi</Select.Option>
-        </Select>
-      </div>
-      {/* TABLE */}
-      <div className="question-table-wrapper">
-        <ExamClassTable
-          data={paginatedData}
-          onView={handleView}
-          onEdit={handleEdit}
+        <ViewClassDrawer data={viewClass} onClose={() => setViewClass(null)} />
+
+        <EditClassExamModal
+            open={openModal}
+            data={selectedClass}
+            exams={allExams} // Lúc này đã ngậm đủ 14 đề hoặc hơn!
+            onCancel={() => setOpenModal(false)}
+            onSave={handleSave}
         />
       </div>
-
-      {/* PAGINATION */}
-      <AppPagination
-        page={page}
-        size={size}
-        total={total}
-        onChange={(p, s) => {
-          setPage(p);
-          setSize(s);
-        }}
-      />
-
-      <ViewClassDrawer data={viewClass} onClose={() => setViewClass(null)} />
-      <EditClassExamModal
-        open={openModal}
-        data={selectedClass}
-        exams={allExams}
-        onCancel={() => setOpenModal(false)}
-        onSave={handleSave}
-      />
-    </div>
   );
 }
