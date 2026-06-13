@@ -230,7 +230,7 @@ const AICreateExam = () => {
                 <Form form={form} layout="vertical" onFinish={onFinish} initialValues={{ duration: "00:45:00", passScore: 5, examType: "PRACTICE" }}>
 
                     {/* TRƯỜNG NHẬP MÃ ĐỀ THI */}
-                    <Form.Item name="code" label="Mã đề thi" rules={[{ required: true, message: 'Vui lòng nhập mã đề thi!' }]}>
+                    <Form.Item name="examCode" label="Mã đề thi" rules={[{ required: true, message: 'Vui lòng nhập mã đề thi!' }]}>
                         <Input placeholder="VD: AI-TEST-01" />
                     </Form.Item>
 

@@ -298,7 +298,7 @@ const ImportWordExam = () => {
                 <Form form={form} layout="vertical" onFinish={handleFinalSave} initialValues={{ duration: "01:00:00", examType: "PRACTICE", passScore: 5 }}>
 
                     {/* TRƯỜNG NHẬP MÃ ĐỀ THI */}
-                    <Form.Item name="code" label="Mã đề thi" rules={[{ required: true, message: 'Vui lòng nhập mã đề thi!' }]}>
+                    <Form.Item name="examCode" label="Mã đề thi" rules={[{ required: true, message: 'Vui lòng nhập mã đề thi!' }]}>
                         <Input placeholder="VD: TOAN-15-MIN" size="large" />
                     </Form.Item>
 

@@ -136,7 +136,7 @@ const FastCreateExam = () => {
                     <Button icon={<ArrowLeftOutlined />} onClick={() => navigate(-1)}>Quay lại</Button>
                     <Divider type="vertical" />
                     <Title level={4} style={{ margin: 0 }}>
-                        Soạn đề siêu tốc
+                        Soạn đềno
                     </Title>
                 </Space>
 
